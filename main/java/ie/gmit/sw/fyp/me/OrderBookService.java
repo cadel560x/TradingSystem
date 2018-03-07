@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class OrderBookService {
 	private Map<Float, Order> buyQueue;
 	private Map<Float, Order> sellQueue;
-	private BlockingQueue<Match> matchedQueue;
+	private BlockingQueue<Pair> matchedQueue;
 	
 	
 	
@@ -45,7 +45,7 @@ public class OrderBookService {
 		this.sellQueue = sellQueue;
 	}
 	
-	public BlockingQueue<Match> getMatchedQueue() {
+	public BlockingQueue<Pair> getMatchedQueue() {
 		return matchedQueue;
 	}
 
@@ -70,11 +70,17 @@ public class OrderBookService {
 			return notification;
 		}
 		else { 
-			if ( order.orderType.equalsIgnoreCase("buy") ) {
-				buyQueue.put(Float.parseFloat(order.price), order);
+//			if ( order.orderType.equalsIgnoreCase("buy") ) {
+//				buyQueue.put(Float.parseFloat(order.price), order);
+//			}
+//			else {
+//				sellQueue.put(Float.parseFloat(order.price), order);
+//			}
+			if ( order.orderType == PostOrderType.BUY  ) {
+				buyQueue.put(order.price, order);
 			}
 			else {
-				sellQueue.put(Float.parseFloat(order.price), order);
+				sellQueue.put(order.price, order);
 			}
 		}
 		
@@ -91,15 +97,17 @@ public class OrderBookService {
 	
 	private boolean matchOrder(Order order) {
 		TreeMap<Float, Order> queue;
-		Match match;
+		Pair pair;
 		
 		try {
-			if ( order.orderType.equalsIgnoreCase("buy") ) {
+//			if ( order.orderType.equalsIgnoreCase("buy") ) {
+			if ( order.orderType == PostOrderType.BUY ) {
 				queue = ((TreeMap<Float, Order>)sellQueue);
 				Float bestSell = queue.firstKey();
-				if ( bestSell <= Float.parseFloat(order.price) ) {
-					match = new Match(order, queue.get(bestSell));
-					matchedQueue.offer(match);
+//				if ( bestSell <= Float.parseFloat(order.price) ) {
+				if ( bestSell <= order.price ) {
+					pair = new Pair(order, queue.get(bestSell));
+					matchedQueue.offer(pair);
 					
 					queue.remove(bestSell);
 					return true;
@@ -112,9 +120,10 @@ public class OrderBookService {
 				queue = ((TreeMap<Float, Order>)buyQueue);
 				
 				Float bestBuy = queue.lastKey();
-				if ( bestBuy >= Float.parseFloat(order.price) ) {
-					match = new Match(queue.get(bestBuy), order);
-					matchedQueue.offer(match);
+//				if ( bestBuy >= Float.parseFloat(order.price) ) {
+				if ( bestBuy >= order.price ) {
+					pair = new Pair(queue.get(bestBuy), order);
+					matchedQueue.offer(pair);
 					
 					queue.remove(bestBuy);
 					return true;
@@ -124,7 +133,7 @@ public class OrderBookService {
 				}
 			}
 		} catch ( NumberFormatException | NoSuchElementException e ) {
-			System.err.println(e.toString());
+			System.err.println(e.toString() + ": First order created for stock AAPL");
 			return false;
 		}
 		

@@ -2,19 +2,20 @@ package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
 
-public class Match {
+public class Pair {
+//	Fields
 	private Order buyOrder;
 	private Order sellOrder;
 	private Timestamp timestamp;
 	
 	
 	
-	
-	public Match() {
+//	Constructors
+	public Pair() {
 		
 	}
 	
-	public Match(Order buyOrder, Order sellOrder) {
+	public Pair(Order buyOrder, Order sellOrder) {
 		timestamp = new Timestamp(System.currentTimeMillis());
 		this.buyOrder = buyOrder;
 		this.sellOrder = sellOrder;
@@ -23,6 +24,7 @@ public class Match {
 	
 	
 	
+//	Accessors and mutators
 	public Order getBuyOrder() {
 		return buyOrder;
 	}
@@ -43,4 +45,4 @@ public class Match {
 		return timestamp;
 	}
 	
-}
+} // end class Pair

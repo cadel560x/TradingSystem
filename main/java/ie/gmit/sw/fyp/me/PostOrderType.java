@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.me;
 
-public enum OrderType {
+public enum PostOrderType {
 	SELL,
 	BUY;
 }

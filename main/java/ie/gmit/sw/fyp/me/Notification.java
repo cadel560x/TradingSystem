@@ -1,8 +1,13 @@
 package ie.gmit.sw.fyp.me;
 
 public class Notification {
+//	Fields
 	private String message;
 
+	
+	
+	
+//	Constructors
 	public Notification() {
 		
 	}
@@ -11,6 +16,10 @@ public class Notification {
 		this.message = message;
 	}
 
+	
+	
+	
+//	Accessors and mutators
 	public String getMessage() {
 		return message;
 	}
@@ -19,4 +28,4 @@ public class Notification {
 		this.message = message;
 	}
 	
-}
+} // end class Notification
