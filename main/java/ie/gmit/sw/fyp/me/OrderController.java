@@ -18,8 +18,8 @@ public class OrderController {
 	
 	
 	@RequestMapping(method=RequestMethod.POST, value="/AAPL")
-	public Notification addOrder(@RequestBody OrderRequest orderRequest) {
-		return orderBookService.addOrder(orderRequest);
+	public Notification addPostOrder(@RequestBody PostRequest postRequest) {
+		return orderBookService.addPostOrder(postRequest);
 		
 	}
 	

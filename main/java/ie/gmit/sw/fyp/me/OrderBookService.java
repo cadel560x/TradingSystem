@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrderBookService {
+//	Fields
 	private Map<Float, Order> buyQueue;
 	private Map<Float, Order> sellQueue;
 	private BlockingQueue<Pair> matchedQueue;
@@ -20,6 +21,7 @@ public class OrderBookService {
 	
 	
 	
+//	Constructor
 	public OrderBookService() {
 		buyQueue = new TreeMap<>();
 		sellQueue = new TreeMap<>();
@@ -29,6 +31,7 @@ public class OrderBookService {
 
 
 
+//	Accessors and mutators
 	public Map<Float, Order> getBuyQueue() {
 		return buyQueue;
 	}
@@ -52,62 +55,57 @@ public class OrderBookService {
 
 
 
-	public Notification addOrder(OrderRequest orderRequest) {
+//	Methods
+	public Notification addPostOrder(PostRequest postRequest) {
 		Notification notification = new Notification("NACK");
-		Order order;
+		PostOrder postOrder;
 		
-		if (checkOrderRequest(orderRequest)) {
-			order = new Order(orderRequest);
+		
+		if ( postRequest.checkProperties() ) {
+			postOrder = new PostOrder(postRequest);
 		}
 		else {
 			return notification;
 		}
 		
-		if ( matchOrder(order) ) {			
+		if ( matchOrder(postOrder) ) {			
 			
-			notification.setMessage("Order Result=Matched\nOrder UUID: " + order.getOrderId().toString());
+			notification.setMessage("Order Result=Matched\nOrder UUID: " + postOrder.orderProperties.get("Id"));
 			
 			return notification;
 		}
 		else { 
-//			if ( order.orderType.equalsIgnoreCase("buy") ) {
-//				buyQueue.put(Float.parseFloat(order.price), order);
-//			}
-//			else {
-//				sellQueue.put(Float.parseFloat(order.price), order);
-//			}
-			if ( order.orderType == PostOrderType.BUY  ) {
-				buyQueue.put(order.price, order);
+			if ( postOrder.orderProperties.get("type") == PostOrderType.BUY  ) {
+				buyQueue.put((float)postOrder.orderProperties.get("price"), postOrder);
 			}
 			else {
-				sellQueue.put(order.price, order);
+				sellQueue.put((float)postOrder.orderProperties.get("price"), postOrder);
 			}
-		}
+			
+			postOrder.orderProperties.put("status", OrderStatus.ACCEPTED);
+		} // if ( matchOrder(postOrder) )
 		
 		notification.setMessage("ACK");
 		return notification;
 		
-	}
-
-	private boolean checkOrderRequest(OrderRequest orderRequest) {
-		return true;
-		
-	}
+	} // end addPostOrder
 	
 	
-	private boolean matchOrder(Order order) {
+	private boolean matchOrder(PostOrder postOrder) {
 		TreeMap<Float, Order> queue;
 		Pair pair;
 		
 		try {
-//			if ( order.orderType.equalsIgnoreCase("buy") ) {
-			if ( order.orderType == PostOrderType.BUY ) {
+			if ( postOrder.orderProperties.get("type") == PostOrderType.BUY ) {
 				queue = ((TreeMap<Float, Order>)sellQueue);
 				Float bestSell = queue.firstKey();
-//				if ( bestSell <= Float.parseFloat(order.price) ) {
-				if ( bestSell <= order.price ) {
-					pair = new Pair(order, queue.get(bestSell));
+				
+				if ( bestSell <= (float)postOrder.orderProperties.get("price") ) {
+					pair = new Pair(postOrder, queue.get(bestSell));
+					
 					matchedQueue.offer(pair);
+					pair.getBuyOrder().orderProperties.put("status", OrderStatus.MATCHED);
+					pair.getSellOrder().orderProperties.put("status", OrderStatus.MATCHED);
 					
 					queue.remove(bestSell);
 					return true;
@@ -118,12 +116,14 @@ public class OrderBookService {
 			}
 			else {
 				queue = ((TreeMap<Float, Order>)buyQueue);
-				
 				Float bestBuy = queue.lastKey();
-//				if ( bestBuy >= Float.parseFloat(order.price) ) {
-				if ( bestBuy >= order.price ) {
-					pair = new Pair(queue.get(bestBuy), order);
+				
+				if ( bestBuy >= (float)postOrder.orderProperties.get("price") ) {
+					pair = new Pair(queue.get(bestBuy), postOrder);
+					
 					matchedQueue.offer(pair);
+					pair.getSellOrder().orderProperties.put("status", OrderStatus.MATCHED);
+					pair.getBuyOrder().orderProperties.put("status", OrderStatus.MATCHED);
 					
 					queue.remove(bestBuy);
 					return true;
@@ -132,11 +132,11 @@ public class OrderBookService {
 					return false;
 				}
 			}
-		} catch ( NumberFormatException | NoSuchElementException e ) {
-			System.err.println(e.toString() + ": First order created for stock AAPL");
+		} catch ( NoSuchElementException e ) {
+			System.err.println(e.toString() + ": Counter list empty");
 			return false;
 		}
 		
 	}
 	
-}
+} // end class OrderBookService
