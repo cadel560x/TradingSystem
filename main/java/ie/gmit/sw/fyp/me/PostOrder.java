@@ -91,12 +91,13 @@ public class PostOrder extends Order {
 	} // end equals(Object obj)
 	
 	
-//	@Override
-//	public int hashCode() {
+	@Override
+	public int hashCode() {
 //		final int prime = 31;
 //		int result = 1;
 //		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 //		return result;
-//	} // end hashCode()
+		return (int) ((float)orderProperties.get("price") * 10000);
+	} // end hashCode()
 
 } // end class PostOrder

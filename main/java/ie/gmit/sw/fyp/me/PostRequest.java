@@ -1,6 +1,7 @@
 package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
+//import java.text.DecimalFormat;
 //import java.util.ArrayList;
 //import java.util.HashMap;
 //import java.util.List;
@@ -125,7 +126,10 @@ public class PostRequest extends Request {
 		if ( price <= 0 ) {
 			throw new IllegalArgumentException("Invalid price value");
 		}
-		requestProperties.put("price", price);
+//		DecimalFormat df = new DecimalFormat("###.####");
+//		df.format(price);
+		
+		requestProperties.put("price", Float.parseFloat(String.format("%.4f", price)));
 //		this.price = price;
 	}
 
