@@ -1,12 +1,17 @@
 package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
+//import java.util.Map;
+//import java.util.HashMap;
 import java.util.UUID;
 
-public class PostOrder extends Order {
+//import ie.gmit.sw.fyp.order.Order;
+import ie.gmit.sw.fyp.order.OrderStatus;
+//import ie.gmit.sw.fyp.order.Request;
+
+public class PostOrder extends PostRequest {
 //	Fields
-//	private Properties properties;
+//	private Map<String, Object> properties;
 	
 	
 	
@@ -22,10 +27,12 @@ public class PostOrder extends Order {
 //		setTimestamp(new Timestamp(System.currentTimeMillis()));
 //		setStatus(OrderStatus.CREATED);
 		
-		orderProperties = new HashMap<>(postRequest.requestProperties);
-		orderProperties.put("Id", UUID.randomUUID().toString());
-		orderProperties.put("timestamp", new Timestamp(System.currentTimeMillis()));
-		orderProperties.put("status", OrderStatus.CREATED );
+//		properties = new HashMap<>(postRequest.requestProperties);
+		
+		properties = postRequest.getProperties();
+		this.setId( UUID.randomUUID().toString() );
+		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+		this.setStatus(OrderStatus.CREATED );
 //		this.requestProperties = postRequest.requestProperties;
 	}
 	
@@ -33,34 +40,98 @@ public class PostOrder extends Order {
 	
 	
 //	Accessors and mutators
-//	public String getId() {
-//		return orderProperties.getId();
-//	}
-//
-//	public void setId(String Id) {
-//		orderProperties.setId(Id);
-//	}
-//
-//	public Timestamp getTimestamp() {
-//		return orderProperties.getTimestamp();
-//	}
-//
-//	public void setTimestamp(Timestamp timestamp) {
-//		orderProperties.setTimestamp(timestamp);
-//	}
-//
-//	public OrderStatus getStatus() {
-//		return orderProperties.getStatus();
-//	}
-//
-//	public void setStatus(OrderStatus status) {
-//		orderProperties.setStatus(status);
-//	}
+	public String getId() {
+		return (String) properties.get("Id");
+	}
+
+	public void setId(String Id) {
+		properties.put("Id", Id);
+	}
+
+	public Timestamp getTimestamp() {
+		return (Timestamp) properties.get("timestamp");
+	}
+
+	public void setTimestamp(Timestamp timestamp) {
+		properties.put("timestamp", timestamp);
+	}
+
+	public OrderStatus getStatus() {
+		return (OrderStatus) properties.get("status");
+	}
+
+	public void setStatus(OrderStatus status) {
+		properties.put("status", status);
+	}
 
 	
 	
 	
+//	Absctract methods implementation
+//	@Override
+//	public PostRequest getRequest() {
+//		// TODO Auto-generated method stub
+//		return (PostRequest) super.clone();
+//	}
+//
+////	@Override
+//	public void setRequest(Request request) {
+//		// TODO Is it worth it to implement this here???? Should be implemented in the superclass?? Is it used???
+//		this.request = request;
+//	}
+	
+	
+	
+	
 //	Methods
+//	public boolean isBuy() {
+//		return ( this.properties.get("type") == PostOrderType.BUY );
+//		
+//	} // end isBuy()
+//	
+//	
+//	public boolean isSell() {
+//		return ! this.isBuy();
+//		
+//	} // end isSell()
+	
+	
+	public boolean matches(PostOrder other) {
+		// A match is done between two orders of opposite type
+		// Flipflop of PostOrderType to find out if these objects are counter orders.
+//		if ( this.isBuy() == other.isBuy() ) {
+//			return false;
+//		}
+		
+//		Getting the methods from 'request'
+//		PostRequest thisOrder = (PostRequest) this.request;
+		
+		
+		//
+//		if ( ! (boolean)this.properties.get("partialFill") ) {
+		if ( ! this.isPartialFill() ) {
+			// if volumes match ...
+//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
+			if ( this.getVolume() != other.getVolume() ) {
+				return false;
+			}
+			
+		} // end if ( (boolean)this.properties.get("partialFill") )
+		
+		if ( ( this.isBuy() ) && ( this.getPrice() > other.getPrice() ) ) {
+			return false;
+		}
+		else if ( ( this.isSell() ) && ( this.getPrice() > other.getPrice() ) ) {
+			return false;		
+		} // end if ( this.isBuy() ) && ( thisPrice > otherPrice ) - else if ( this.isSell() ) && ( thisPrice < otherPrice )
+		// If we are here is because the prices are equal or better depending on 'this'
+		
+		// Anything else is a match
+		return true;
+		
+	} // end match(PostOrder other) 
+	
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -69,25 +140,23 @@ public class PostOrder extends Order {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		PostOrder other = (PostOrder) obj;
-		if (orderProperties == null) {
-			if (other.orderProperties != null)
+		if (properties == null) {
+			if (other.properties != null)
 				return false;
 		} 
 		else {
-			String thisId = (String) this.orderProperties.get("Id");
-			String otherId = (String) other.orderProperties.get("Id");
-			if (!thisId.equals(otherId)) {
+			if (! this.getId().equals(other.getId()) ) {
 				return false;
 			}
-			Timestamp thisTimestamp = (Timestamp) this.orderProperties.get("timestamp");
-			Timestamp otherTimestamp = (Timestamp) other.orderProperties.get("timestamp");
-			if (!thisTimestamp.equals(otherTimestamp)) {
+
+			if ( ! this.getTimestamp().equals(other.getTimestamp()) ) {
 				return false;
 			}
 		}
-			
 		return true;
+		
 	} // end equals(Object obj)
 	
 	
@@ -97,7 +166,7 @@ public class PostOrder extends Order {
 //		int result = 1;
 //		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 //		return result;
-		return (int) ((float)orderProperties.get("price") * 10000);
+		return (int) this.getPrice() * 10000;
 	} // end hashCode()
 
 } // end class PostOrder

@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.order;
 
 public enum OrderStatus {
 	ERROR,

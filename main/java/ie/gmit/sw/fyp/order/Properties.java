@@ -1,9 +1,12 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.order;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import ie.gmit.sw.fyp.me.PostOrderCondition;
+import ie.gmit.sw.fyp.me.PostOrderType;
 
 public class Properties {
 //	Fields
@@ -95,11 +98,11 @@ public class Properties {
 //		this.orderType = orderType;
 	}
 	
-	public OrderCondition getCondition() {
-		return (OrderCondition) properties.get("condition");
+	public PostOrderCondition getCondition() {
+		return (PostOrderCondition) properties.get("condition");
 	}
 	
-	public void setCondition(OrderCondition condition) {
+	public void setCondition(PostOrderCondition condition) {
 		properties.put("condition", condition);
 //		this.orderClass = orderClass;
 	}

@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.me;
 
-public enum OrderCondition {
+public enum PostOrderCondition {
 	LIMIT,
 	MARKET,
 	STOPLOSS;

@@ -1,15 +1,16 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.order;
 
 //import java.util.HashMap;
-import java.util.Map;
+//import java.util.Map;
 
 //import java.sql.Timestamp;
 //import java.util.UUID;
 
-public abstract class Order {
+public interface Order {
 //	Fields
 //	protected Properties orderProperties = new Properties();
-	protected Map<String, Object> orderProperties;
+//	protected Request request;
+//	protected Map<String, Object> orderProperties;
 //	protected Properties requestProperties;
 
 	
@@ -57,6 +58,17 @@ public abstract class Order {
 //
 //	public Timestamp getTimestamp() {
 //		return timestamp;
+//	}
+	
+//	public abstract Request getRequest();
+//	public Request getRequest()
+//	{
+//		return request;
+//	}
+
+//	public abstract void setRequest(Request request);
+//	public void setRequest(Request request)	{
+//		this.request = request;
 //	}
 	
 	

@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.order;
 
 //import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,8 @@ import java.util.Map;
 public abstract class Request {
 //	Fields
 //	protected Properties requestProperties = new Properties();
-	protected Map<String, Object> requestProperties;
+//	protected Map<String, Object> requestProperties;
+	protected Map<String, Object> properties;
 //	protected String userId;
 //	protected String stockTag;
 

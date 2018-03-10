@@ -8,6 +8,9 @@ import java.sql.Timestamp;
 //import java.util.Map;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+
+import ie.gmit.sw.fyp.order.Request;
 
 //import java.sql.Timestamp;
 
@@ -25,7 +28,7 @@ public class PostRequest extends Request {
 	
 //	Constructors
 	public PostRequest() {
-		requestProperties = new HashMap<>();
+		properties = new HashMap<>();
 	}
 
 //	public PostRequest(String userId, String stockTag, OrderType orderType, OrderClass orderClass, float price,
@@ -44,13 +47,13 @@ public class PostRequest extends Request {
 	
 	
 //	Accesors and mutators
-//	public Map<String, Object> getPostProperties() {
-//		return postProperties;
-//	}
-//
-//	public void setPostProperties(Map<String, Object> postProperties) {
-//		this.postProperties = postProperties;
-//	}
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Object> properties) {
+		this.properties = properties;
+	}
 //	
 //	public OrderType getOrderType() {
 //		return (OrderType) postProperties.get("orderType");
@@ -75,7 +78,7 @@ public class PostRequest extends Request {
 
 //	Delegated methods
 	public String getUserId() {
-		return (String) requestProperties.get("userId");
+		return (String) properties.get("userId");
 	}
 
 	public void setUserId(String userId) {
@@ -83,12 +86,12 @@ public class PostRequest extends Request {
 			throw new IllegalArgumentException("Invalid user Id");
 		}
 		
-		requestProperties.put("userId", userId);
+		properties.put("userId", userId);
 //		this.userId = userId;
 	}
 
 	public String getStockTag() {
-		return (String) requestProperties.get("stockTag");
+		return (String) properties.get("stockTag");
 	}
 
 	public void setStockTag(String stockTag) {
@@ -96,30 +99,41 @@ public class PostRequest extends Request {
 			throw new IllegalArgumentException("Invalid stock tag");
 		}
 		
-		requestProperties.put("stockTag", stockTag);
+		properties.put("stockTag", stockTag);
 //		this.stockTag = stockTag;
 	}
 	
 	public PostOrderType getType() {
-		return (PostOrderType) requestProperties.get("type");
+		return (PostOrderType) properties.get("type");
 	}
 	
 	public void setType(PostOrderType type) {
-		requestProperties.put("type", type);
+		properties.put("type", type);
 //		this.orderType = orderType;
 	}
 	
-	public OrderCondition getCondition() {
-		return (OrderCondition) requestProperties.get("condition");
+	public boolean isBuy() {
+		return ( properties.get("type") == PostOrderType.BUY );
+		
+	} // end isBuy()
+	
+	
+	public boolean isSell() {
+		return ! this.isBuy();
+		
+	} // end isSell()
+	
+	public PostOrderCondition getCondition() {
+		return (PostOrderCondition) properties.get("condition");
 	}
 	
-	public void setCondition(OrderCondition condition) {
-		requestProperties.put("condition", condition);
+	public void setCondition(PostOrderCondition condition) {
+		properties.put("condition", condition);
 //		this.orderClass = orderClass;
 	}
 	
 	public float getPrice() {
-		return (float) requestProperties.get("price");
+		return (float) properties.get("price");
 	}
 
 	public void setPrice(float price) {
@@ -129,40 +143,40 @@ public class PostRequest extends Request {
 //		DecimalFormat df = new DecimalFormat("###.####");
 //		df.format(price);
 		
-		requestProperties.put("price", Float.parseFloat(String.format("%.4f", price)));
+		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
 //		this.price = price;
 	}
 
 	public int getVolume() {
-		return (int) requestProperties.get("volume");
+		return (int) properties.get("volume");
 	}
 
 	public void setVolume(int volume) {
 		if ( volume <= 0 ) {
 			throw new IllegalArgumentException("Invalid volume value");
 		}
-		requestProperties.put("volume", volume);
+		properties.put("volume", volume);
 //		this.volume = volume;
 	}
 
 	public boolean isPartialFill() {
-		return (boolean) requestProperties.get("partialFill");
+		return (boolean) properties.get("partialFill");
 	}
 
 	public void setPartialFill(boolean partialFill) {
 //		this.partialFill = partialFill;
-		requestProperties.put("partialFill", partialFill);
+		properties.put("partialFill", partialFill);
 	}
 
 	public Timestamp getExpirationTime() {
-		return (Timestamp) requestProperties.get("expirationTime");
+		return (Timestamp) properties.get("expirationTime");
 	}
 
 	public void setExpirationTime(Timestamp expirationTime) {
 		if ( expirationTime.before(new Date()) ) {
 			throw new IllegalStateException("Expiration time older than current time");
 		}
-		requestProperties.put("expirationTime", expirationTime);
+		properties.put("expirationTime", expirationTime);
 //		this.expirationTime = expirationTime;
 	}
 	
@@ -184,7 +198,7 @@ public class PostRequest extends Request {
 		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
 		
 		for ( String postProperty: postProperties ) {
-			if ( ! requestProperties.containsKey(postProperty) ) {
+			if ( ! properties.containsKey(postProperty) ) {
 				return false;
 			}
 			
