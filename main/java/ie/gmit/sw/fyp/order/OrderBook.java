@@ -1,10 +1,15 @@
 package ie.gmit.sw.fyp.order;
 
+//import java.util.ArrayList;
+//import java.util.LinkedList;
+//import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 //import java.util.NoSuchElementException;
 //import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -19,18 +24,18 @@ import ie.gmit.sw.fyp.me.PostOrder;
 public class OrderBook {
 //	Fields
 	private String stockTag;
-	private Map<Float, PostOrder> buyQueue;
-	private Map<Float, PostOrder> sellQueue;
+	private Map<Float, Queue<PostOrder>> buyOrders;
+	private Map<Float, Queue<PostOrder>> sellOrders;
 	private BlockingQueue<Match> matchedQueue;
 	
 	
 	
 	
 //	Constructor
-	public OrderBook(String stockTag) {
+	public OrderBook(String stockTag) {		
 		this.stockTag = stockTag;
-		buyQueue = new ConcurrentSkipListMap<>();
-		sellQueue = new ConcurrentSkipListMap<>();
+		buyOrders = new ConcurrentSkipListMap<>();
+		sellOrders = new ConcurrentSkipListMap<>();
 		matchedQueue = new LinkedBlockingQueue<>();
 	}
 
@@ -46,20 +51,20 @@ public class OrderBook {
 		this.stockTag = stockTag;
 	}
 	
-	public Map<Float, PostOrder> getBuyQueue() {
-		return buyQueue;
+	public Map<Float, Queue<PostOrder>> getBuyOrders() {
+		return buyOrders;
 	}
 
-	public void setBuyQueue(Map<Float, PostOrder> buyQueue) {
-		this.buyQueue = buyQueue;
+	public void setBuyOrders(Map<Float, Queue<PostOrder>> buyOrders) {
+		this.buyOrders = buyOrders;
 	}
 
-	public Map<Float, PostOrder> getSellQueue() {
-		return sellQueue;
+	public Map<Float, Queue<PostOrder>> getSellOrders() {
+		return sellOrders;
 	}
 
-	public void setSellQueue(Map<Float, PostOrder> sellQueue) {
-		this.sellQueue = sellQueue;
+	public void setSellOrders(Map<Float, Queue<PostOrder>> sellOrders) {
+		this.sellOrders = sellOrders;
 	}
 	
 	public BlockingQueue<Match> getMatchedQueue() {
@@ -71,54 +76,62 @@ public class OrderBook {
 
 //	Methods
 	public void place(PostOrder postOrder) {
-		ConcurrentSkipListMap<Float, PostOrder> queue;
+		ConcurrentSkipListMap<Float, Queue<PostOrder>> queue;
 		
 		if ( postOrder.isBuy() ) {
-			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.buyQueue;
+			queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
+			
 		}
 		else {
-			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.sellQueue;
+			queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
 		}
 		
 		postOrder.setStatus(OrderStatus.ACCEPTED);
-		queue.put(postOrder.getPrice(), postOrder);
+		
+		Queue<PostOrder> nodeOrders = queue.get(postOrder.getPrice());
+		if ( queue.get(postOrder.getPrice()) == null ) {
+			nodeOrders = new ConcurrentLinkedQueue<>();
+		}
+		nodeOrders.offer(postOrder);
+		
+		queue.put(postOrder.getPrice(), nodeOrders);
 		
 		
 	} // end place(PostOrder postOrder)
 	
 	
 	public boolean matchOrder(PostOrder postOrder) {
-		ConcurrentSkipListMap<Float, PostOrder> offerQueue;
+		ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders;
 //		ConcurrentSkipListMap<Float, PostOrder> queue;
-		Entry<Float, PostOrder> bestOfferEntry;
+		Entry<Float, Queue<PostOrder>> bestOfferEntry;
 		PostOrder bestOffer = null;
 		Match match;
 		
 		//
 		if ( postOrder.isBuy() ) {
-			offerQueue = (ConcurrentSkipListMap<Float, PostOrder>) this.sellQueue;
+			offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
 //			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.buyQueue;
-			bestOfferEntry = offerQueue.firstEntry();
+			bestOfferEntry = offerOrders.firstEntry();
 			
 		}
 		else {
-			offerQueue = (ConcurrentSkipListMap<Float, PostOrder>) this.buyQueue;
+			offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
 //			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.sellQueue;
-			bestOfferEntry = offerQueue.lastEntry();
+			bestOfferEntry = offerOrders.lastEntry();
 		} // if - else ( postOrder.isBuy() )
 		
 		if ( bestOfferEntry == null ) {
-			StringBuilder queueType = new StringBuilder("BUY");
+			StringBuilder collectionType = new StringBuilder("BUY");
 			
-			if ( offerQueue == this.sellQueue ) {
-				queueType.setLength(0);
-				queueType.append("SELL");
+			if ( offerOrders == this.sellOrders ) {
+				collectionType.setLength(0);
+				collectionType.append("SELL");
 			}
-			System.err.println("Offering " + queueType + " queue in stock market " + stockTag + " is empty." );
+			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
 			
 			return false;
 		}
-		bestOffer = bestOfferEntry.getValue();
+		bestOffer = bestOfferEntry.getValue().peek();
 		
 //		try {
 //			bestOffer = bestOfferEntry.getValue();
@@ -143,7 +156,13 @@ public class OrderBook {
 			//
 			// TODO Change this for an Observable?? (Notification engine as a subscriber?)
 			matchedQueue.offer(match);
-			offerQueue.remove(bestOfferEntry.getKey());
+			
+			if ( bestOfferEntry.getValue().isEmpty() ) {
+				offerOrders.remove(bestOfferEntry.getKey());
+			}
+			else {
+				bestOfferEntry.getValue().poll();
+			}
 			
 			return true;
 		} // end if ( bestOffer.matches(postOrder) )
