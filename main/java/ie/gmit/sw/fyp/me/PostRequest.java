@@ -1,35 +1,34 @@
 package ie.gmit.sw.fyp.me;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
 //import java.text.DecimalFormat;
 //import java.util.ArrayList;
 //import java.util.HashMap;
 //import java.util.List;
 //import java.util.Map;
-import java.util.Date;
-import java.util.HashMap;
+//import java.util.Date;
+//import java.util.HashMap;
 import java.util.Map;
 
 import ie.gmit.sw.fyp.order.Request;
 
-//import java.sql.Timestamp;
 
 
 
-
-public class PostRequest extends Request {
+//public abstract class PostRequest extends Request {
+public abstract class PostRequest implements Request {
 //	Fields
 //	protected PostProperties postProperties;
 //	private Map<String, Object> postProperties;
-//	private OrderProperties properties;
+	protected Map<String, Object> properties;
 	
 	
 	
 	
 //	Constructors
-	public PostRequest() {
-		properties = new HashMap<>();
-	}
+//	public PostRequest() {
+//		properties = new HashMap<>();
+//	}
 
 //	public PostRequest(String userId, String stockTag, OrderType orderType, OrderClass orderClass, float price,
 //			int volume, boolean partialFill, Timestamp expirationTime) {
@@ -87,7 +86,6 @@ public class PostRequest extends Request {
 		}
 		
 		properties.put("userId", userId);
-//		this.userId = userId;
 	}
 
 	public String getStockTag() {
@@ -100,7 +98,6 @@ public class PostRequest extends Request {
 		}
 		
 		properties.put("stockTag", stockTag);
-//		this.stockTag = stockTag;
 	}
 	
 	public PostOrderType getType() {
@@ -109,19 +106,7 @@ public class PostRequest extends Request {
 	
 	public void setType(PostOrderType type) {
 		properties.put("type", type);
-//		this.orderType = orderType;
 	}
-	
-	public boolean isBuy() {
-		return ( properties.get("type") == PostOrderType.BUY );
-		
-	} // end isBuy()
-	
-	
-	public boolean isSell() {
-		return ! this.isBuy();
-		
-	} // end isSell()
 	
 	public PostOrderCondition getCondition() {
 		return (PostOrderCondition) properties.get("condition");
@@ -129,7 +114,6 @@ public class PostRequest extends Request {
 	
 	public void setCondition(PostOrderCondition condition) {
 		properties.put("condition", condition);
-//		this.orderClass = orderClass;
 	}
 	
 	public float getPrice() {
@@ -144,7 +128,6 @@ public class PostRequest extends Request {
 //		df.format(price);
 		
 		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
-//		this.price = price;
 	}
 
 	public int getVolume() {
@@ -156,7 +139,6 @@ public class PostRequest extends Request {
 			throw new IllegalArgumentException("Invalid volume value");
 		}
 		properties.put("volume", volume);
-//		this.volume = volume;
 	}
 
 	public boolean isPartialFill() {
@@ -164,67 +146,68 @@ public class PostRequest extends Request {
 	}
 
 	public void setPartialFill(boolean partialFill) {
-//		this.partialFill = partialFill;
 		properties.put("partialFill", partialFill);
 	}
 
-	public Timestamp getExpirationTime() {
-		return (Timestamp) properties.get("expirationTime");
-	}
-
-	public void setExpirationTime(Timestamp expirationTime) {
-		if ( expirationTime.before(new Date()) ) {
-			throw new IllegalStateException("Expiration time older than current time");
-		}
-		properties.put("expirationTime", expirationTime);
-//		this.expirationTime = expirationTime;
-	}
+//	public Timestamp getExpirationTime() {
+//		return (Timestamp) properties.get("expirationTime");
+//	}
+//
+//	public void setExpirationTime(Timestamp expirationTime) {
+//		if ( expirationTime.before(new Date()) ) {
+//			throw new IllegalStateException("Expiration time older than current time");
+//		}
+//		properties.put("expirationTime", expirationTime);
+////		this.expirationTime = expirationTime;
+//	}
+	
 	
 	
 	
 //	Methods
-	@Override
-	public boolean checkProperties() {
-//		List<String> postProperties = new ArrayList<>();
-//		postProperties.add("userId");
-//		postProperties.add("stockTag");
-//		postProperties.add("type");
-//		postProperties.add("condition");
-//		postProperties.add("price");
-//		postProperties.add("volume");
-//		postProperties.add("partialFill");
-//		postProperties.add("expirationTime");
-		
-		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
-		
-		for ( String postProperty: postProperties ) {
-			if ( ! properties.containsKey(postProperty) ) {
-				return false;
-			}
-			
-//			Object value = getProperty(key);
-//			
-//			if ( key.equals("price") || key.equals("volume") ) {
-//				if ( (Float)value == 0 ) {
-//					System.err.println("Invalid integer or float value");
-//					return false;
-//				}
+//	@Override
+//	public boolean checkProperties() {
+//		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
+//		
+//		for ( String postProperty: postProperties ) {
+//			if ( ! properties.containsKey(postProperty) ) {
+//				return false;
 //			}
-//			else {
-//				if ( value == null ) {
-//					System.err.println("Invalid value");
-//					return false;
-//				}
-//			} // if ( key.equals("price") || key.equals("volume") ) - else
+//			
+////			Object value = getProperty(key);
+////			
+////			if ( key.equals("price") || key.equals("volume") ) {
+////				if ( (Float)value == 0 ) {
+////					System.err.println("Invalid integer or float value");
+////					return false;
+////				}
+////			}
+////			else {
+////				if ( value == null ) {
+////					System.err.println("Invalid value");
+////					return false;
+////				}
+////			} // if ( key.equals("price") || key.equals("volume") ) - else
+//		
+//		} // end for
+//	
+//	return true;
+//	
+//	} // end checkProperties
+	
+	
+	public boolean isBuy() {
+		return ( properties.get("type") == PostOrderType.BUY );
 		
-		} // end for
+	} // end isBuy()
 	
-	return true;
+	public boolean isSell() {
+		return ! this.isBuy();
+		
+	} // end isSell()
 	
-	} // end checkProperties
 	
-	
-	private boolean checkStockTag(String stockTag) {
+	protected boolean checkStockTag(String stockTag) {
 //		TODO Implement a real stockTag checker. Using another service maybe?
 		if ( stockTag.equals("AAPL") ) {
 			return true;
@@ -236,7 +219,7 @@ public class PostRequest extends Request {
 	} // end checkStockTag(String stockTag)
 	
 	
-	private boolean checkUserId(String userId) {
+	protected boolean checkUserId(String userId) {
 		// TODO Implement a real userId checker. Using another service maybe?
 		if ( userId.equals("dfgjkaga9") ) {
 			return true;

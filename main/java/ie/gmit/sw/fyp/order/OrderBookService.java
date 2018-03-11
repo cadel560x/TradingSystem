@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 //import org.springframework.web.bind.annotation.PathVariable;
 
+import ie.gmit.sw.fyp.me.MatchOrder;
 import ie.gmit.sw.fyp.me.PostOrder;
 //import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
@@ -53,7 +54,7 @@ public class OrderBookService {
 		
 		//
 		OrderBook orderBook = orderBooks.get(stockTag);
-		if ( orderBook == null ) {
+		if ( orderBook == null || ! orderBook.getStockTag().equals(postRequest.getStockTag()) ) {
 			notification.updateMessage("Invalid stock market");
 			
 			return notification;
@@ -61,9 +62,11 @@ public class OrderBookService {
 		
 		//
 		if ( postRequest.checkProperties() ) {
-			postOrder = new PostOrder(postRequest);
+			// Factory pattern
+			postOrder = orderBook.createOrder(postRequest);
+//			postOrder = new PostOrder(postRequest);
 			
-			notification.setMessage("ACCEPTED: OrderId " + postOrder.getId());
+			notification.setMessage("ACCEPTED: OrderId " + (postOrder).getId());
 		}
 		else {
 			notification.updateMessage("Invalid request");
@@ -72,13 +75,20 @@ public class OrderBookService {
 		}
 		
 		
-		
+		//
 		if ( orderBook.matchOrder(postOrder) ) {
 			notification.updateMessage("\nMATCHED");
 			
 			return notification;
 		}
 		else {
+			// TODO Remove this! Use an Observable for notifications
+			if ( postOrder instanceof MatchOrder ) {
+				notification.setMessage("\nNOT MATCHED");
+				
+				return notification;
+			}
+			
 			orderBook.place(postOrder);
 			
 		} // if ( matchOrder(postOrder) )

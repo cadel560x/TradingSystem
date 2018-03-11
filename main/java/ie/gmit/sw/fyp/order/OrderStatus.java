@@ -6,5 +6,6 @@ public enum OrderStatus {
 	ACCEPTED,
 	REJECTED,
 	UNKNOWN,
-	MATCHED;
+	MATCHED,
+	PARTIALLYMATCHED
 }

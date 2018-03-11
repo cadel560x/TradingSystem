@@ -2,14 +2,14 @@ package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
 //import java.util.Map;
-//import java.util.HashMap;
+import java.util.HashMap;
 import java.util.UUID;
 
-//import ie.gmit.sw.fyp.order.Order;
+import ie.gmit.sw.fyp.order.Order;
 import ie.gmit.sw.fyp.order.OrderStatus;
 //import ie.gmit.sw.fyp.order.Request;
 
-public class PostOrder extends PostRequest {
+public abstract class PostOrder extends PostRequest implements Order {
 //	Fields
 //	private Map<String, Object> properties;
 	
@@ -19,6 +19,9 @@ public class PostOrder extends PostRequest {
 //	Constructors
 	public PostOrder() {
 //		super();
+		this.setId( UUID.randomUUID().toString() );
+		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+		this.setStatus(OrderStatus.CREATED );
 	}
 
 	public PostOrder(PostRequest postRequest) {
@@ -34,6 +37,11 @@ public class PostOrder extends PostRequest {
 		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
 		this.setStatus(OrderStatus.CREATED );
 //		this.requestProperties = postRequest.requestProperties;
+	}
+	
+	public PostOrder(PostOrder postOrder) {
+		this.properties = new HashMap<>(postOrder.getProperties());
+
 	}
 	
 	
@@ -80,6 +88,12 @@ public class PostOrder extends PostRequest {
 //		this.request = request;
 //	}
 	
+	@Override
+	public final boolean checkProperties() {
+		// Stop inheritance of this abstract method that comes from interface 'Request'
+		return false;
+	}
+	
 	
 	
 	
@@ -95,7 +109,7 @@ public class PostOrder extends PostRequest {
 //		
 //	} // end isSell()
 	
-	
+
 	public boolean matches(PostOrder other) {
 		// A match is done between two orders of opposite type
 		// Flipflop of PostOrderType to find out if these objects are counter orders.
@@ -150,10 +164,19 @@ public class PostOrder extends PostRequest {
 			if (! this.getId().equals(other.getId()) ) {
 				return false;
 			}
-
-			if ( ! this.getTimestamp().equals(other.getTimestamp()) ) {
+			
+			if (! this.getUserId().equals(other.getUserId()) ) {
 				return false;
 			}
+
+			if ( this.getType() != other.getType() ) {
+				return false;
+			}
+			
+			if (! this.getStockTag().equals(other.getStockTag())) {
+				return false;
+			}
+			
 		}
 		return true;
 		
@@ -167,6 +190,7 @@ public class PostOrder extends PostRequest {
 //		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 //		return result;
 		return (int) this.getPrice() * 10000;
+		
 	} // end hashCode()
 
 } // end class PostOrder
