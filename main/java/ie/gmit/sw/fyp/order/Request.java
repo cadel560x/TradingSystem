@@ -23,7 +23,7 @@ public interface Request {
 	
 
 //	Abstract Methods
-	public boolean checkProperties();
+//	public boolean checkProperties();
 //	{
 //		return checkUserId(getUserId()) && checkStockTag(getStockTag());
 //		
@@ -40,5 +40,7 @@ public interface Request {
 	public String getStockTag();
 
 	public void setStockTag(String stockTag);
+
+	boolean checkProperties(Iterable<String> propertiesList);
 	
 } // end abstract class Request

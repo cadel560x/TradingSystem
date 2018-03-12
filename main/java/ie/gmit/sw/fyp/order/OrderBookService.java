@@ -60,21 +60,33 @@ public class OrderBookService {
 			return notification;
 		}
 		
-		postRequest = orderBook.createRequest(postRequest);
-		
-		//
-		if ( postRequest.checkProperties() ) {
-			// Factory pattern
-			postOrder = orderBook.createOrder(postRequest);
-//			postOrder = new PostOrder(postRequest);
-			
-			notification.setMessage("ACCEPTED: OrderId " + (postOrder).getId());
-		}
-		else {
-			notification.updateMessage("Invalid request");
+		try {
+			// Calling a factory pattern
+			postRequest = orderBook.createRequest(postRequest);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+			notification.updateMessage(e.getMessage());
 			
 			return notification;
-		}
+			
+		} // try - catch (InstantiationException e)
+		
+		//
+//		if ( postRequest.checkProperties() ) {
+			// Calling a factory pattern
+		
+		postOrder = orderBook.createOrder(postRequest);
+			
+//			postOrder = new PostOrder(postRequest);
+			
+		notification.setMessage("ACCEPTED: OrderId " + (postOrder).getId());
+			
+//		}
+//		else {
+//			notification.updateMessage("Invalid request");
+//			
+//			return notification;
+//		}
 		
 		
 		//

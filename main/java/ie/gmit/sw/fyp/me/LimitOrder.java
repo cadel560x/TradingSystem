@@ -24,7 +24,8 @@ public class LimitOrder extends PostOrder {
 //		this.setStatus(OrderStatus.CREATED );
 	}
 
-	public LimitOrder(LimitRequest limitRequest) {
+//	public LimitOrder(LimitRequest limitRequest) {
+	public LimitOrder(PostRequest limitRequest) {
 		super(limitRequest);
 //		setId(UUID.randomUUID().toString());
 //		setTimestamp(new Timestamp(System.currentTimeMillis()));

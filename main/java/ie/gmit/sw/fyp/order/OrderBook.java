@@ -33,6 +33,10 @@ public class OrderBook {
 	private String stockTag;
 	private Map<Float, Queue<PostOrder>> buyOrders;
 	private Map<Float, Queue<PostOrder>> sellOrders;
+	
+	private Map<Float, Queue<PostOrder>> buyStopLoss;
+	private Map<Float, Queue<PostOrder>> sellStopLoss;
+	
 	private BlockingQueue<Match> matchedQueue;
 	
 	
@@ -74,6 +78,31 @@ public class OrderBook {
 		this.sellOrders = sellOrders;
 	}
 	
+	public Map<Float, Queue<PostOrder>> getBuyStopLoss() {
+		return buyStopLoss;
+	}
+
+	public void setBuyStopLoss(Map<Float, Queue<PostOrder>> buyStopLoss) {
+		this.buyStopLoss = buyStopLoss;
+	}
+
+
+
+
+	public Map<Float, Queue<PostOrder>> getSellStopLoss() {
+		return sellStopLoss;
+	}
+
+
+
+
+	public void setSellStopLoss(Map<Float, Queue<PostOrder>> sellStopLoss) {
+		this.sellStopLoss = sellStopLoss;
+	}
+
+
+
+
 	public BlockingQueue<Match> getMatchedQueue() {
 		return matchedQueue;
 	}
@@ -82,24 +111,28 @@ public class OrderBook {
 
 
 //	Methods
-	public PostRequest createRequest(PostRequest postRequest) {
+	public PostRequest createRequest(PostRequest postRequest) throws InstantiationException {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
 		
 		// Factory pattern
 		switch(postRequest.getCondition()) {
 			case STOPLOSS:
-				postRequest = new StopLossRequest(postRequest);
+//				postRequest = new StopLossRequest(postRequest);
 				listProperties.addAll(Arrays.asList("expirationTime", "stopPrice"));
 				break;
 			case LIMIT:
-				postRequest = new LimitRequest(postRequest);
+//				postRequest = new LimitRequest(postRequest);
 				listProperties.add("expirationTime");
 				break;
 			case MARKET:
-				postRequest = new MarketRequest(postRequest);
+//				postRequest = new MarketRequest(postRequest);
 				break;
 		} // end switch
-		postRequest.setPropertiesList(listProperties);
+//		postRequest.setPropertiesList(listProperties);
+		
+		if ( ! postRequest.checkProperties(listProperties) ) {
+			throw new InstantiationException("Invalid request properties");
+		}
 		
 		return postRequest;
 		
@@ -110,15 +143,27 @@ public class OrderBook {
 		PostOrder postOrder = null;
 		
 		// Factory pattern
-		if ( postRequest instanceof MarketRequest ) {
+//		if ( postRequest instanceof MarketRequest ) {
+//			postOrder = new MarketOrder(postRequest);
+//		}
+//		else if ( postRequest instanceof LimitRequest ) {
+//			postOrder = new LimitOrder(postRequest);
+//		}
+//		else if ( postRequest instanceof StopLossRequest ) {
+//			postOrder = new StopLossOrder(postRequest);
+//		}
+		
+		switch(postRequest.getCondition()) {
+		case STOPLOSS:
+			postOrder = new StopLossOrder(postRequest);
+			break;
+		case LIMIT:
+			postOrder = new LimitOrder(postRequest);
+			break;
+		case MARKET:
 			postOrder = new MarketOrder(postRequest);
-		}
-		else if ( postRequest instanceof LimitRequest ) {
-			postOrder = new LimitOrder((LimitRequest)postRequest);
-		}
-		else if ( postRequest instanceof StopLossRequest ) {
-			postOrder = new StopLossOrder((StopLossRequest)postRequest);
-		}
+			break;
+		} // end switch
 		
 		return postOrder;
 		
@@ -152,7 +197,7 @@ public class OrderBook {
 //		return postOrder;
 		return otherPostOrder;
 		
-	} // end createOrder(PostRequest postRequest)
+	} // end createOrder(PostOrder otherPostOrder)
 	
 	
 	public void place(PostOrder postOrder) {
@@ -180,6 +225,7 @@ public class OrderBook {
 			
 			if ( postOrder instanceof StopLossOrder ) {
 				// Do StopLossOrder stuff...
+				ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
 			}
 			
 		} // end if ( !(postOrder instanceof MatchOrder) )

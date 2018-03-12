@@ -23,7 +23,7 @@ public class MarketOrder extends PostOrder {
 //		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
 //		this.setStatus(OrderStatus.CREATED );
 	}
-
+	
 	public MarketOrder(PostRequest marketRequest) {
 		super(marketRequest);
 //		setId(UUID.randomUUID().toString());

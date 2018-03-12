@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 //import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List;
 import java.util.Date;
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class PostRequest implements Request {
 //	protected PostProperties postProperties;
 //	private Map<String, Object> postProperties;
 	protected Map<String, Object> properties;
-	protected List<String> propertiesList;
+//	private List<String> propertiesList;
 	
 	
 	
@@ -56,13 +56,13 @@ public class PostRequest implements Request {
 		this.properties = properties;
 	}
 	
-	public List<String> getPropertiesList() {
-		return propertiesList;
-	}
-
-	public void setPropertiesList(List<String> propertiesList) {
-		this.propertiesList = propertiesList;
-	}
+//	public List<String> getPropertiesList() {
+//		return propertiesList;
+//	}
+//
+//	public void setPropertiesList(List<String> propertiesList) {
+//		this.propertiesList = propertiesList;
+//	}
 
 	
 
@@ -174,7 +174,7 @@ public class PostRequest implements Request {
 	
 //	Methods
 	@Override
-	public boolean checkProperties() {
+	public boolean checkProperties(Iterable<String> propertiesList) {
 //		List<String> postProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
 //		String [] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill"};
 

@@ -3,6 +3,7 @@ package ie.gmit.sw.fyp.me;
 import java.sql.Timestamp;
 //import java.util.Map;
 import java.util.HashMap;
+//import java.util.List;
 import java.util.UUID;
 
 import ie.gmit.sw.fyp.order.Order;
@@ -15,13 +16,14 @@ public abstract class PostOrder extends PostRequest implements Order {
 	
 	
 	
-	
 //	Constructors
 	public PostOrder() {
 //		super();
-		this.setId( UUID.randomUUID().toString() );
-		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
-		this.setStatus(OrderStatus.CREATED );
+//		this.setId( UUID.randomUUID().toString() );
+//		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+//		this.setStatus(OrderStatus.CREATED );
+		
+		initOrder();
 	}
 
 	public PostOrder(PostRequest postRequest) {
@@ -33,10 +35,12 @@ public abstract class PostOrder extends PostRequest implements Order {
 //		properties = new HashMap<>(postRequest.requestProperties);
 		
 		properties = postRequest.getProperties();
-		this.setId( UUID.randomUUID().toString() );
-		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
-		this.setStatus(OrderStatus.CREATED );
+//		this.setId( UUID.randomUUID().toString() );
+//		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+//		this.setStatus(OrderStatus.CREATED );
 //		this.requestProperties = postRequest.requestProperties;
+		
+		initOrder();
 	}
 	
 	public PostOrder(PostOrder postOrder) {
@@ -89,7 +93,7 @@ public abstract class PostOrder extends PostRequest implements Order {
 //	}
 	
 	@Override
-	public final boolean checkProperties() {
+	public final boolean checkProperties(Iterable<String> propertiesList) {
 		// Stop inheritance of this method that comes from 'PostRequest'
 		return false;
 	}
@@ -98,6 +102,14 @@ public abstract class PostOrder extends PostRequest implements Order {
 	
 	
 //	Methods
+	public void initOrder() {
+		this.setId( UUID.randomUUID().toString() );
+		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+		this.setStatus(OrderStatus.CREATED );
+		
+	} // end initOrder
+	
+	
 //	public boolean isBuy() {
 //		return ( this.properties.get("type") == PostOrderType.BUY );
 //		

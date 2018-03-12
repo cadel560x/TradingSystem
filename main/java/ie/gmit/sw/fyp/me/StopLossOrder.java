@@ -23,8 +23,9 @@ public class StopLossOrder extends LimitOrder {
 //		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
 //		this.setStatus(OrderStatus.CREATED );
 	}
-
-	public StopLossOrder(StopLossRequest stopLossRequest) {
+	
+//	public StopLossOrder(StopLossRequest stopLossRequest) {
+	public StopLossOrder(PostRequest stopLossRequest) {
 		super(stopLossRequest);
 //		setId(UUID.randomUUID().toString());
 //		setTimestamp(new Timestamp(System.currentTimeMillis()));
