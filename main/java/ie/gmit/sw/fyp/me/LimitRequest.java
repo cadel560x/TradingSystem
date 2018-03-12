@@ -1,12 +1,12 @@
 package ie.gmit.sw.fyp.me;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
 //import java.text.DecimalFormat;
 //import java.util.ArrayList;
 //import java.util.HashMap;
 //import java.util.List;
 //import java.util.Map;
-import java.util.Date;
+//import java.util.Date;
 
 //import ie.gmit.sw.fyp.order.Request;
 
@@ -24,7 +24,11 @@ public class LimitRequest extends PostRequest {
 	
 //	Constructors
 	public LimitRequest() {
-		super();
+//		properties = new HashMap<>();
+	}
+	
+	public LimitRequest(PostRequest postRequest) {
+		this.properties = postRequest.properties;
 	}
 
 //	public PostRequest(String userId, String stockTag, OrderType orderType, OrderClass orderClass, float price,
@@ -48,49 +52,49 @@ public class LimitRequest extends PostRequest {
 
 
 //	Delegated methods
-	public Timestamp getExpirationTime() {
-		return (Timestamp) properties.get("expirationTime");
-	}
-
-	public void setExpirationTime(Timestamp expirationTime) {
-		if ( expirationTime.before(new Date()) ) {
-			throw new IllegalStateException("Expiration time older than current time");
-		}
-		properties.put("expirationTime", expirationTime);
-//		this.expirationTime = expirationTime;
-	}
+//	public Timestamp getExpirationTime() {
+//		return (Timestamp) properties.get("expirationTime");
+//	}
+//
+//	public void setExpirationTime(Timestamp expirationTime) {
+//		if ( expirationTime.before(new Date()) ) {
+//			throw new IllegalStateException("Expiration time older than current time");
+//		}
+//		properties.put("expirationTime", expirationTime);
+////		this.expirationTime = expirationTime;
+//	}
 	
 	
 	
 //	Methods
-	@Override
-	public boolean checkProperties() {
-		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
-		
-		for ( String postProperty: postProperties ) {
-			if ( ! properties.containsKey(postProperty) ) {
-				return false;
-			}
-			
-//			Object value = getProperty(key);
-//			
-//			if ( key.equals("price") || key.equals("volume") ) {
-//				if ( (Float)value == 0 ) {
-//					System.err.println("Invalid integer or float value");
-//					return false;
-//				}
+//	@Override
+//	public boolean checkProperties() {
+//		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
+//		
+//		for ( String postProperty: postProperties ) {
+//			if ( ! properties.containsKey(postProperty) ) {
+//				return false;
 //			}
-//			else {
-//				if ( value == null ) {
-//					System.err.println("Invalid value");
-//					return false;
-//				}
-//			} // if ( key.equals("price") || key.equals("volume") ) - else
-		
-		} // end for
-	
-	return true;
-	
-	} // end checkProperties
+//			
+////			Object value = getProperty(key);
+////			
+////			if ( key.equals("price") || key.equals("volume") ) {
+////				if ( (Float)value == 0 ) {
+////					System.err.println("Invalid integer or float value");
+////					return false;
+////				}
+////			}
+////			else {
+////				if ( value == null ) {
+////					System.err.println("Invalid value");
+////					return false;
+////				}
+////			} // if ( key.equals("price") || key.equals("volume") ) - else
+//		
+//		} // end for
+//	
+//	return true;
+//	
+//	} // end checkProperties
 
 } // end class PostOrderRequest

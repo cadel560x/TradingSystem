@@ -90,7 +90,7 @@ public abstract class PostOrder extends PostRequest implements Order {
 	
 	@Override
 	public final boolean checkProperties() {
-		// Stop inheritance of this abstract method that comes from interface 'Request'
+		// Stop inheritance of this method that comes from 'PostRequest'
 		return false;
 	}
 	

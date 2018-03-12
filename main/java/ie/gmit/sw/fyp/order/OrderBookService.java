@@ -11,7 +11,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 //import org.springframework.web.bind.annotation.PathVariable;
 
-import ie.gmit.sw.fyp.me.MatchOrder;
+import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostOrder;
 //import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
@@ -60,6 +60,8 @@ public class OrderBookService {
 			return notification;
 		}
 		
+		postRequest = orderBook.createRequest(postRequest);
+		
 		//
 		if ( postRequest.checkProperties() ) {
 			// Factory pattern
@@ -83,7 +85,7 @@ public class OrderBookService {
 		}
 		else {
 			// TODO Remove this! Use an Observable for notifications
-			if ( postOrder instanceof MatchOrder ) {
+			if ( postOrder instanceof MarketOrder ) {
 				notification.setMessage("\nNOT MATCHED");
 				
 				return notification;

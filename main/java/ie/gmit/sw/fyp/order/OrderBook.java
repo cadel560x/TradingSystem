@@ -1,8 +1,9 @@
 package ie.gmit.sw.fyp.order;
 
-//import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.Arrays;
 //import java.util.LinkedList;
-//import java.util.List;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -16,8 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.LimitRequest;
 import ie.gmit.sw.fyp.me.Match;
-import ie.gmit.sw.fyp.me.MatchOrder;
-import ie.gmit.sw.fyp.me.MatchRequest;
+import ie.gmit.sw.fyp.me.MarketOrder;
+import ie.gmit.sw.fyp.me.MarketRequest;
 import ie.gmit.sw.fyp.me.PostOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 //import ie.gmit.sw.fyp.notification.Notification;
@@ -81,12 +82,36 @@ public class OrderBook {
 
 
 //	Methods
+	public PostRequest createRequest(PostRequest postRequest) {
+		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
+		
+		// Factory pattern
+		switch(postRequest.getCondition()) {
+			case STOPLOSS:
+				postRequest = new StopLossRequest(postRequest);
+				listProperties.addAll(Arrays.asList("expirationTime", "stopPrice"));
+				break;
+			case LIMIT:
+				postRequest = new LimitRequest(postRequest);
+				listProperties.add("expirationTime");
+				break;
+			case MARKET:
+				postRequest = new MarketRequest(postRequest);
+				break;
+		} // end switch
+		postRequest.setPropertiesList(listProperties);
+		
+		return postRequest;
+		
+	} // PostRequest
+	
+	
 	public PostOrder createOrder(PostRequest postRequest) {
 		PostOrder postOrder = null;
 		
 		// Factory pattern
-		if ( postRequest instanceof MatchRequest ) {
-			postOrder = new MatchOrder((MatchRequest)postRequest);
+		if ( postRequest instanceof MarketRequest ) {
+			postOrder = new MarketOrder(postRequest);
 		}
 		else if ( postRequest instanceof LimitRequest ) {
 			postOrder = new LimitOrder((LimitRequest)postRequest);
@@ -101,20 +126,31 @@ public class OrderBook {
 	
 	
 	public PostOrder createOrder(PostOrder otherPostOrder) {
-		PostOrder postOrder = null;
+//		PostOrder postOrder = null;
 		
 		// Factory pattern
-		if ( otherPostOrder instanceof MatchOrder ) {
-			postOrder = new MatchOrder((MatchOrder)otherPostOrder);
+		if ( otherPostOrder instanceof MarketOrder ) {
+			otherPostOrder = new MarketOrder((MarketOrder)otherPostOrder);
 		}
 		else if ( otherPostOrder instanceof LimitOrder ) {
-			postOrder = new LimitOrder((LimitOrder)otherPostOrder);
+			otherPostOrder = new LimitOrder((LimitOrder)otherPostOrder);
 		}
 		else if ( otherPostOrder instanceof StopLossOrder ) {
-			postOrder = new StopLossOrder((StopLossOrder)otherPostOrder);
+			otherPostOrder = new StopLossOrder((StopLossOrder)otherPostOrder);
 		}
 		
-		return postOrder;
+//		if ( otherPostOrder instanceof MatchOrder ) {
+//			postOrder = new MatchOrder((MatchOrder)otherPostOrder);
+//		}
+//		else if ( otherPostOrder instanceof LimitOrder ) {
+//			postOrder = new LimitOrder((LimitOrder)otherPostOrder);
+//		}
+//		else if ( otherPostOrder instanceof StopLossOrder ) {
+//			postOrder = new StopLossOrder((StopLossOrder)otherPostOrder);
+//		}
+		
+//		return postOrder;
+		return otherPostOrder;
 		
 	} // end createOrder(PostRequest postRequest)
 	
@@ -123,7 +159,7 @@ public class OrderBook {
 		ConcurrentSkipListMap<Float, Queue<PostOrder>> queue;
 		
 		// MatchOrder are not placed
-		if ( !(postOrder instanceof MatchOrder) ) {
+		if ( !(postOrder instanceof MarketOrder) ) {
 			if ( postOrder.isBuy() ) {
 				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
 				

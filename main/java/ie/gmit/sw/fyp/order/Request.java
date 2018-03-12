@@ -1,5 +1,7 @@
 package ie.gmit.sw.fyp.order;
 
+import java.util.Map;
+
 //import java.util.HashMap;
 //import java.util.Map;
 
@@ -21,10 +23,22 @@ public interface Request {
 	
 
 //	Abstract Methods
-	public abstract boolean checkProperties();
+	public boolean checkProperties();
 //	{
 //		return checkUserId(getUserId()) && checkStockTag(getStockTag());
 //		
 //	} // end checkRequestProperties()
+	
+	public Map<String, Object> getProperties();
+
+	public void setProperties(Map<String, Object> properties);
+	
+	public String getUserId();
+
+	public void setUserId(String userId);
+
+	public String getStockTag();
+
+	public void setStockTag(String stockTag);
 	
 } // end abstract class Request

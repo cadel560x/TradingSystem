@@ -1,13 +1,12 @@
 package ie.gmit.sw.fyp.me;
 
-//import java.sql.Timestamp;
+import java.sql.Timestamp;
 //import java.text.DecimalFormat;
 //import java.util.ArrayList;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.Date;
-//import java.util.HashMap;
+//import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Date;
 import java.util.Map;
 
 import ie.gmit.sw.fyp.order.Request;
@@ -16,19 +15,20 @@ import ie.gmit.sw.fyp.order.Request;
 
 
 //public abstract class PostRequest extends Request {
-public abstract class PostRequest implements Request {
+public class PostRequest implements Request {
 //	Fields
 //	protected PostProperties postProperties;
 //	private Map<String, Object> postProperties;
 	protected Map<String, Object> properties;
+	protected List<String> propertiesList;
 	
 	
 	
 	
 //	Constructors
-//	public PostRequest() {
-//		properties = new HashMap<>();
-//	}
+	public PostRequest() {
+		properties = new HashMap<>();
+	}
 
 //	public PostRequest(String userId, String stockTag, OrderType orderType, OrderClass orderClass, float price,
 //			int volume, boolean partialFill, Timestamp expirationTime) {
@@ -46,40 +46,34 @@ public abstract class PostRequest implements Request {
 	
 	
 //	Accesors and mutators
+	@Override
 	public Map<String, Object> getProperties() {
 		return properties;
 	}
-
+	
+	@Override
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
-//	
-//	public OrderType getOrderType() {
-//		return (OrderType) postProperties.get("orderType");
-//	}
-//	
-//	public void setOrderType(OrderType orderType) {
-//		postProperties.put("orderType", orderType);
-////		this.orderType = orderType;
-//	}
-//	
-//	public OrderClass getOrderClass() {
-//		return (OrderClass) postProperties.get("orderClass");
-//	}
-//	
-//	public void setOrderClass(OrderClass orderClass) {
-//		postProperties.put("orderClass", orderClass);
-////		this.orderClass = orderClass;
-//	}
+	
+	public List<String> getPropertiesList() {
+		return propertiesList;
+	}
+
+	public void setPropertiesList(List<String> propertiesList) {
+		this.propertiesList = propertiesList;
+	}
 
 	
 
 
-//	Delegated methods
+	//	Delegated methods
+	@Override
 	public String getUserId() {
 		return (String) properties.get("userId");
 	}
 
+	@Override
 	public void setUserId(String userId) {
 		if ( ! checkUserId(userId) ) {
 			throw new IllegalArgumentException("Invalid user Id");
@@ -88,10 +82,12 @@ public abstract class PostRequest implements Request {
 		properties.put("userId", userId);
 	}
 
+	@Override
 	public String getStockTag() {
 		return (String) properties.get("stockTag");
 	}
 
+	@Override
 	public void setStockTag(String stockTag) {
 		if ( ! checkStockTag(stockTag) ) {
 			throw new IllegalArgumentException("Invalid stock tag");
@@ -149,51 +145,74 @@ public abstract class PostRequest implements Request {
 		properties.put("partialFill", partialFill);
 	}
 
-//	public Timestamp getExpirationTime() {
-//		return (Timestamp) properties.get("expirationTime");
-//	}
-//
-//	public void setExpirationTime(Timestamp expirationTime) {
-//		if ( expirationTime.before(new Date()) ) {
-//			throw new IllegalStateException("Expiration time older than current time");
-//		}
-//		properties.put("expirationTime", expirationTime);
-////		this.expirationTime = expirationTime;
-//	}
+	public Timestamp getExpirationTime() {
+		return (Timestamp) properties.get("expirationTime");
+	}
+
+	public void setExpirationTime(Timestamp expirationTime) {
+		if ( expirationTime.before(new Date()) ) {
+			throw new IllegalStateException("Expiration time older than current time");
+		}
+		properties.put("expirationTime", expirationTime);
+//		this.expirationTime = expirationTime;
+	}
+	
+	public float getStopPrice() {
+		return (float) properties.get("stopPrice");
+	}
+	
+	public void setStopPrice(float stopPrice) {
+		if ( stopPrice <= 0 ) {
+			throw new IllegalArgumentException("Invalid price value");
+		}
+		
+		properties.put("stopPrice", stopPrice);
+	}
 	
 	
 	
 	
 //	Methods
-//	@Override
-//	public boolean checkProperties() {
-//		String[] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill", "expirationTime"};
-//		
-//		for ( String postProperty: postProperties ) {
-//			if ( ! properties.containsKey(postProperty) ) {
-//				return false;
-//			}
+	@Override
+	public boolean checkProperties() {
+//		List<String> postProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
+//		String [] postProperties = {"userId", "stockTag", "type", "condition", "price", "volume", "partialFill"};
+
+//		switch(this.getCondition()) {
+//			case STOPLOSS:
+//				postProperties.add("stopPrice");
+//			case LIMIT:
+//				postProperties.add("expirationTime");
+//				break;
+//			case MARKET:
+//				break;
+//		} // end switch
+		
+		for ( String postProperty: propertiesList ) {
+			if ( ! properties.containsKey(postProperty) ) {
+				return false;
+			}
+			
+//			Object value = getProperty(key);
 //			
-////			Object value = getProperty(key);
-////			
-////			if ( key.equals("price") || key.equals("volume") ) {
-////				if ( (Float)value == 0 ) {
-////					System.err.println("Invalid integer or float value");
-////					return false;
-////				}
-////			}
-////			else {
-////				if ( value == null ) {
-////					System.err.println("Invalid value");
-////					return false;
-////				}
-////			} // if ( key.equals("price") || key.equals("volume") ) - else
-//		
-//		} // end for
-//	
-//	return true;
-//	
-//	} // end checkProperties
+//			if ( key.equals("price") || key.equals("volume") ) {
+//				if ( (Float)value == 0 ) {
+//					System.err.println("Invalid integer or float value");
+//					return false;
+//				}
+//			}
+//			else {
+//				if ( value == null ) {
+//					System.err.println("Invalid value");
+//					return false;
+//				}
+//			} // if ( key.equals("price") || key.equals("volume") ) - else
+		
+		} // end for
+	
+	return true;
+	
+	} // end checkProperties
 	
 	
 	public boolean isBuy() {

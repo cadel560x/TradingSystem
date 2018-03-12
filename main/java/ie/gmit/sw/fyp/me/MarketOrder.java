@@ -9,7 +9,7 @@ package ie.gmit.sw.fyp.me;
 //import ie.gmit.sw.fyp.order.OrderStatus;
 //import ie.gmit.sw.fyp.order.Request;
 
-public class MatchOrder extends PostOrder {
+public class MarketOrder extends PostOrder {
 //	Fields
 //	private Map<String, Object> properties;
 	
@@ -17,15 +17,15 @@ public class MatchOrder extends PostOrder {
 	
 	
 //	Constructors
-	public MatchOrder() {
+	public MarketOrder() {
 		super();
 //		this.setId( UUID.randomUUID().toString() );
 //		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
 //		this.setStatus(OrderStatus.CREATED );
 	}
 
-	public MatchOrder(MatchRequest matchRequest) {
-		super(matchRequest);
+	public MarketOrder(PostRequest marketRequest) {
+		super(marketRequest);
 //		setId(UUID.randomUUID().toString());
 //		setTimestamp(new Timestamp(System.currentTimeMillis()));
 //		setStatus(OrderStatus.CREATED);
@@ -39,7 +39,7 @@ public class MatchOrder extends PostOrder {
 //		this.requestProperties = postRequest.requestProperties;
 	}
 	
-	public MatchOrder(PostOrder postOrder) {
+	public MarketOrder(PostOrder postOrder) {
 		super(postOrder);
 //		this.properties = new HashMap<>(postOrder.getProperties());
 
