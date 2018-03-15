@@ -10,20 +10,16 @@ import java.util.Queue;
 //import java.util.NoSuchElementException;
 //import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
-import ie.gmit.sw.fyp.me.LimitRequest;
 import ie.gmit.sw.fyp.me.Match;
 import ie.gmit.sw.fyp.me.MarketOrder;
-import ie.gmit.sw.fyp.me.MarketRequest;
-import ie.gmit.sw.fyp.me.PostOrder;
+//import ie.gmit.sw.fyp.me.PostOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 //import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.me.StopLossOrder;
-import ie.gmit.sw.fyp.me.StopLossRequest;
 
 
 
@@ -31,11 +27,11 @@ import ie.gmit.sw.fyp.me.StopLossRequest;
 public class OrderBook {
 //	Fields
 	private String stockTag;
-	private Map<Float, Queue<PostOrder>> buyOrders;
-	private Map<Float, Queue<PostOrder>> sellOrders;
+	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
+	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
 	
-	private Map<Float, Queue<PostOrder>> buyStopLoss;
-	private Map<Float, Queue<PostOrder>> sellStopLoss;
+	private Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
+	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
 	
 	private BlockingQueue<Match> matchedQueue;
 	
@@ -45,8 +41,12 @@ public class OrderBook {
 //	Constructor
 	public OrderBook(String stockTag) {		
 		this.stockTag = stockTag;
-		buyOrders = new ConcurrentSkipListMap<>();
-		sellOrders = new ConcurrentSkipListMap<>();
+		buyLimitOrders = new ConcurrentSkipListMap<>();
+		sellLimitOrders = new ConcurrentSkipListMap<>();
+		
+		buyStopLossOrders = new ConcurrentSkipListMap<>();
+		sellStopLossOrders = new ConcurrentSkipListMap<>();
+		
 		matchedQueue = new LinkedBlockingQueue<>();
 	}
 
@@ -62,46 +62,37 @@ public class OrderBook {
 		this.stockTag = stockTag;
 	}
 	
-	public Map<Float, Queue<PostOrder>> getBuyOrders() {
-		return buyOrders;
+	public Map<Float, Queue<LimitOrder>> getBuyLimitOrders() {
+		return buyLimitOrders;
 	}
 
-	public void setBuyOrders(Map<Float, Queue<PostOrder>> buyOrders) {
-		this.buyOrders = buyOrders;
+	public void setBuyLimitOrders(Map<Float, Queue<LimitOrder>> buyLimitOrders) {
+		this.buyLimitOrders = buyLimitOrders;
 	}
 
-	public Map<Float, Queue<PostOrder>> getSellOrders() {
-		return sellOrders;
+	public Map<Float, Queue<LimitOrder>> getSellLimitOrders() {
+		return sellLimitOrders;
 	}
 
-	public void setSellOrders(Map<Float, Queue<PostOrder>> sellOrders) {
-		this.sellOrders = sellOrders;
+	public void setSellLimitOrders(Map<Float, Queue<LimitOrder>> sellLimitOrders) {
+		this.sellLimitOrders = sellLimitOrders;
 	}
 	
-	public Map<Float, Queue<PostOrder>> getBuyStopLoss() {
-		return buyStopLoss;
+	public Map<Float, Queue<StopLossOrder>> getBuyStopLoss() {
+		return buyStopLossOrders;
 	}
 
-	public void setBuyStopLoss(Map<Float, Queue<PostOrder>> buyStopLoss) {
-		this.buyStopLoss = buyStopLoss;
+	public void setBuyStopLoss(Map<Float, Queue<StopLossOrder>> buyStopLossOrders) {
+		this.buyStopLossOrders = buyStopLossOrders;
 	}
 
-
-
-
-	public Map<Float, Queue<PostOrder>> getSellStopLoss() {
-		return sellStopLoss;
+	public Map<Float, Queue<StopLossOrder>> getSellStopLoss() {
+		return sellStopLossOrders;
 	}
 
-
-
-
-	public void setSellStopLoss(Map<Float, Queue<PostOrder>> sellStopLoss) {
-		this.sellStopLoss = sellStopLoss;
+	public void setSellStopLoss(Map<Float, Queue<StopLossOrder>> sellStopLossOrders) {
+		this.sellStopLossOrders = sellStopLossOrders;
 	}
-
-
-
 
 	public BlockingQueue<Match> getMatchedQueue() {
 		return matchedQueue;
@@ -111,24 +102,19 @@ public class OrderBook {
 
 
 //	Methods
-	public PostRequest createRequest(PostRequest postRequest) throws InstantiationException {
+	public PostRequest checkRequest(PostRequest postRequest) throws InstantiationException {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
 		
 		// Factory pattern
 		switch(postRequest.getCondition()) {
 			case STOPLOSS:
-//				postRequest = new StopLossRequest(postRequest);
-				listProperties.addAll(Arrays.asList("expirationTime", "stopPrice"));
-				break;
+				listProperties.add("stopPrice");
 			case LIMIT:
-//				postRequest = new LimitRequest(postRequest);
 				listProperties.add("expirationTime");
 				break;
 			case MARKET:
-//				postRequest = new MarketRequest(postRequest);
 				break;
 		} // end switch
-//		postRequest.setPropertiesList(listProperties);
 		
 		if ( ! postRequest.checkProperties(listProperties) ) {
 			throw new InstantiationException("Invalid request properties");
@@ -139,113 +125,88 @@ public class OrderBook {
 	} // PostRequest
 	
 	
-	public PostOrder createOrder(PostRequest postRequest) {
-		PostOrder postOrder = null;
+	public MarketOrder createOrder(PostRequest postRequest) {
+		MarketOrder marketOrder = null;
 		
-		// Factory pattern
-//		if ( postRequest instanceof MarketRequest ) {
-//			postOrder = new MarketOrder(postRequest);
-//		}
-//		else if ( postRequest instanceof LimitRequest ) {
-//			postOrder = new LimitOrder(postRequest);
-//		}
-//		else if ( postRequest instanceof StopLossRequest ) {
-//			postOrder = new StopLossOrder(postRequest);
-//		}
-		
+		// Factory pattern		
 		switch(postRequest.getCondition()) {
 		case STOPLOSS:
-			postOrder = new StopLossOrder(postRequest);
+			marketOrder = new StopLossOrder(postRequest);
 			break;
 		case LIMIT:
-			postOrder = new LimitOrder(postRequest);
+			marketOrder = new LimitOrder(postRequest);
 			break;
 		case MARKET:
-			postOrder = new MarketOrder(postRequest);
+			marketOrder = new MarketOrder(postRequest);
 			break;
 		} // end switch
 		
-		return postOrder;
+		return marketOrder;
 		
 	} // end createOrder(PostRequest postRequest)
 	
 	
-	public PostOrder createOrder(PostOrder otherPostOrder) {
+	public MarketOrder createOrder(MarketOrder otherMarketOrder) {
 //		PostOrder postOrder = null;
 		
 		// Factory pattern
-		if ( otherPostOrder instanceof MarketOrder ) {
-			otherPostOrder = new MarketOrder((MarketOrder)otherPostOrder);
+		if ( otherMarketOrder instanceof MarketOrder ) {
+			otherMarketOrder = new MarketOrder(otherMarketOrder);
 		}
-		else if ( otherPostOrder instanceof LimitOrder ) {
-			otherPostOrder = new LimitOrder((LimitOrder)otherPostOrder);
+		else if ( otherMarketOrder instanceof LimitOrder ) {
+			otherMarketOrder = new LimitOrder((LimitOrder)otherMarketOrder);
 		}
-		else if ( otherPostOrder instanceof StopLossOrder ) {
-			otherPostOrder = new StopLossOrder((StopLossOrder)otherPostOrder);
+		else if ( otherMarketOrder instanceof StopLossOrder ) {
+			otherMarketOrder = new StopLossOrder((StopLossOrder)otherMarketOrder);
 		}
 		
-//		if ( otherPostOrder instanceof MatchOrder ) {
-//			postOrder = new MatchOrder((MatchOrder)otherPostOrder);
-//		}
-//		else if ( otherPostOrder instanceof LimitOrder ) {
-//			postOrder = new LimitOrder((LimitOrder)otherPostOrder);
-//		}
-//		else if ( otherPostOrder instanceof StopLossOrder ) {
-//			postOrder = new StopLossOrder((StopLossOrder)otherPostOrder);
-//		}
-		
-//		return postOrder;
-		return otherPostOrder;
+		return otherMarketOrder;
 		
 	} // end createOrder(PostOrder otherPostOrder)
 	
 	
-	public void place(PostOrder postOrder) {
-		ConcurrentSkipListMap<Float, Queue<PostOrder>> queue;
-		
-		// MatchOrder are not placed
-		if ( !(postOrder instanceof MarketOrder) ) {
-			if ( postOrder.isBuy() ) {
-				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-				
-			}
-			else {
-				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
-			}
-			
-			postOrder.setStatus(OrderStatus.ACCEPTED);
-			
-			Queue<PostOrder> nodeOrders = queue.get(postOrder.getPrice());
-			if ( queue.get(postOrder.getPrice()) == null ) {
-				nodeOrders = new ConcurrentLinkedQueue<>();
-			}
-			nodeOrders.offer(postOrder);
-			
-			queue.put(postOrder.getPrice(), nodeOrders);
-			
-			if ( postOrder instanceof StopLossOrder ) {
-				// Do StopLossOrder stuff...
-				ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-			}
-			
-		} // end if ( !(postOrder instanceof MatchOrder) )
-		
-	} // end place(PostOrder postOrder)
+//	public void place(PostOrder postOrder) {
+//		ConcurrentSkipListMap<Float, Queue<PostOrder>> queue;
+//		
+//		// MatchOrder are not placed
+//		if ( !(postOrder instanceof MarketOrder) ) {
+//			if ( postOrder.isBuy() ) {
+//				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
+//				
+//			}
+//			else {
+//				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
+//			}
+//			
+//			postOrder.setStatus(OrderStatus.ACCEPTED);
+//			
+//			Queue<PostOrder> nodeOrders = queue.get(postOrder.getPrice());
+//			if ( queue.get(postOrder.getPrice()) == null ) {
+//				nodeOrders = new ConcurrentLinkedQueue<>();
+//			}
+//			nodeOrders.offer(postOrder);
+//			
+//			queue.put(postOrder.getPrice(), nodeOrders);
+//			
+//			if ( postOrder instanceof StopLossOrder ) {
+//				// Do StopLossOrder stuff...
+//				ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
+//			}
+//			
+//		} // end if ( !(postOrder instanceof MatchOrder) )
+//		
+//	} // end place(PostOrder postOrder)
 	
 	
-	public boolean matchOrder(PostOrder postOrder) {
-		ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-//		ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders;
-//		ConcurrentSkipListMap<Float, PostOrder> queue;
-		Entry<Float, Queue<PostOrder>> bestOfferEntry = offerOrders.lastEntry();
-//		Entry<Float, Queue<PostOrder>> bestOfferEntry;
-//		PostOrder bestOffer = bestOfferEntry.getValue().peek();
-		PostOrder bestOffer;
+	public boolean matchOrder(MarketOrder marketOrder) {
+		ConcurrentSkipListMap<Float, Queue<LimitOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.buyLimitOrders;
+		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
+		MarketOrder bestOffer;
 		Match match;
 		
 		//
-		if ( postOrder.isBuy() ) {
-			offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
+		if ( marketOrder.isBuy() ) {
+			offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.sellLimitOrders;
 //			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.buyQueue;
 			bestOfferEntry = offerOrders.firstEntry();
 			
@@ -259,7 +220,7 @@ public class OrderBook {
 		if ( bestOfferEntry == null ) {
 			StringBuilder collectionType = new StringBuilder("BUY");
 			
-			if ( offerOrders == this.sellOrders ) {
+			if ( offerOrders == this.sellLimitOrders ) {
 				collectionType.setLength(0);
 				collectionType.append("SELL");
 			}
@@ -283,27 +244,28 @@ public class OrderBook {
 //		}
 		
 		//
-		if ( bestOffer.matches(postOrder) ) {
-			postOrder.setStatus(OrderStatus.MATCHED);
+		if ( marketOrder.matches(bestOffer) ) {
+			marketOrder.setStatus(OrderStatus.MATCHED);
 			bestOffer.setStatus(OrderStatus.MATCHED);
 			
-			match = new Match(postOrder, bestOffer);
+			match = new Match(marketOrder, bestOffer);
 			
 			// A way to say that 'postOrder' and 'bestOffer' don't have the same volume of shares
-			if ( postOrder.getVolume() != match.getFilledShares() && bestOffer.getVolume() != match.getFilledShares() ) {
-				PostOrder spawnPostOrder = null;
+			if ( marketOrder.getVolume() != match.getFilledShares() && bestOffer.getVolume() != match.getFilledShares() ) {
+				MarketOrder spawnPostOrder = null;
 				
-				if ( postOrder.getVolume() > bestOffer.getVolume() ) {
-					postOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
-					spawnPostOrder = this.createOrder(postOrder);
+				if ( marketOrder.getVolume() > bestOffer.getVolume() ) {
+					marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
+					spawnPostOrder = this.createOrder(marketOrder);
 				}
-				else if ( postOrder.getVolume() < bestOffer.getVolume() ) {
+				else if ( marketOrder.getVolume() < bestOffer.getVolume() ) {
 					bestOffer.setStatus(OrderStatus.PARTIALLYMATCHED);
 					spawnPostOrder = this.createOrder(bestOffer);
 				}
 				//
 				spawnPostOrder.setVolume(match.getFilledShares());
-				this.place(spawnPostOrder);
+//				this.place(spawnPostOrder);
+				spawnPostOrder.attachTo(this);
 				match.setVolumes();
 				
 			} // end if ( postOrder.getVolume() != match.getFilledShares() && bestOffer.getVolume() != match.getFilledShares() )

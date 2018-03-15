@@ -9,8 +9,8 @@ import java.util.UUID;
 public class Match {
 //	Fields
 	private String Id;
-	private PostOrder sellOrder;
-	private PostOrder buyOrder;
+	private MarketOrder sellOrder;
+	private MarketOrder buyOrder;
 	private Timestamp timestamp;
 	private int filledShares;
 	
@@ -22,7 +22,7 @@ public class Match {
 		this.Id = UUID.randomUUID().toString();
 	}
 	
-	public Match(PostOrder postOrder1, PostOrder postOrder2) {
+	public Match(MarketOrder postOrder1, MarketOrder postOrder2) {
 		this.timestamp = new Timestamp(System.currentTimeMillis());
 		this.Id = UUID.randomUUID().toString();
 		
@@ -47,19 +47,19 @@ public class Match {
 		return Id;
 	}
 	
-	public PostOrder getSellOrder() {
+	public MarketOrder getSellOrder() {
 		return sellOrder;
 	}
 	
-	public void setSellOrder(PostOrder sellOrder) {
+	public void setSellOrder(MarketOrder sellOrder) {
 		this.sellOrder = sellOrder;
 	}
 	
-	public void setBuyOrder(PostOrder buyOrder) {
+	public void setBuyOrder(MarketOrder buyOrder) {
 		this.buyOrder = buyOrder;
 	}
 	
-	public PostOrder getBuyOrder() {
+	public MarketOrder getBuyOrder() {
 		return buyOrder;
 	}
 	

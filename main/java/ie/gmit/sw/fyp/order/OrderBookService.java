@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 //import org.springframework.web.bind.annotation.PathVariable;
 
 import ie.gmit.sw.fyp.me.MarketOrder;
-import ie.gmit.sw.fyp.me.PostOrder;
+//import ie.gmit.sw.fyp.me.PostOrder;
 //import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
@@ -50,7 +50,7 @@ public class OrderBookService {
 	
 	public Notification addPostOrder(String stockTag, PostRequest postRequest) {
 		Notification notification = new Notification("REJECTED: ");
-		PostOrder postOrder;
+		MarketOrder marketOrder;
 		
 		//
 		OrderBook orderBook = orderBooks.get(stockTag);
@@ -62,7 +62,7 @@ public class OrderBookService {
 		
 		try {
 			// Calling a factory pattern
-			postRequest = orderBook.createRequest(postRequest);
+			postRequest = orderBook.checkRequest(postRequest);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 			notification.updateMessage(e.getMessage());
@@ -73,13 +73,13 @@ public class OrderBookService {
 		
 		//
 //		if ( postRequest.checkProperties() ) {
-			// Calling a factory pattern
 		
-		postOrder = orderBook.createOrder(postRequest);
+		// Calling a factory pattern
+		marketOrder = orderBook.createOrder(postRequest);
 			
 //			postOrder = new PostOrder(postRequest);
 			
-		notification.setMessage("ACCEPTED: OrderId " + (postOrder).getId());
+		notification.setMessage("ACCEPTED: OrderId " + (marketOrder).getId());
 			
 //		}
 //		else {
@@ -90,20 +90,21 @@ public class OrderBookService {
 		
 		
 		//
-		if ( orderBook.matchOrder(postOrder) ) {
+		if ( orderBook.matchOrder(marketOrder) ) {
 			notification.updateMessage("\nMATCHED");
 			
 			return notification;
 		}
 		else {
 			// TODO Remove this! Use an Observable for notifications
-			if ( postOrder instanceof MarketOrder ) {
-				notification.setMessage("\nNOT MATCHED");
-				
-				return notification;
-			}
-			
-			orderBook.place(postOrder);
+//			if ( marketOrder instanceof MarketOrder ) {
+//				notification.setMessage("\nNOT MATCHED");
+//				
+//				return notification;
+//			}
+//			
+//			orderBook.place(marketOrder);
+			marketOrder.attachTo(orderBook);
 			
 		} // if ( matchOrder(postOrder) )
 		
