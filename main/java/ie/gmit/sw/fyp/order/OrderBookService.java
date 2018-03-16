@@ -1,19 +1,10 @@
 package ie.gmit.sw.fyp.order;
 
 import java.util.HashMap;
-//import java.util.List;
 import java.util.Map;
-//import java.util.NoSuchElementException;
-//import java.util.TreeMap;
-//import java.util.concurrent.BlockingQueue;
-//import java.util.concurrent.LinkedBlockingQueue;
-
 import org.springframework.stereotype.Service;
-//import org.springframework.web.bind.annotation.PathVariable;
 
 import ie.gmit.sw.fyp.me.MarketOrder;
-//import ie.gmit.sw.fyp.me.PostOrder;
-//import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
 
@@ -70,24 +61,9 @@ public class OrderBookService {
 			return notification;
 			
 		} // try - catch (InstantiationException e)
-		
-		//
-//		if ( postRequest.checkProperties() ) {
-		
-		// Calling a factory pattern
+
 		marketOrder = orderBook.createOrder(postRequest);
-			
-//			postOrder = new PostOrder(postRequest);
-			
 		notification.setMessage("ACCEPTED: OrderId " + (marketOrder).getId());
-			
-//		}
-//		else {
-//			notification.updateMessage("Invalid request");
-//			
-//			return notification;
-//		}
-		
 		
 		//
 		if ( orderBook.matchOrder(marketOrder) ) {
@@ -97,13 +73,6 @@ public class OrderBookService {
 		}
 		else {
 			// TODO Remove this! Use an Observable for notifications
-//			if ( marketOrder instanceof MarketOrder ) {
-//				notification.setMessage("\nNOT MATCHED");
-//				
-//				return notification;
-//			}
-//			
-//			orderBook.place(marketOrder);
 			marketOrder.attachTo(orderBook);
 			
 		} // if ( matchOrder(postOrder) )

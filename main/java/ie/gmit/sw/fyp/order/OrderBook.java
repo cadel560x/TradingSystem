@@ -2,13 +2,10 @@ package ie.gmit.sw.fyp.order;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-//import java.util.NoSuchElementException;
-//import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,9 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.Match;
 import ie.gmit.sw.fyp.me.MarketOrder;
-//import ie.gmit.sw.fyp.me.PostOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
-//import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.me.StopLossOrder;
 
 
@@ -165,39 +160,6 @@ public class OrderBook {
 	} // end createOrder(PostOrder otherPostOrder)
 	
 	
-//	public void place(PostOrder postOrder) {
-//		ConcurrentSkipListMap<Float, Queue<PostOrder>> queue;
-//		
-//		// MatchOrder are not placed
-//		if ( !(postOrder instanceof MarketOrder) ) {
-//			if ( postOrder.isBuy() ) {
-//				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-//				
-//			}
-//			else {
-//				queue = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.sellOrders;
-//			}
-//			
-//			postOrder.setStatus(OrderStatus.ACCEPTED);
-//			
-//			Queue<PostOrder> nodeOrders = queue.get(postOrder.getPrice());
-//			if ( queue.get(postOrder.getPrice()) == null ) {
-//				nodeOrders = new ConcurrentLinkedQueue<>();
-//			}
-//			nodeOrders.offer(postOrder);
-//			
-//			queue.put(postOrder.getPrice(), nodeOrders);
-//			
-//			if ( postOrder instanceof StopLossOrder ) {
-//				// Do StopLossOrder stuff...
-//				ConcurrentSkipListMap<Float, Queue<PostOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-//			}
-//			
-//		} // end if ( !(postOrder instanceof MatchOrder) )
-//		
-//	} // end place(PostOrder postOrder)
-	
-	
 	public boolean matchOrder(MarketOrder marketOrder) {
 		ConcurrentSkipListMap<Float, Queue<LimitOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.buyLimitOrders;
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
@@ -207,15 +169,8 @@ public class OrderBook {
 		//
 		if ( marketOrder.isBuy() ) {
 			offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.sellLimitOrders;
-//			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.buyQueue;
-			bestOfferEntry = offerOrders.firstEntry();
-			
+			bestOfferEntry = offerOrders.firstEntry();	
 		}
-//		else {
-//			offerOrders = (ConcurrentSkipListMap<Float, Queue<PostOrder>>) this.buyOrders;
-////			queue = (ConcurrentSkipListMap<Float, PostOrder>) this.sellQueue;
-//			bestOfferEntry = offerOrders.lastEntry();
-//		} // if - else ( postOrder.isBuy() )
 		
 		if ( bestOfferEntry == null ) {
 			StringBuilder collectionType = new StringBuilder("BUY");
@@ -230,18 +185,6 @@ public class OrderBook {
 		}
 		bestOffer = bestOfferEntry.getValue().peek();
 		
-//		try {
-//			bestOffer = bestOfferEntry.getValue();
-//		} catch (Exception e) {
-//			StringBuilder queueType = new StringBuilder("BUY");
-//			
-//			if ( offerQueue == this.sellQueue ) {
-//				queueType.setLength(0);
-//				queueType.append("SELL");
-//			}
-//			
-//			System.err.println(e.toString() + ": Offering " + queueType + " queue in stock market " + stockTag + " is empty." );
-//		}
 		
 		//
 		if ( marketOrder.matches(bestOffer) ) {
@@ -264,7 +207,6 @@ public class OrderBook {
 				}
 				//
 				spawnPostOrder.setVolume(match.getFilledShares());
-//				this.place(spawnPostOrder);
 				spawnPostOrder.attachTo(this);
 				match.setVolumes();
 				
@@ -280,9 +222,6 @@ public class OrderBook {
 			if ( bestOfferEntry.getValue().isEmpty() ) {
 				offerOrders.remove(bestOfferEntry.getKey());
 			}
-//			else {
-//				
-//			}
 			
 			return true;
 			

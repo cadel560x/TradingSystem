@@ -2,10 +2,6 @@ package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
 import java.util.Date;
-//import java.sql.Timestamp;
-//import java.util.Map;
-//import java.util.HashMap;
-//import java.util.UUID;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -70,11 +66,7 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		
 		if ( this.isBuy() ) {
 			orderMap = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) orderBook.getBuyLimitOrders();
-			
 		}
-//		else {
-//			orderMap = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) orderBook.getSellLimitOrders();
-//		}
 		
 		this.setStatus(OrderStatus.ACCEPTED);
 		
