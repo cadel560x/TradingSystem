@@ -2,6 +2,8 @@ package ie.gmit.sw.fyp.me;
 
 import java.util.Map;
 
+//import org.springframework.beans.factory.annotation.Autowired;
+
 import ie.gmit.sw.fyp.order.StockService;
 import ie.gmit.sw.fyp.order.Transaction;
 import ie.gmit.sw.fyp.order.UserService;
@@ -11,8 +13,13 @@ import ie.gmit.sw.fyp.order.UserService;
 
 public abstract class PostEntity implements Transaction {
 //	Data members
-	private UserService userService = new UserService();
-	private StockService stockService = new StockService();
+	private UserService userService = UserService.getInstance();
+	private StockService stockService = StockService.getInstance();
+	
+//	@Autowired
+//	private UserService userService;
+//	@Autowired
+//	private StockService stockService;
 	
 //	Fields
 	protected Map<String, Object> properties;

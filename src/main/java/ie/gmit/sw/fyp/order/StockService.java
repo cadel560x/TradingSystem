@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class StockService {
 //	Fields
 	private Map<String, String> stockTags;
+	private static StockService onlyInstance;
 	
 	
 	
@@ -41,6 +42,18 @@ public class StockService {
 		}
 		
 		return false;
+		
 	} // end checkStockTag
+	
+	
+//	Singleton
+	public static StockService getInstance() {
+		if ( onlyInstance == null ) {
+			onlyInstance = new StockService();
+		}
+		
+		return onlyInstance;
+		
+	} // end getInstance()
 	
 } // end class StockService

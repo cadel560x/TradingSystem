@@ -13,6 +13,8 @@ public class UserService {
 //	Fields
 	private Map<String, String> users;
 	
+	private static UserService onlyInstance;
+	
 	
 	
 	
@@ -41,5 +43,16 @@ public class UserService {
 		
 		return false;
 	} // end checkUserId
+	
+	
+	// Singleton
+	public static UserService getInstance() {
+		if ( onlyInstance == null ) {
+			onlyInstance = new UserService();
+		}
+		
+		return onlyInstance;
+		
+	} // end getInstance()
 	
 } // end class UserService
