@@ -13,6 +13,7 @@ import ie.gmit.sw.fyp.order.UserService;
 
 public abstract class PostEntity implements Transaction {
 //	Data members
+//	Singleton pattern
 	private UserService userService = UserService.getInstance();
 	private StockService stockService = StockService.getInstance();
 	

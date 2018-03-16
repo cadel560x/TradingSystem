@@ -2,6 +2,7 @@ package ie.gmit.sw.fyp.order;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.Match;
+import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
@@ -161,19 +163,44 @@ public class OrderBook {
 	
 	
 	public boolean matchOrder(MarketOrder marketOrder) {
+		ConcurrentSkipListMap<Float, Queue<StopLossOrder>> stopLossOrders = (ConcurrentSkipListMap<Float, Queue<StopLossOrder>>) this.buyStopLossOrders;
 		ConcurrentSkipListMap<Float, Queue<LimitOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.buyLimitOrders;
+		
+		Entry<Float, Queue<StopLossOrder>> bestStopLossEntry = stopLossOrders.lastEntry();
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
+		
+		StopLossOrder bestStopLoss;
 		MarketOrder bestOffer;
 		Match match;
 		
+		StringBuilder collectionType = new StringBuilder("BUY");
+		
 		//
 		if ( marketOrder.isBuy() ) {
+			stopLossOrders = (ConcurrentSkipListMap<Float, Queue<StopLossOrder>>) this.sellStopLossOrders;
 			offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.sellLimitOrders;
+			
+			bestStopLossEntry = stopLossOrders.firstEntry();
 			bestOfferEntry = offerOrders.firstEntry();	
 		}
 		
+		
+		if ( bestStopLossEntry == null ) {
+			collectionType.append("STOPLOSS BUY");
+			
+			if ( stopLossOrders == this.sellStopLossOrders ) {
+				collectionType.setLength(0);
+				collectionType.append("STOPLOSS SELL");
+			}
+			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			
+			return false;
+		}
+		bestStopLoss = bestStopLossEntry.getValue().peek();
+		
+		
 		if ( bestOfferEntry == null ) {
-			StringBuilder collectionType = new StringBuilder("BUY");
+			collectionType = new StringBuilder("BUY");
 			
 			if ( offerOrders == this.sellLimitOrders ) {
 				collectionType.setLength(0);
@@ -185,47 +212,69 @@ public class OrderBook {
 		}
 		bestOffer = bestOfferEntry.getValue().peek();
 		
+		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
 		
-		//
-		if ( marketOrder.matches(bestOffer) ) {
-			marketOrder.setStatus(OrderStatus.MATCHED);
-			bestOffer.setStatus(OrderStatus.MATCHED);
-			
-			match = new Match(marketOrder, bestOffer);
-			
-			// A way to say that 'postOrder' and 'bestOffer' don't have the same volume of shares
-			if ( marketOrder.getVolume() != match.getFilledShares() && bestOffer.getVolume() != match.getFilledShares() ) {
-				MarketOrder spawnPostOrder = null;
+		for (MarketOrder bestOption: bestOffers) {
+			//
+			if ( marketOrder.matches(bestOption) ) {
+				marketOrder.setStatus(OrderStatus.MATCHED);
+				bestOption.setStatus(OrderStatus.MATCHED);
 				
-				if ( marketOrder.getVolume() > bestOffer.getVolume() ) {
-					marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
-					spawnPostOrder = this.createOrder(marketOrder);
-				}
-				else if ( marketOrder.getVolume() < bestOffer.getVolume() ) {
-					bestOffer.setStatus(OrderStatus.PARTIALLYMATCHED);
-					spawnPostOrder = this.createOrder(bestOffer);
-				}
+				match = new Match(marketOrder, bestOption);
+				
+				// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
+				if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
+					MarketOrder spawnPostOrder = null;
+					
+					if ( marketOrder.getVolume() > bestOption.getVolume() ) {
+						marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
+						spawnPostOrder = this.createOrder(marketOrder);
+					}
+					else if ( marketOrder.getVolume() < bestOption.getVolume() ) {
+						bestOption.setStatus(OrderStatus.PARTIALLYMATCHED);
+						spawnPostOrder = this.createOrder(bestOption);
+					}
+					//
+					spawnPostOrder.setVolume(match.getFilledShares());
+					spawnPostOrder.attachTo(this);
+					match.setVolumes();
+					
+				} // end if ( postOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() )
+	
+				
 				//
-				spawnPostOrder.setVolume(match.getFilledShares());
-				spawnPostOrder.attachTo(this);
-				match.setVolumes();
+				// TODO Change this for an Observable?? (Notification engine as a subscriber?)
+				matchedQueue.offer(match);
 				
-			} // end if ( postOrder.getVolume() != match.getFilledShares() && bestOffer.getVolume() != match.getFilledShares() )
-
-			
-			//
-			// TODO Change this for an Observable?? (Notification engine as a subscriber?)
-			matchedQueue.offer(match);
-			
-			//
-			bestOfferEntry.getValue().poll();
-			if ( bestOfferEntry.getValue().isEmpty() ) {
-				offerOrders.remove(bestOfferEntry.getKey());
-			}
-			
-			return true;
-			
-		} // end if ( bestOffer.matches(postOrder) )
+				if ( bestOption.getCondition() == PostOrderCondition.LIMIT) {
+					//
+					bestOfferEntry.getValue().poll();
+					if ( bestOfferEntry.getValue().isEmpty() ) {
+						offerOrders.remove(bestOfferEntry.getKey());
+					}
+				}
+				else if (bestOption.getCondition() == PostOrderCondition.STOPLOSS) {
+					Collection<StopLossOrder>stopLossQueue = stopLossOrders.get(bestOption.getPrice());
+					Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
+					
+					stopLossQueue.remove(bestOption);
+					limitQueue.remove(bestOption);
+					
+					if ( stopLossQueue.isEmpty() ) {
+						stopLossOrders.remove(bestOption.getPrice());
+					}
+					
+					if (limitQueue.isEmpty() ) {
+						offerOrders.remove(bestOption.getPrice());
+					}
+					
+				} // end if - else
+				
+				return true;
+				
+			} // end if ( bestOffer.matches(postOrder) )
+		
+		} // end for  (MarketOrder bestOption: bestOffers)
 
 		return false;
 		

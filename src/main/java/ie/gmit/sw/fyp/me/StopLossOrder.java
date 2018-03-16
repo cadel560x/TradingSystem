@@ -79,8 +79,8 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 		
 		this.setStatus(OrderStatus.ACCEPTED);
 		
-		Queue<StopLossOrder> nodeOrders = orderMap.get(this.getPrice());
-		if ( orderMap.get(this.getPrice()) == null ) {
+		Queue<StopLossOrder> nodeOrders = orderMap.get(this.getStopPrice());
+		if ( nodeOrders == null ) {
 			nodeOrders = new ConcurrentLinkedQueue<>();
 		}
 		nodeOrders.offer(this);

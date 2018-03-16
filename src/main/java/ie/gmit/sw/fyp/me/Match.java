@@ -70,14 +70,6 @@ public class Match {
 	public int getFilledShares() {
 		return filledShares;
 	}
-
-//	public void setFilledShares(int filledShares) {
-//		if ( filledShares <= 0 ) {
-//			throw new IllegalArgumentException("Invalid filled shares value");
-//		}
-//		
-//		this.filledShares = filledShares;
-//	}
 	
 	
 	
