@@ -169,11 +169,11 @@ public class OrderBook {
 		Entry<Float, Queue<StopLossOrder>> bestStopLossEntry = stopLossOrders.lastEntry();
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
 		
-		StopLossOrder bestStopLoss;
-		MarketOrder bestOffer;
+		StopLossOrder bestStopLoss = null;
+		MarketOrder bestOffer = null;
 		Match match;
 		
-		StringBuilder collectionType = new StringBuilder("BUY");
+		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
 		//
 		if ( marketOrder.isBuy() ) {
@@ -186,31 +186,39 @@ public class OrderBook {
 		
 		
 		if ( bestStopLossEntry == null ) {
-			collectionType.append("STOPLOSS BUY");
+			collectionType.append("BUY");
 			
 			if ( stopLossOrders == this.sellStopLossOrders ) {
-				collectionType.setLength(0);
-				collectionType.append("STOPLOSS SELL");
+				collectionType.append("SELL");
 			}
-			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println(collectionType + " collection in stock market " + stockTag + " is empty." );
 			
-			return false;
+//			return false;
 		}
-		bestStopLoss = bestStopLossEntry.getValue().peek();
+		else {	
+			bestStopLoss = bestStopLossEntry.getValue().peek();
+		}
 		
 		
 		if ( bestOfferEntry == null ) {
-			collectionType = new StringBuilder("BUY");
+			collectionType.setLength(0);
+			collectionType.append("BUY");
 			
 			if ( offerOrders == this.sellLimitOrders ) {
 				collectionType.setLength(0);
 				collectionType.append("SELL");
 			}
-			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
 			
+//			return false;
+		}
+		else {
+			bestOffer = bestOfferEntry.getValue().peek();
+		}
+		
+		if ( bestOfferEntry == null && bestStopLossEntry == null ) {
 			return false;
 		}
-		bestOffer = bestOfferEntry.getValue().peek();
 		
 		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
 		
