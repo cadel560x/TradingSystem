@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockService {
 //	Fields
-	private Map<String, String> stockTags;
+	private static Map<String, String> stockTags;
 	private static StockService onlyInstance;
 	
 	
@@ -36,7 +36,7 @@ public class StockService {
 	}
 	
 	
-	public boolean checkStockTag(String stockTag) {
+	public static boolean checkStockTag(String stockTag) {
 		if ( stockTags.containsKey(stockTag) ) {
 			return true;
 		}

@@ -169,11 +169,11 @@ public class OrderBook {
 		Entry<Float, Queue<StopLossOrder>> bestStopLossEntry = stopLossOrders.lastEntry();
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
 		
-		StopLossOrder bestStopLoss;
-		MarketOrder bestOffer;
+		StopLossOrder bestStopLoss = null;
+		MarketOrder bestOffer = null;
 		Match match;
 		
-		StringBuilder collectionType = new StringBuilder("BUY");
+		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
 		//
 		if ( marketOrder.isBuy() ) {
@@ -186,37 +186,56 @@ public class OrderBook {
 		
 		
 		if ( bestStopLossEntry == null ) {
-			collectionType.append("STOPLOSS BUY");
+			collectionType.append("BUY");
 			
 			if ( stopLossOrders == this.sellStopLossOrders ) {
-				collectionType.setLength(0);
-				collectionType.append("STOPLOSS SELL");
+				collectionType.append("SELL");
 			}
-			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println(collectionType + " collection in stock market " + stockTag + " is empty." );
 			
-			return false;
+//			return false;
 		}
-		bestStopLoss = bestStopLossEntry.getValue().peek();
+		else {	
+			bestStopLoss = bestStopLossEntry.getValue().peek();
+		}
 		
 		
 		if ( bestOfferEntry == null ) {
-			collectionType = new StringBuilder("BUY");
+			collectionType.setLength(0);
+			collectionType.append("BUY");
 			
 			if ( offerOrders == this.sellLimitOrders ) {
 				collectionType.setLength(0);
 				collectionType.append("SELL");
 			}
-			System.err.println("Offering " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
 			
+//			return false;
+		}
+		else {
+			bestOffer = bestOfferEntry.getValue().peek();
+		}
+		
+		if ( bestOfferEntry == null && bestStopLossEntry == null ) {
 			return false;
 		}
-		bestOffer = bestOfferEntry.getValue().peek();
 		
-		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
+//		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
 		
-		for (MarketOrder bestOption: bestOffers) {
+//		for (MarketOrder bestOption: bestOffers) {   bestStopLoss.matches(marketOrder)
+		
+		MarketOrder bestOption = null;
+		
 			//
-			if ( marketOrder.matches(bestOption) ) {
+			if ( marketOrder.matches(bestOffer) ) {
+				bestOption = bestOffer;
+			}
+			else if ( bestStopLoss.matches(marketOrder) ) {
+				bestOption = bestStopLoss;
+			}
+			
+			
+			if (bestOption != null) {
 				marketOrder.setStatus(OrderStatus.MATCHED);
 				bestOption.setStatus(OrderStatus.MATCHED);
 				
@@ -254,14 +273,14 @@ public class OrderBook {
 					}
 				}
 				else if (bestOption.getCondition() == PostOrderCondition.STOPLOSS) {
-					Collection<StopLossOrder>stopLossQueue = stopLossOrders.get(bestOption.getPrice());
+					Collection<StopLossOrder>stopLossQueue = stopLossOrders.get( ((StopLossOrder)bestOption).getStopPrice() );
 					Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
 					
 					stopLossQueue.remove(bestOption);
 					limitQueue.remove(bestOption);
 					
 					if ( stopLossQueue.isEmpty() ) {
-						stopLossOrders.remove(bestOption.getPrice());
+						stopLossOrders.remove( ((StopLossOrder)bestOption).getStopPrice());
 					}
 					
 					if (limitQueue.isEmpty() ) {
@@ -272,9 +291,9 @@ public class OrderBook {
 				
 				return true;
 				
-			} // end if ( bestOffer.matches(postOrder) )
+			} // end if ( bestOffer.matches(postOrder) )   (bestOption != null)
 		
-		} // end for  (MarketOrder bestOption: bestOffers)
+//		} // end for  (MarketOrder bestOption: bestOffers)
 
 		return false;
 		

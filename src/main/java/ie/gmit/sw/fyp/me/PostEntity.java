@@ -14,8 +14,8 @@ import ie.gmit.sw.fyp.order.UserService;
 public abstract class PostEntity implements Transaction {
 //	Data members
 //	Singleton pattern
-	private UserService userService = UserService.getInstance();
-	private StockService stockService = StockService.getInstance();
+//	private UserService userService = UserService.getInstance();
+//	private StockService stockService = StockService.getInstance();
 	
 //	@Autowired
 //	private UserService userService;
@@ -47,7 +47,7 @@ public abstract class PostEntity implements Transaction {
 
 	@Override
 	public void setUserId(String userId) {
-		if ( ! userService.checkUserId(userId) ) {
+		if ( ! UserService.checkUserId(userId) ) {
 			throw new IllegalArgumentException("Invalid user Id");
 		}
 		
@@ -61,7 +61,7 @@ public abstract class PostEntity implements Transaction {
 
 	@Override
 	public void setStockTag(String stockTag) {
-		if ( ! stockService.checkStockTag(stockTag) ) {
+		if ( ! StockService.checkStockTag(stockTag) ) {
 			throw new IllegalArgumentException("Invalid stock tag");
 		}
 		

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 //	Fields
-	private Map<String, String> users;
+	private static Map<String, String> users;
 	
 	private static UserService onlyInstance;
 	
@@ -36,7 +36,7 @@ public class UserService {
 	}
 	
 	
-	public boolean checkUserId(String userId) {
+	public static boolean checkUserId(String userId) {
 		if ( users.containsKey(userId) ) {
 			return true;
 		}
