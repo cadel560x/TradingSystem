@@ -64,29 +64,29 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 	
 //	Methods
-//	public boolean matches(MarketOrder other) {
-//		// A match is done between two orders of opposite type
-//		if ( ! this.isPartialFill() ) {
-//			// if volumes match ...
-////			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
-//			if ( this.getVolume() != other.getVolume() ) {
-//				return false;
-//			}
-//			
-//		} // end if ( (boolean)this.properties.get("partialFill") )
-//		
-//		if ( ( this.getStopPrice() < other.getPrice() ) && ( this.isBuy() ) ) {
-//			return false;
-//		}
-//		else if ( ( this.getStopPrice() > other.getPrice() ) && ( this.isSell() ) ) {
-//			return false;		
-//		} // end if ( this.isBuy() ) && ( thisPrice > otherPrice ) - else if ( this.isSell() ) && ( thisPrice < otherPrice )
-//		// If we are here is because the prices are equal or better depending on 'this'
-//		
-//		// Anything else is a match
-//		return true;
-//		
-//	} // end match(PostOrder other) 
+	public boolean matches(MarketOrder other) {
+		// A match is done between two orders of opposite type
+		if ( ! this.isPartialFill() ) {
+			// if volumes match ...
+//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
+			if ( this.getVolume() != other.getVolume() ) {
+				return false;
+			}
+			
+		} // end if ( (boolean)this.properties.get("partialFill") )
+		
+		if ( ( this.getStopPrice() > other.getPrice() ) && ( this.isBuy() ) ) {
+			return false;
+		}
+		else if ( ( this.getStopPrice() < other.getPrice() ) && ( this.isSell() ) ) {
+			return false;		
+		} // end if ( this.isBuy() ) && ( thisPrice > otherPrice ) - else if ( this.isSell() ) && ( thisPrice < otherPrice )
+		// If we are here is because the prices are equal or better depending on 'this'
+		
+		// Anything else is a match
+		return true;
+		
+	} // end match(PostOrder other) 
 	
 	
 	public void attachTo(OrderBook orderBook) {

@@ -108,15 +108,15 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		}
 		// If we are here is because the prices are equal or better depending on 'this'
 		
-		if ( other instanceof StopLossOrder ) {
-			if ( ( this.getPrice() < ((StopLossOrder)other).getStopPrice() ) && ( this.isBuy() ) ) {
-				return false;
-			}
-			else if ( ( this.getPrice() > ((StopLossOrder)other).getStopPrice() ) && ( this.isSell() ) ) {
-				return false;		
-			}
-		} // end if ( other instanceof StopLossOrder )
-		// If we are here is because the stoprices are equal or better depending on 'this'
+//		if ( other instanceof StopLossOrder ) {
+//			if ( ( this.getPrice() < ((StopLossOrder)other).getStopPrice() ) && ( this.isBuy() ) ) {
+//				return false;
+//			}
+//			else if ( ( this.getPrice() > ((StopLossOrder)other).getStopPrice() ) && ( this.isSell() ) ) {
+//				return false;		
+//			}
+//		} // end if ( other instanceof StopLossOrder )
+//		// If we are here is because the stoprices are equal or better depending on 'this'
 		
 		// Anything else is a match
 		return true;
