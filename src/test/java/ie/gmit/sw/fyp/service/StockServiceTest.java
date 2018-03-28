@@ -18,7 +18,7 @@ import ie.gmit.sw.fyp.order.StockService;
 public class StockServiceTest {
 
 	@Test
-	public void testCheckStockTag_ValidId() {
+	public void testCheckStockTag_ValidStockTag() {
 		String stockId = "AAPL";
 		
 		assertThat(StockService.checkStockTag(stockId), is(true));
@@ -27,7 +27,7 @@ public class StockServiceTest {
 	
 	
 	@Test
-	public void testCheckStockTag_InvalidId() {
+	public void testCheckStockTag_InvalidStockTag() {
 		String stockId = "MSFT";
 		
 		assertThat(StockService.checkStockTag(stockId), is(false));

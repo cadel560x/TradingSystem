@@ -220,17 +220,13 @@ public class OrderBook {
 			return false;
 		}
 		
-//		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
-		
-//		for (MarketOrder bestOption: bestOffers) {   bestStopLoss.matches(marketOrder)
-		
 		MarketOrder bestOption = null;
 		
 			//
 			if ( marketOrder.matches(bestOffer) ) {
 				bestOption = bestOffer;
 			}
-			else if ( bestStopLoss.matches(marketOrder) ) {
+			else if ( bestStopLoss != null &&  bestStopLoss.matches(marketOrder) ) {
 				bestOption = bestStopLoss;
 			}
 			
@@ -291,9 +287,7 @@ public class OrderBook {
 				
 				return true;
 				
-			} // end if ( bestOffer.matches(postOrder) )   (bestOption != null)
-		
-//		} // end for  (MarketOrder bestOption: bestOffers)
+			} // end if (bestOption != null)
 
 		return false;
 		
