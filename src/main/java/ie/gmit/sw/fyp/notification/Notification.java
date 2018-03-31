@@ -9,7 +9,7 @@ public class Notification {
 	
 //	Constructors
 	public Notification() {
-		
+		this.message = new StringBuilder();
 	}
 
 	public Notification(String message) {
