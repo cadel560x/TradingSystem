@@ -75,6 +75,10 @@ public class OrderBookService {
 			// TODO Remove this! Use an Observable for notifications
 			marketOrder.attachTo(orderBook);
 			
+			if ( marketOrder instanceof MarketOrder ) {
+				notification.updateMessage("\nNOT MATCHED");
+			}
+			
 		} // if ( matchOrder(postOrder) )
 		
 		return notification;

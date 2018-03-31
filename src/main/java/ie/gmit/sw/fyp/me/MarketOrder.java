@@ -89,39 +89,22 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	} // end initOrder
 	
 
-	public boolean matches(MarketOrder other) { // move
+	public boolean matches(MarketOrder other) {
 		// A match is done between two orders of opposite type
 		if ( ! this.isPartialFill() ) {
 			// if volumes match ...
-//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
 			if ( this.getVolume() != other.getVolume() ) {
 				return false;
 			}
 			
 		} // end if ( (boolean)this.properties.get("partialFill") )
 		
-		if ( ( this.getPrice() < other.getPrice() ) && ( this.isBuy() ) ) {
-			return false;
-		}
-		else if ( ( this.getPrice() > other.getPrice() ) && ( this.isSell() ) ) {
-			return false;		
-		}
-		// If we are here is because the prices are equal or better depending on 'this'
-		
-//		if ( other instanceof StopLossOrder ) {
-//			if ( ( this.getPrice() < ((StopLossOrder)other).getStopPrice() ) && ( this.isBuy() ) ) {
-//				return false;
-//			}
-//			else if ( ( this.getPrice() > ((StopLossOrder)other).getStopPrice() ) && ( this.isSell() ) ) {
-//				return false;		
-//			}
-//		} // end if ( other instanceof StopLossOrder )
-//		// If we are here is because the stoprices are equal or better depending on 'this'
+		this.setPrice(other.getPrice());
 		
 		// Anything else is a match
 		return true;
 		
-	} // end match(PostOrder other) 
+	} // end match(MarketOrder other) 
 	
 	
 	@Override

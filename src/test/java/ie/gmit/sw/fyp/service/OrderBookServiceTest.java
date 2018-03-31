@@ -8,8 +8,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+//import org.junit.FixMethodOrder;
+//import org.junit.runners.MethodSorters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import ie.gmit.sw.fyp.order.OrderBookService;
 
 
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class OrderBookServiceTest {
@@ -50,17 +50,20 @@ public class OrderBookServiceTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag(stockTag);
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
-		postRequest.setPrice(2.5f);
+		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
-		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		
 		
 	}
 	
 	
 	@Test
 	public void testAddPostOrder_LimitSell() {
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
 		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
@@ -71,7 +74,9 @@ public class OrderBookServiceTest {
 	@Test
 	public void testAddPostOrder_LimitBuy() {
 		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.4f);
+		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
@@ -85,6 +90,7 @@ public class OrderBookServiceTest {
 		postRequest.setCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setPrice(2.5f);
 		postRequest.setStopPrice(2.3f);
+		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
@@ -99,6 +105,28 @@ public class OrderBookServiceTest {
 		postRequest.setCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setPrice(2.4f);
 		postRequest.setStopPrice(2.6f);
+		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		
+		notification = orderBookService.addPostOrder(stockTag, postRequest);
+		System.err.println(notification.getMessage());
+		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		
+	}
+	
+	
+	@Test
+	public void testAddPostOrder_MarketBuy() {
+		postRequest.setType(PostOrderType.BUY);
+		
+		notification = orderBookService.addPostOrder(stockTag, postRequest);
+		System.err.println(notification.getMessage());
+		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		
+	}
+	
+	
+	@Test
+	public void testAddPostOrder_MarketSell() {
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());

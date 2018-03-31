@@ -100,7 +100,7 @@ public class OrderBook {
 
 //	Methods
 	public PostRequest checkRequest(PostRequest postRequest) throws InstantiationException {
-		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
+		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));
 		
 		// Factory pattern
 		switch(postRequest.getCondition()) {
@@ -108,6 +108,7 @@ public class OrderBook {
 				listProperties.add("stopPrice");
 			case LIMIT:
 				listProperties.add("expirationTime");
+				listProperties.add("price");
 				break;
 			case MARKET:
 				break;

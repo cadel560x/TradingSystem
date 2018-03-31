@@ -61,6 +61,32 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 //	Methods
 	@Override
+	public boolean matches(MarketOrder other) {
+		// A match is done between two orders of opposite type
+		if ( ! this.isPartialFill() ) {
+			// if volumes match ...
+//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
+			if ( this.getVolume() != other.getVolume() ) {
+				return false;
+			}
+			
+		} // end if ( (boolean)this.properties.get("partialFill") )
+		
+		if ( ( this.getPrice() < other.getPrice() ) && ( this.isBuy() ) ) {
+			return false;
+		}
+		else if ( ( this.getPrice() > other.getPrice() ) && ( this.isSell() ) ) {
+			return false;		
+		}
+		
+		// If we are here is because the prices are equal or better depending on 'this'
+		// Anything else is a match
+		return true;
+		
+	} // end match(MarketOrder other) 
+	
+	
+	@Override
 	public void attachTo(OrderBook orderBook) {
 		ConcurrentSkipListMap<Float, Queue<LimitOrder>> orderMap = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) orderBook.getSellLimitOrders();
 		
