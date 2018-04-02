@@ -7,7 +7,7 @@ import ie.gmit.sw.fyp.order.OrderBook;
 
 public interface PostOrder {
 	
-	public boolean matches(MarketOrder other);
+	public boolean matches(LimitOrder other);
 	
 	public void attachTo(OrderBook orderBook);
 	

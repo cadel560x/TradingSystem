@@ -93,7 +93,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	} // end initOrder
 	
 
-	public boolean matches(MarketOrder other) {
+	public boolean matches(LimitOrder other) {
 		// A match is done between two orders of opposite type
 		if ( ! this.isPartialFill() ) {
 			// if volumes match ...
@@ -103,7 +103,8 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 			
 		} // end if ( (boolean)this.properties.get("partialFill") )
 		
-		this.setPrice(other.getPrice());
+//		this.setPrice(other.getPrice());
+		properties.put("price", other.getPrice());
 		
 		// Anything else is a match
 		return true;
@@ -146,6 +147,5 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		return true;
 		
 	} // end equals(Object obj)
-	
 
 } // end class PostOrder

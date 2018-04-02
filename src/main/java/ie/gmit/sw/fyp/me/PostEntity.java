@@ -88,17 +88,17 @@ public abstract class PostEntity implements Transaction {
 		properties.put("condition", condition);
 	}
 	
-	public float getPrice() {
-		return (float) properties.get("price");
-	}
-
-	public void setPrice(float price) {
-		if ( price <= 0 ) {
-			throw new IllegalArgumentException("Invalid price value");
-		}
-		
-		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
-	}
+//	public float getPrice() {
+//		return (float) properties.get("price");
+//	}
+//
+//	public void setPrice(float price) {
+//		if ( price <= 0 ) {
+//			throw new IllegalArgumentException("Invalid price value");
+//		}
+//		
+//		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
+//	}
 
 	public int getVolume() {
 		return (int) properties.get("volume");

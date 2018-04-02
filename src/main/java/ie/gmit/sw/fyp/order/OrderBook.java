@@ -171,7 +171,7 @@ public class OrderBook {
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
 		
 		StopLossOrder bestStopLoss = null;
-		MarketOrder bestOffer = null;
+		LimitOrder bestOffer = null;
 		Match match;
 		
 		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
@@ -221,15 +221,18 @@ public class OrderBook {
 			return false;
 		}
 		
-		MarketOrder bestOption = null;
+		LimitOrder bestOption = null;
 		
 			//
 			if ( marketOrder.matches(bestOffer) ) {
 				bestOption = bestOffer;
 			}
-			else if ( bestStopLoss != null &&  bestStopLoss.matches(marketOrder) ) {
-				bestOption = bestStopLoss;
-			}
+			else if ( bestStopLoss != null &&  ! (marketOrder instanceof MarketOrder) ) {
+				LimitOrder limitOrder = (LimitOrder)marketOrder;
+				if ( bestStopLoss.matches(limitOrder) ) {
+					bestOption = bestStopLoss;
+				}
+			} // if - else if
 			
 			
 			if (bestOption != null) {

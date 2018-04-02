@@ -27,6 +27,18 @@ public class PostRequest extends PostEntity {
 
 	
 //	Delegated methods
+	public float getPrice() {
+		return (float) properties.get("price");
+	}
+
+	public void setPrice(float price) {
+		if ( price <= 0 ) {
+			throw new IllegalArgumentException("Invalid price value");
+		}
+		
+		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
+	}
+	
 	public Timestamp getExpirationTime() {
 		return (Timestamp) properties.get("expirationTime");
 	}
