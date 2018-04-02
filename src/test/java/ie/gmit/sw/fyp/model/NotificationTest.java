@@ -10,6 +10,9 @@ import org.junit.Test;
 
 import ie.gmit.sw.fyp.notification.Notification;
 
+
+
+
 public class NotificationTest {
 	private Notification notification;
 

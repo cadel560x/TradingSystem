@@ -33,7 +33,7 @@ public class PostRequest extends PostEntity {
 
 	public void setExpirationTime(Timestamp expirationTime) {
 		if ( expirationTime.before(new Date()) ) {
-			throw new IllegalStateException("Expiration time older than current time");
+			throw new IllegalArgumentException("Expiration time older than current time");
 		}
 		properties.put("expirationTime", expirationTime);
 	}
