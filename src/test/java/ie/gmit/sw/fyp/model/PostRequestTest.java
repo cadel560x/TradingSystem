@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,8 @@ public class PostRequestTest {
 		postRequest.setExpirationTime(timestamp);
 		
 		assertEquals("PostRequest getExpirationTime", timestamp, postRequest.getExpirationTime());
+		assertEquals("PostRequest getExpirationTime", true, postRequest.getExpirationTime().after(new Date()));
+		assertEquals("PostRequest getExpirationTime", false, postRequest.getExpirationTime().before(new Date()));
 		
 	}
 

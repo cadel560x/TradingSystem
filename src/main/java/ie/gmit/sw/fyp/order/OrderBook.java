@@ -23,7 +23,6 @@ import ie.gmit.sw.fyp.me.StopLossOrder;
 
 public class OrderBook {
 //	Fields
-	private String stockTag;
 	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
 	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
 	
@@ -31,12 +30,13 @@ public class OrderBook {
 	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
 	
 	private BlockingQueue<Match> matchedQueue;
+	private String stockTag;
 	
 	
 	
 	
 //	Constructor
-	public OrderBook(String stockTag) {		
+	public OrderBook(String stockTag) {
 		this.stockTag = stockTag;
 		buyLimitOrders = new ConcurrentSkipListMap<>();
 		sellLimitOrders = new ConcurrentSkipListMap<>();

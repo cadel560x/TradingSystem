@@ -104,5 +104,12 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		nodeOrders.offer(this);
 		
 	} // end attachTo(OrderBook orderBook)
+	
+	
+	@Override
+	public int hashCode() {
+		return (int) this.getPrice() * 10000;
+		
+	} // end hashCode()
 
 } // end class PostOrder

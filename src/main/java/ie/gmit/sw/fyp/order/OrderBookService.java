@@ -76,6 +76,7 @@ public class OrderBookService {
 			marketOrder.attachTo(orderBook);
 			
 			if ( marketOrder instanceof MarketOrder ) {
+				marketOrder.setStatus(OrderStatus.ERROR);
 				notification.updateMessage("\nNOT MATCHED");
 			}
 			

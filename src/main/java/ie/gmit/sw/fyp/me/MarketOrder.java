@@ -1,6 +1,7 @@
 package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -57,6 +58,9 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	}
 
 	public void setTimestamp(Timestamp timestamp) {
+		if ( timestamp.after(new Date()) ) {
+			throw new IllegalArgumentException("Timestamp newer than current time");
+		}
 		properties.put("timestamp", timestamp);
 	}
 
@@ -143,15 +147,5 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		
 	} // end equals(Object obj)
 	
-	
-	@Override
-	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-//		return result;
-		return (int) this.getPrice() * 10000;
-		
-	} // end hashCode()
 
 } // end class PostOrder
