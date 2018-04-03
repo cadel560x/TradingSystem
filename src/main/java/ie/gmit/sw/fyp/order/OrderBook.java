@@ -227,7 +227,7 @@ public class OrderBook {
 			if ( marketOrder.matches(bestOffer) ) {
 				bestOption = bestOffer;
 			}
-			else if ( bestStopLoss != null &&  ! (marketOrder instanceof MarketOrder) ) {
+			else if ( bestStopLoss != null &&  (marketOrder instanceof LimitOrder) ) {
 				LimitOrder limitOrder = (LimitOrder)marketOrder;
 				if ( bestStopLoss.matches(limitOrder) ) {
 					bestOption = bestStopLoss;

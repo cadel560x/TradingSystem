@@ -208,7 +208,6 @@ public class MarketOrderTest {
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(5);
 		postRequest.setPartialFill(true);
-		
 		postRequest.setExpirationTime(timeStamp);
 		
 		LimitOrder limitOrder = new LimitOrder(postRequest);

@@ -63,7 +63,7 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 
 	public void setExpirationTime(Timestamp expirationTime) {
 		if ( expirationTime.before(new Date()) ) {
-			throw new IllegalStateException("Expiration time older than current time");
+			throw new IllegalArgumentException("Expiration time older than current time");
 		}
 		properties.put("expirationTime", expirationTime);
 	}
@@ -120,7 +120,7 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	@Override
 	public int hashCode() {
-		return (int) this.getPrice() * 10000;
+		return (int) (this.getPrice() * 10000);
 		
 	} // end hashCode()
 

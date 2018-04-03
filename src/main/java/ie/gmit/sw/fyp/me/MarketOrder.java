@@ -103,7 +103,6 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 			
 		} // end if ( (boolean)this.properties.get("partialFill") )
 		
-//		this.setPrice(other.getPrice());
 		properties.put("price", other.getPrice());
 		
 		// Anything else is a match
