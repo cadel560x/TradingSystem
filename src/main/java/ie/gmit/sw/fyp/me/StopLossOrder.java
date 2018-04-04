@@ -31,6 +31,7 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	}
 	
 	public StopLossOrder(StopLossOrder stopLossOrder) {
+		super(stopLossOrder);
 
 	}
 	

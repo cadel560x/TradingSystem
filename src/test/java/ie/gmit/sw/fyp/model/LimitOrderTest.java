@@ -1,6 +1,7 @@
 package ie.gmit.sw.fyp.model;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -12,7 +13,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
@@ -124,12 +124,17 @@ public class LimitOrderTest {
 		
 	}
 
-	@Ignore
+
 	@Test
-	public void testLimitOrderStopLossOrder() {
-		fail("Not yet implemented");
+	public void testLimitOrderLimitOrderOrder() {
+		LimitOrder newLimitOrder = new LimitOrder(limitOrder);
+		
+		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getProperties(), notNullValue() );
+		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getProperties(), is(limitOrder.getProperties()));
+		
 	}
 
+	
 	@Test
 	public void testPrice_RoundingAt_5() {
 		limitOrder.setPrice(2.123456789f);

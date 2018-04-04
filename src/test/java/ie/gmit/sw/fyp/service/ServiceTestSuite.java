@@ -7,12 +7,13 @@ import org.junit.runners.Suite.SuiteClasses;
 import ie.gmit.sw.fyp.model.LimitOrderTest;
 import ie.gmit.sw.fyp.model.MarketOrderTest;
 import ie.gmit.sw.fyp.model.PostRequestTest;
+import ie.gmit.sw.fyp.model.StopLossOrderTest;
 
 
 
 
 @RunWith(Suite.class)
-@SuiteClasses({UserServiceTest.class, StockServiceTest.class, PostRequestTest.class, MarketOrderTest.class, LimitOrderTest.class})
+@SuiteClasses({UserServiceTest.class, StockServiceTest.class, PostRequestTest.class, MarketOrderTest.class, LimitOrderTest.class, StopLossOrderTest.class})
 public class ServiceTestSuite {
 
 }

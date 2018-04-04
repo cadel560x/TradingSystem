@@ -29,12 +29,13 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	public LimitOrder(LimitOrder limitOrder) {
 		super(limitOrder);
+		
 	}
 	
-	public LimitOrder(StopLossOrder stopLossOrder) {
-		// TODO Removes stop-loss attribute
-
-	}
+//	public LimitOrder(StopLossOrder stopLossOrder) {
+//		// TODO Removes stop-loss attribute
+//
+//	}
 	
 	
 	
