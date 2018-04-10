@@ -254,7 +254,7 @@ public class OrderBook {
 						spawnPostOrder = this.createOrder(bestOption);
 					}
 					//
-					spawnPostOrder.setVolume(match.getFilledShares());
+					spawnPostOrder.setVolume(match.getRemainingShares());
 					spawnPostOrder.attachTo(this);
 					match.setVolumes();
 					
