@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
+import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
@@ -215,7 +216,7 @@ public class OrderBookTest {
 	@Test
 	public void testSetSellStopLoss() {
 		Map<Float, Queue<StopLossOrder>> newSellStopLossOrders = new ConcurrentSkipListMap<>();
-		orderBook.setBuyStopLoss(newSellStopLossOrders);
+		orderBook.setSellStopLoss(newSellStopLossOrders);
 		
 		assertThat("OrderBook setSellStopLossOrders", orderBook.getSellStopLoss(), is(newSellStopLossOrders));
 		
@@ -252,6 +253,8 @@ public class OrderBookTest {
 		postRequest.setType(PostOrderType.SELL);
 		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
+		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(false));
+		
 		postRequest.setPartialFill(true);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
@@ -261,10 +264,8 @@ public class OrderBookTest {
 		postRequest.setExpirationTime(timeStamp);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
-		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
-		postRequest.setPrice(2.5f);
-		postRequest.setExpirationTime(timeStamp);
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setStopPrice(2.3f);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
@@ -277,20 +278,32 @@ public class OrderBookTest {
 		date.add(Calendar.DAY_OF_MONTH, 1);
 		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
 		
-		PostRequest postRequest = new PostRequest();
+		PostRequest postRequest = new PostRequest();		
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
-		postRequest.setPrice(2.5f);
+		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
-		postRequest.setExpirationTime(timeStamp);
-		postRequest.setStopPrice(2.3f);
+		MarketOrder marketOrder = orderBook.createOrder(postRequest);
+		assertThat("OrderBook createOrder(PostRequest)", marketOrder, isA(MarketOrder.class));
 		
-		fail("Not yet implemented");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(timeStamp);
+		MarketOrder limitOrder = orderBook.createOrder(postRequest);
+		assertThat("OrderBook createOrder(PostRequest)", limitOrder instanceof LimitOrder, is(true));
+		
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setStopPrice(2.3f);
+		MarketOrder stopLossOrder = orderBook.createOrder(postRequest);
+		assertThat("OrderBook createOrder(PostRequest)", stopLossOrder instanceof StopLossOrder, is(true));
+		
 	}
 
+	
 	@Test
 	public void testCreateOrderMarketOrder() {
 		Calendar date = new GregorianCalendar();
@@ -301,16 +314,31 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
-		postRequest.setPrice(2.5f);
+		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
-		postRequest.setExpirationTime(timeStamp);
-		postRequest.setStopPrice(2.3f);
+		MarketOrder marketOrder = orderBook.createOrder(postRequest);
+		MarketOrder anotherMarketOrder = orderBook.createOrder(marketOrder);
+		assertThat("OrderBook createOrder(MarketOrder)", anotherMarketOrder, isA(MarketOrder.class));
 		
-		fail("Not yet implemented");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(timeStamp);
+		MarketOrder limitOrder = orderBook.createOrder(postRequest);
+		MarketOrder anotherLimitOrder = orderBook.createOrder(limitOrder);
+		assertThat("OrderBook createOrder(MarketOrder)", anotherLimitOrder instanceof LimitOrder, is(true));
+		
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setStopPrice(2.3f);
+		MarketOrder stopLossOrder = orderBook.createOrder(postRequest);
+		MarketOrder anotherStopLossOrder = orderBook.createOrder(stopLossOrder);
+		assertThat("OrderBook createOrder(PostRequest)", anotherStopLossOrder instanceof StopLossOrder, is(true));
+		
 	}
 
+	
 	@Test
 	public void testMatchOrder() {
 		Calendar date = new GregorianCalendar();

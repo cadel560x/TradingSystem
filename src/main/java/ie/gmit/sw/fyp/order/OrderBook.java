@@ -109,9 +109,7 @@ public class OrderBook {
 			case LIMIT:
 				listProperties.add("expirationTime");
 				listProperties.add("price");
-				break;
 			case MARKET:
-				break;
 		} // end switch
 		
 		if ( ! postRequest.checkProperties(listProperties) ) {
@@ -145,22 +143,22 @@ public class OrderBook {
 	
 	
 	public MarketOrder createOrder(MarketOrder otherMarketOrder) {
-//		PostOrder postOrder = null;
-		
 		// Factory pattern
-		if ( otherMarketOrder instanceof MarketOrder ) {
-			otherMarketOrder = new MarketOrder(otherMarketOrder);
-		}
-		else if ( otherMarketOrder instanceof LimitOrder ) {
-			otherMarketOrder = new LimitOrder((LimitOrder)otherMarketOrder);
-		}
-		else if ( otherMarketOrder instanceof StopLossOrder ) {
+		switch(otherMarketOrder.getCondition()) {
+		case STOPLOSS:
 			otherMarketOrder = new StopLossOrder((StopLossOrder)otherMarketOrder);
-		}
+			break;
+		case LIMIT:
+			otherMarketOrder = new LimitOrder((LimitOrder)otherMarketOrder);
+			break;
+		case MARKET:
+			otherMarketOrder = new MarketOrder(otherMarketOrder);
+			break;
+		} // end switch
 		
 		return otherMarketOrder;
 		
-	} // end createOrder(PostOrder otherPostOrder)
+	} // end createOrder(MarketOrder otherMarketOrder)
 	
 	
 	public boolean matchOrder(MarketOrder marketOrder) {
