@@ -50,20 +50,15 @@ public class OrderBookService {
 			
 			return notification;
 		}
-		
-		try {
-			// Calling a factory pattern
-			postRequest = orderBook.checkRequest(postRequest);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-			notification.updateMessage(e.getMessage());
 			
+		if ( orderBook.checkRequest(postRequest) ) {
+			marketOrder = orderBook.createOrder(postRequest);
+			notification.setMessage("ACCEPTED: OrderId " + (marketOrder).getId());
+		}
+		else {
+			notification.updateMessage("Invalid request properties");
 			return notification;
-			
-		} // try - catch (InstantiationException e)
-
-		marketOrder = orderBook.createOrder(postRequest);
-		notification.setMessage("ACCEPTED: OrderId " + (marketOrder).getId());
+		}
 		
 		//
 		if ( orderBook.matchOrder(marketOrder) ) {

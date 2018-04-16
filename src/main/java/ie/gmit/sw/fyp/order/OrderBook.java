@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.Match;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
+import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
@@ -99,10 +100,9 @@ public class OrderBook {
 
 
 //	Methods
-	public PostRequest checkRequest(PostRequest postRequest) throws InstantiationException {
+	public boolean checkRequest(PostRequest postRequest) {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));
 		
-		// Factory pattern
 		switch(postRequest.getCondition()) {
 			case STOPLOSS:
 				listProperties.add("stopPrice");
@@ -115,12 +115,12 @@ public class OrderBook {
 		} // end switch
 		
 		if ( ! postRequest.checkProperties(listProperties) ) {
-			throw new InstantiationException("Invalid request properties");
+			return false;
 		}
 		
-		return postRequest;
+		return true;
 		
-	} // PostRequest
+	} // end checkRequest(PostRequest postRequest)
 	
 	
 	public MarketOrder createOrder(PostRequest postRequest) {
@@ -172,7 +172,7 @@ public class OrderBook {
 		
 		StopLossOrder bestStopLoss = null;
 		LimitOrder bestOffer = null;
-		Match match;
+		Match match = null;
 		
 		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
@@ -239,7 +239,12 @@ public class OrderBook {
 				marketOrder.setStatus(OrderStatus.MATCHED);
 				bestOption.setStatus(OrderStatus.MATCHED);
 				
-				match = new Match(marketOrder, bestOption);
+				
+				if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY )
+					match = new Match(marketOrder, bestOption);
+				else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
+					match = new Match(bestOption, marketOrder);
+				}
 				
 				// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
 				if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
