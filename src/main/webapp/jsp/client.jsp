@@ -23,13 +23,13 @@
 		    </div>
 		    <div>
 		        <label for="condition">Condition:</label>
-		        <input type="radio" name="type" value="MARKET" checked>Market
-				<input type="radio" name="type" value="LIMIT">Limit
-				<input type="radio" name="type" value="STOPLOSS">Stop Loss
+		        <input type="radio" name="condition" value="MARKET" checked>Market
+				<input type="radio" name="condition" value="LIMIT">Limit
+				<input type="radio" name="condition" value="STOPLOSS">Stop Loss
 		    </div>
 		    <div>
 		        <label for="price">Price:</label>
-		        <input type="number" id="name" name="price">
+		        <input type="number" id="name" name="price" step=0.0001>
 		    </div>
 		    <div>
 		        <label for="volume">Volume:</label>
@@ -37,8 +37,7 @@
 		    </div>
 		    <div>
 		        <label for="partialFill">Allow partial fill:</label>
-		        <input type="hidden" name="partialFill" id="partialFill" value="false">
-		        <input type="checkbox" name="partialFill" id="partialFill" value="true">
+		        <input type="checkbox" name="partialFill" id="partialFill">
 		    </div>
 		    <div>
 		        <label for="expirationTime">Expiration Time:</label>
@@ -49,8 +48,7 @@
 			</div>
 		</form>
 		<h3>Result:</h3>
-		<textarea>
-		</textarea>
+		<textarea rows="5" cols="60"></textarea>
 		<script>
 			$(document).ready(function() {
 
@@ -62,19 +60,23 @@
 			        var formData = {
 			            'userId'              : $('input[name=userId]').val(),
 			            'stockTag'             : $('input[name=stockTag]').val(),
-			            'type'			    : $('input[name=type]').val(),
-			            'condition'              : $('input[name=condition]').val(),
+			            'type'			    : $('input[name=type]:checked').val(),
+			            'condition'              : $('input[name=condition]:checked').val(),
 			            'price'             : $('input[name=price]').val(),
 			            'volume'			    : $('input[name=volume]').val(),
-			            'partialFill'             : $('input[name=email]').val(),
+			            'partialFill'             : $('input[name=partialFill]').is(":checked"),
 			            'expirationTime'			    : $('input[name=expirationTime]').val()
 			        };
 	
 			        // process the form
 			        $.ajax({
+			        		headers: { 
+			                'Accept': 'application/json',
+			                'Content-Type': 'application/json' 
+			            },
 			            type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
 			            url         : 'http://localhost:8080/' + $('input[name=stockTag]').val(), // the url where we want to POST
-			            data        : formData, // our data object
+			            data        : JSON.stringify(formData), // our data object
 			            dataType    : 'json', // what type of data do we expect back from the server
 			            encode      : true
 			        })
@@ -82,9 +84,9 @@
 			            .done(function(data) {
 	
 			                // log data to the console so we can see
-			                console.log(data); 
+			                //console.log(data); 
 	
-			                // here we will handle errors and validation messages
+			                $('textarea').text(data.message);
 			            });
 	
 			        // stop the form from submitting the normal way and refreshing the page

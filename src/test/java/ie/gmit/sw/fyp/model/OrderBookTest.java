@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.hamcrest.beans.HasPropertyWithValue;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsNot;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,6 +30,7 @@ import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.order.OrderBook;
 import ie.gmit.sw.fyp.order.StockService;
 import ie.gmit.sw.fyp.order.UserService;
@@ -348,15 +350,53 @@ public class OrderBookTest {
 		PostRequest postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		MarketOrder marketOrder = new MarketOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
+		
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
 		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
 		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(timeStamp);
+		LimitOrder limitOrder = new LimitOrder(postRequest);
+		limitOrder.attachTo(orderBook);
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().keySet(), contains(2.5f));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), contains(limitOrder));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), hasSize(1));
+		
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
-		postRequest.setExpirationTime(timeStamp);
+		marketOrder = new MarketOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(true));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		
+		limitOrder.attachTo(orderBook);
+		LimitOrder anotherLimitOrder = new LimitOrder(limitOrder);
+		anotherLimitOrder.setType(PostOrderType.BUY);
+		anotherLimitOrder.setPrice(2.4999f);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherLimitOrder), is(false));
+		
+		
+		
 		postRequest.setStopPrice(2.3f);
 		
-		fail("Not yet implemented");
+		
+		
+//		fail("Not yet implemented");
 		
 	}
 
