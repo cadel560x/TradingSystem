@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.Match;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
+import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
@@ -23,7 +24,6 @@ import ie.gmit.sw.fyp.me.StopLossOrder;
 
 public class OrderBook {
 //	Fields
-	private String stockTag;
 	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
 	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
 	
@@ -31,12 +31,13 @@ public class OrderBook {
 	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
 	
 	private BlockingQueue<Match> matchedQueue;
+	private String stockTag;
 	
 	
 	
 	
 //	Constructor
-	public OrderBook(String stockTag) {		
+	public OrderBook(String stockTag) {
 		this.stockTag = stockTag;
 		buyLimitOrders = new ConcurrentSkipListMap<>();
 		sellLimitOrders = new ConcurrentSkipListMap<>();
@@ -99,27 +100,25 @@ public class OrderBook {
 
 
 //	Methods
-	public PostRequest checkRequest(PostRequest postRequest) throws InstantiationException {
-		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "price", "volume", "partialFill"));
+	public boolean checkRequest(PostRequest postRequest) {
+		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));
 		
-		// Factory pattern
 		switch(postRequest.getCondition()) {
 			case STOPLOSS:
 				listProperties.add("stopPrice");
 			case LIMIT:
 				listProperties.add("expirationTime");
-				break;
+				listProperties.add("price");
 			case MARKET:
-				break;
 		} // end switch
 		
 		if ( ! postRequest.checkProperties(listProperties) ) {
-			throw new InstantiationException("Invalid request properties");
+			return false;
 		}
 		
-		return postRequest;
+		return true;
 		
-	} // PostRequest
+	} // end checkRequest(PostRequest postRequest)
 	
 	
 	public MarketOrder createOrder(PostRequest postRequest) {
@@ -144,22 +143,22 @@ public class OrderBook {
 	
 	
 	public MarketOrder createOrder(MarketOrder otherMarketOrder) {
-//		PostOrder postOrder = null;
-		
 		// Factory pattern
-		if ( otherMarketOrder instanceof MarketOrder ) {
-			otherMarketOrder = new MarketOrder(otherMarketOrder);
-		}
-		else if ( otherMarketOrder instanceof LimitOrder ) {
-			otherMarketOrder = new LimitOrder((LimitOrder)otherMarketOrder);
-		}
-		else if ( otherMarketOrder instanceof StopLossOrder ) {
+		switch(otherMarketOrder.getCondition()) {
+		case STOPLOSS:
 			otherMarketOrder = new StopLossOrder((StopLossOrder)otherMarketOrder);
-		}
+			break;
+		case LIMIT:
+			otherMarketOrder = new LimitOrder((LimitOrder)otherMarketOrder);
+			break;
+		case MARKET:
+			otherMarketOrder = new MarketOrder(otherMarketOrder);
+			break;
+		} // end switch
 		
 		return otherMarketOrder;
 		
-	} // end createOrder(PostOrder otherPostOrder)
+	} // end createOrder(MarketOrder otherMarketOrder)
 	
 	
 	public boolean matchOrder(MarketOrder marketOrder) {
@@ -170,8 +169,8 @@ public class OrderBook {
 		Entry<Float, Queue<LimitOrder>> bestOfferEntry = offerOrders.lastEntry();
 		
 		StopLossOrder bestStopLoss = null;
-		MarketOrder bestOffer = null;
-		Match match;
+		LimitOrder bestOffer = null;
+		Match match = null;
 		
 		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
@@ -220,26 +219,30 @@ public class OrderBook {
 			return false;
 		}
 		
-//		MarketOrder[] bestOffers = {bestOffer, bestStopLoss};
-		
-//		for (MarketOrder bestOption: bestOffers) {   bestStopLoss.matches(marketOrder)
-		
-		MarketOrder bestOption = null;
+		LimitOrder bestOption = null;
 		
 			//
 			if ( marketOrder.matches(bestOffer) ) {
 				bestOption = bestOffer;
 			}
-			else if ( bestStopLoss.matches(marketOrder) ) {
-				bestOption = bestStopLoss;
-			}
+			else if ( bestStopLoss != null &&  (marketOrder instanceof LimitOrder) ) {
+				LimitOrder limitOrder = (LimitOrder)marketOrder;
+				if ( bestStopLoss.matches(limitOrder) ) {
+					bestOption = bestStopLoss;
+				}
+			} // if - else if
 			
 			
 			if (bestOption != null) {
 				marketOrder.setStatus(OrderStatus.MATCHED);
 				bestOption.setStatus(OrderStatus.MATCHED);
 				
-				match = new Match(marketOrder, bestOption);
+				
+				if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY )
+					match = new Match(marketOrder, bestOption);
+				else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
+					match = new Match(bestOption, marketOrder);
+				}
 				
 				// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
 				if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
@@ -254,7 +257,7 @@ public class OrderBook {
 						spawnPostOrder = this.createOrder(bestOption);
 					}
 					//
-					spawnPostOrder.setVolume(match.getFilledShares());
+					spawnPostOrder.setVolume(match.getRemainingShares());
 					spawnPostOrder.attachTo(this);
 					match.setVolumes();
 					
@@ -291,9 +294,7 @@ public class OrderBook {
 				
 				return true;
 				
-			} // end if ( bestOffer.matches(postOrder) )   (bestOption != null)
-		
-//		} // end for  (MarketOrder bestOption: bestOffers)
+			} // end if (bestOption != null)
 
 		return false;
 		

@@ -1,6 +1,7 @@
 package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	}
 
 	public MarketOrder(PostRequest postRequest) {
-		properties = postRequest.getProperties();
+		this.properties = postRequest.getProperties();
 		
 		initOrder();
 	}
@@ -57,6 +58,9 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	}
 
 	public void setTimestamp(Timestamp timestamp) {
+		if ( timestamp.after(new Date()) ) {
+			throw new IllegalArgumentException("Timestamp newer than current time");
+		}
 		properties.put("timestamp", timestamp);
 	}
 
@@ -89,39 +93,22 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	} // end initOrder
 	
 
-	public boolean matches(MarketOrder other) { // move
+	public boolean matches(LimitOrder other) {
 		// A match is done between two orders of opposite type
 		if ( ! this.isPartialFill() ) {
 			// if volumes match ...
-//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
 			if ( this.getVolume() != other.getVolume() ) {
 				return false;
 			}
 			
 		} // end if ( (boolean)this.properties.get("partialFill") )
 		
-		if ( ( this.getPrice() < other.getPrice() ) && ( this.isBuy() ) ) {
-			return false;
-		}
-		else if ( ( this.getPrice() > other.getPrice() ) && ( this.isSell() ) ) {
-			return false;		
-		}
-		// If we are here is because the prices are equal or better depending on 'this'
-		
-//		if ( other instanceof StopLossOrder ) {
-//			if ( ( this.getPrice() < ((StopLossOrder)other).getStopPrice() ) && ( this.isBuy() ) ) {
-//				return false;
-//			}
-//			else if ( ( this.getPrice() > ((StopLossOrder)other).getStopPrice() ) && ( this.isSell() ) ) {
-//				return false;		
-//			}
-//		} // end if ( other instanceof StopLossOrder )
-//		// If we are here is because the stoprices are equal or better depending on 'this'
+		properties.put("price", other.getPrice());
 		
 		// Anything else is a match
 		return true;
 		
-	} // end match(PostOrder other) 
+	} // end match(MarketOrder other) 
 	
 	
 	@Override
@@ -159,16 +146,5 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		return true;
 		
 	} // end equals(Object obj)
-	
-	
-	@Override
-	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-//		return result;
-		return (int) this.getPrice() * 10000;
-		
-	} // end hashCode()
 
 } // end class PostOrder

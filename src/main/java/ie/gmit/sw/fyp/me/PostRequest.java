@@ -1,8 +1,10 @@
 package ie.gmit.sw.fyp.me;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Set;
 
 
 
@@ -27,13 +29,25 @@ public class PostRequest extends PostEntity {
 
 	
 //	Delegated methods
+	public float getPrice() {
+		return (float) properties.get("price");
+	}
+
+	public void setPrice(float price) {
+		if ( price <= 0 ) {
+			throw new IllegalArgumentException("Invalid price value");
+		}
+		
+		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
+	}
+	
 	public Timestamp getExpirationTime() {
 		return (Timestamp) properties.get("expirationTime");
 	}
 
 	public void setExpirationTime(Timestamp expirationTime) {
 		if ( expirationTime.before(new Date()) ) {
-			throw new IllegalStateException("Expiration time older than current time");
+			throw new IllegalArgumentException("Expiration time older than current time");
 		}
 		properties.put("expirationTime", expirationTime);
 	}
@@ -54,9 +68,15 @@ public class PostRequest extends PostEntity {
 	
 	
 //	Methods
-	public boolean checkProperties(Iterable<String> propertiesList) {	
-		for ( String postProperty: propertiesList ) {
-			if ( ! properties.containsKey(postProperty) ) {
+	public boolean checkProperties(Collection<String> propertiesList) {
+		Set<String> keys = properties.keySet();
+		
+		if ( propertiesList.size() != keys.size() ) {
+			return false;
+		}
+		
+		for ( String postProperty: keys ) {
+			if ( ! propertiesList.contains(postProperty) ) {
 				return false;
 			}
 		

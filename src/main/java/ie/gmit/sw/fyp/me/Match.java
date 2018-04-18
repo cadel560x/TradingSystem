@@ -22,21 +22,20 @@ public class Match {
 		this.Id = UUID.randomUUID().toString();
 	}
 	
-	public Match(MarketOrder postOrder1, MarketOrder postOrder2) {
+	public Match(MarketOrder sellOrder, MarketOrder buyOrder) {
 		this.timestamp = new Timestamp(System.currentTimeMillis());
 		this.Id = UUID.randomUUID().toString();
 		
 //		Logic that keeps order regarding the passed PostOrders
-		if ( postOrder1.isSell() ) {
-			this.sellOrder = postOrder1;
-			this.buyOrder = postOrder2;
-		}
-		else {
-			this.sellOrder = postOrder2;
-			this.buyOrder = postOrder1;
+		if ( !sellOrder.isSell() || !buyOrder.isBuy() ) {
+			throw new IllegalArgumentException("Incorrect order type");
 		}
 		
+		this.sellOrder = sellOrder;
+		this.buyOrder = buyOrder;
+		
 		setFilledShares();
+		
 	}
 	
 	
@@ -76,23 +75,35 @@ public class Match {
 	
 //	Methods
 	public void setFilledShares() {
-		filledShares = Math.abs( sellOrder.getVolume() - buyOrder.getVolume() );
+//		filledShares = Math.abs( sellOrder.getVolume() - buyOrder.getVolume() );
+//		
+//		if ( filledShares == 0 ) {
+//			filledShares = sellOrder.getVolume();
+//		}
 		
-		if ( filledShares == 0 ) {
-			filledShares = sellOrder.getVolume();
+		filledShares = sellOrder.getVolume();
+		
+		if ( sellOrder.getVolume() > buyOrder.getVolume() ) {
+			filledShares = buyOrder.getVolume();
 		}
 		
-	} // setMatchedShares()
+	} // setFilledShares()
+	
+	
+	public int getRemainingShares() {
+		return Math.abs( sellOrder.getVolume() - buyOrder.getVolume() );
+		
+	} // getRemainingShares()
 	
 	
 	public void setVolumes() {
 		if ( sellOrder.getVolume() > buyOrder.getVolume() ) {
-			sellOrder.setVolume(filledShares);
+			sellOrder.setVolume(this.getRemainingShares());
 		}
 		else if ( sellOrder.getVolume() < buyOrder.getVolume() ) {
-			buyOrder.setVolume(filledShares);
+			buyOrder.setVolume(this.getRemainingShares());
 		}
 
-	} // initMatch()
+	} // setVolumes()
 	
 } // end class Match

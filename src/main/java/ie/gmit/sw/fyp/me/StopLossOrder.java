@@ -31,6 +31,7 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	}
 	
 	public StopLossOrder(StopLossOrder stopLossOrder) {
+		super(stopLossOrder);
 
 	}
 	
@@ -64,7 +65,7 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 	
 //	Methods
-	public boolean matches(MarketOrder other) {
+	public boolean matches(LimitOrder other) {
 		// A match is done between two orders of opposite type
 		if ( ! this.isPartialFill() ) {
 			// if volumes match ...
