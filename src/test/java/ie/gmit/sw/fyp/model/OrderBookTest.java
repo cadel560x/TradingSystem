@@ -358,6 +358,11 @@ public class OrderBookTest {
 		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
 		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
 		
+		postRequest.setType(PostOrderType.SELL);
+		marketOrder = new MarketOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
+		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");

@@ -10,7 +10,7 @@
 		<form>
 			<div>
 		        <label for="userId">UserId:</label>
-		        <input type="text" id="name" name="userId">
+		        <input type="text" id="userId" name="userId">
 		    </div>
 		    <div>
 		        <label for="stockTag">StockTag:</label>
@@ -23,13 +23,13 @@
 		    </div>
 		    <div>
 		        <label for="condition">Condition:</label>
-		        <input type="radio" name="condition" value="MARKET" checked>Market
+		        <input type="radio" name="condition" value="MARKET">Market
 				<input type="radio" name="condition" value="LIMIT">Limit
-				<input type="radio" name="condition" value="STOPLOSS">Stop Loss
+				<input type="radio" name="condition" value="STOPLOSS" checked>Stop Loss
 		    </div>
-		    <div>
+		    <div class="long-term">
 		        <label for="price">Price:</label>
-		        <input type="number" id="name" name="price" step=0.0001>
+		        <input type="number" id="price" name="price" step=0.0001>
 		    </div>
 		    <div>
 		        <label for="volume">Volume:</label>
@@ -39,9 +39,13 @@
 		        <label for="partialFill">Allow partial fill:</label>
 		        <input type="checkbox" name="partialFill" id="partialFill">
 		    </div>
-		    <div>
+		    <div class="long-term">
 		        <label for="expirationTime">Expiration Time:</label>
 		        <input type="text" name="expirationTime" id="expirationTime" size="50">
+		    </div>
+		    <div id="div-stop-price" class="long-term">
+		        <label for="stopPrice">Stop Price:</label>
+		        <input type="number" id="stopPrice" name="stopPrice" step=0.0001>
 		    </div>
 		    <div class="button">
 			  <button type="submit">Send Order</button>
@@ -56,16 +60,21 @@
 			    $('form').submit(function(event) {
 	
 			        // get the form data
+			        let stopPrice = $('input[name=stopPrice]').val();
+			        let price = $('input[name=price]').val();
+			        let expirationTime = $('input[name=expirationTime]').val();
+			        
 			        // there are many ways to get this data using jQuery (you can use the class or id also)
 			        var formData = {
 			            'userId'              : $('input[name=userId]').val(),
 			            'stockTag'             : $('input[name=stockTag]').val(),
 			            'type'			    : $('input[name=type]:checked').val(),
 			            'condition'              : $('input[name=condition]:checked').val(),
-			            'price'             : $('input[name=price]').val(),
+			            'price'             : ( price ) ? price: undefined,
 			            'volume'			    : $('input[name=volume]').val(),
 			            'partialFill'             : $('input[name=partialFill]').is(":checked"),
-			            'expirationTime'			    : $('input[name=expirationTime]').val()
+			            'expirationTime'			    : ( expirationTime ) ? expirationTime: undefined,
+			            'stopPrice'			    : ( stopPrice ) ? stopPrice : undefined
 			        };
 	
 			        // process the form
@@ -93,6 +102,12 @@
 			        event.preventDefault();
 			        
 			    }); // end $('form').submit
+			    
+			    $("input[name='condition']:radio")
+				    .change(function() {
+				      $(".long-term").toggle($(this).val() != "MARKET");
+				      $("#div-stop-price").toggle($(this).val() == "STOPLOSS");
+			    }); // end $("input[name='condition']:radio")
 	
 			}); // end $(document).ready
 			

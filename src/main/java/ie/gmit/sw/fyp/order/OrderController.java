@@ -27,11 +27,4 @@ public class OrderController {
 		
 	}
 	
-	
-	@RequestMapping(method=RequestMethod.GET, value="/client.html")
-	public String getClient() {
-		return "client";
-		
-	}
-	
 } // end class OrderController
