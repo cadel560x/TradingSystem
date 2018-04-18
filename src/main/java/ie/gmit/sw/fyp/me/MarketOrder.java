@@ -26,7 +26,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	}
 
 	public MarketOrder(PostRequest postRequest) {
-		properties = postRequest.getProperties();
+		this.properties = postRequest.getProperties();
 		
 		initOrder();
 	}

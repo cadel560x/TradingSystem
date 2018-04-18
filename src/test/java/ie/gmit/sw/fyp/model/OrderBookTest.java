@@ -342,11 +342,12 @@ public class OrderBookTest {
 
 	
 	@Test
-	public void testMatchOrder() {
+	public void testMatchOrder_MarketOrderEmptyMarket() {
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
 		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
 		
+		// Market orders vs empty markets
 		PostRequest postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
@@ -362,7 +363,17 @@ public class OrderBookTest {
 		marketOrder = new MarketOrder(postRequest);
 		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
 		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
+	}
+	
+	
+	@Test
+	public void testMatchOrder_MarketOrderLimitOrder() {	
+		Calendar date = new GregorianCalendar();
+		date.add(Calendar.DAY_OF_MONTH, 1);
+		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
 		
+		// Market orders buy vs limit orders sell
+		PostRequest postRequest = new PostRequest();
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
@@ -385,23 +396,132 @@ public class OrderBookTest {
 		postRequest.setCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
-		marketOrder = new MarketOrder(postRequest);
+		MarketOrder marketOrder = new MarketOrder(postRequest);
 		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(true));
 		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
 		
+		// Market orders sell vs limit orders buy
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(timeStamp);
+		limitOrder = new LimitOrder(postRequest);
 		limitOrder.attachTo(orderBook);
-		LimitOrder anotherLimitOrder = new LimitOrder(limitOrder);
-		anotherLimitOrder.setType(PostOrderType.BUY);
-		anotherLimitOrder.setPrice(2.4999f);
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherLimitOrder), is(false));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().keySet(), contains(2.5f));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.5f), contains(limitOrder));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.5f), hasSize(1));
 		
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setVolume(10);
+		postRequest.setPartialFill(true);
+		marketOrder = new MarketOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(true));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
 		
+		// limit orders buy vs limit orders sell
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.5f);
+		postRequest.setExpirationTime(timeStamp);
+		limitOrder = new LimitOrder(postRequest);
+		limitOrder.attachTo(orderBook);
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().keySet(), contains(2.5f));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), contains(limitOrder));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), hasSize(1));
+		
+		// don't match
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.4999f);
+		postRequest.setExpirationTime(timeStamp);
+		LimitOrder anotherlimitOrder = new LimitOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(false));
+		anotherlimitOrder.attachTo(orderBook);
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.4999f), hasSize(1));
+		
+		// they match
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.5001f);
+		postRequest.setExpirationTime(timeStamp);
+		anotherlimitOrder = new LimitOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(true));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		
+		// limit orders sell vs limit orders buy
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.BUY);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.6f);
+		postRequest.setExpirationTime(timeStamp);
+		limitOrder = new LimitOrder(postRequest);
+		limitOrder.attachTo(orderBook);
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().keySet(), contains(2.6f));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.6f), contains(limitOrder));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.6f), hasSize(1));
+		
+		// don't match
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.5999f);
+		postRequest.setExpirationTime(timeStamp);
+		anotherlimitOrder = new LimitOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(true));
+		anotherlimitOrder.attachTo(orderBook);
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5999f), hasSize(1));
+		
+		// they match
+		postRequest = new PostRequest();
+		postRequest.setUserId("dfgjkaga9");
+		postRequest.setStockTag("AAPL");
+		postRequest.setType(PostOrderType.SELL);
+		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setPartialFill(true);
+		postRequest.setVolume(10);
+		postRequest.setPrice(2.6001f);
+		postRequest.setExpirationTime(timeStamp);
+		anotherlimitOrder = new LimitOrder(postRequest);
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(true));
+		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
 		
 		postRequest.setStopPrice(2.3f);
 		
 		
 		
-//		fail("Not yet implemented");
+		fail("Not yet implemented");
 		
 	}
 
