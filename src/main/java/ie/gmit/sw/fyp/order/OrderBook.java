@@ -11,6 +11,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.Match;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
@@ -33,6 +36,9 @@ public class OrderBook {
 	private BlockingQueue<Match> matchedQueue;
 	private String stockTag;
 	
+//	Data members
+	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
+	private final Logger logMatch = LoggerFactory.getLogger("ie.gmit.sw.fyp.match");
 	
 	
 	
@@ -112,11 +118,13 @@ public class OrderBook {
 			case MARKET:
 		} // end switch
 		
-		if ( ! postRequest.checkProperties(listProperties) ) {
-			return false;
+		logOrder.debug("Inside checkRequest method: " + postRequest.toString());
+		
+		if ( postRequest.checkProperties(listProperties) ) {
+			return true;
 		}
 		
-		return true;
+		return false;
 		
 	} // end checkRequest(PostRequest postRequest)
 	
@@ -137,6 +145,8 @@ public class OrderBook {
 			break;
 		} // end switch
 		
+		logOrder.info(marketOrder.toString());
+		
 		return marketOrder;
 		
 	} // end createOrder(PostRequest postRequest)
@@ -155,6 +165,8 @@ public class OrderBook {
 			otherMarketOrder = new MarketOrder(otherMarketOrder);
 			break;
 		} // end switch
+		
+		logOrder.info(otherMarketOrder.toString());
 		
 		return otherMarketOrder;
 		

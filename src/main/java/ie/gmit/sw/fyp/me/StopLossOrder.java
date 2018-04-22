@@ -111,4 +111,11 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 		
 	} // end attachTo(OrderBook orderBook)
 
+	
+	@Override
+	public String toString() {
+		return "StopLossOrder [properties=" + properties + "]";
+		
+	} // end toString()
+
 } // end class PostOrder

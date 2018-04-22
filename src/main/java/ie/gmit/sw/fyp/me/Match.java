@@ -75,12 +75,6 @@ public class Match {
 	
 //	Methods
 	public void setFilledShares() {
-//		filledShares = Math.abs( sellOrder.getVolume() - buyOrder.getVolume() );
-//		
-//		if ( filledShares == 0 ) {
-//			filledShares = sellOrder.getVolume();
-//		}
-		
 		filledShares = sellOrder.getVolume();
 		
 		if ( sellOrder.getVolume() > buyOrder.getVolume() ) {

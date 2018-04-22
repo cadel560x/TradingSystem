@@ -147,4 +147,11 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		
 	} // end equals(Object obj)
 
+	
+	@Override
+	public String toString() {
+		return "MarketOrder [properties=" + properties + "]";
+		
+	} // end toString()
+
 } // end class PostOrder

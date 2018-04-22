@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/base.xml"/>
+	<logger name="org.springframework.web" level="DEBUG"/>
+	
+	<property name="ORDERS_LOG_FILE" value="orders.log" />
+	<appender name="FILE-ORDERS"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${ORDERS_LOG_FILE}</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${ORDERS_LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+			<maxHistory>${LOG_FILE_MAX_HISTORY:-0}</maxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<property name="MATCHES_LOG_FILE" value="matches.log" />
+	<appender name="FILE-MATCHES"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${MATCHES_LOG_FILE}</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${MATCHES_LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+			<maxHistory>${LOG_FILE_MAX_HISTORY:-0}</maxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<property name="REQUESTS_LOG_FILE" value="requests.log" />
+	<appender name="FILE-MATCHES"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${REQUESTS_LOG_FILE}</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${REQUESTS_LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+			<maxHistory>${LOG_FILE_MAX_HISTORY:-0}</maxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<logger name="ie.gmit.sw.fyp.order" level="INFO" additivity="false">
+        <appender-ref ref="FILE-ORDERS"/>
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="ie.gmit.sw.fyp.match" level="INFO" additivity="false">
+        <appender-ref ref="FILE-MATCHES"/>
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="ie.gmit.sw.fyp.requests" level="INFO" additivity="false">
+        <appender-ref ref="FILE-MATCHES"/>
+        <appender-ref ref="CONSOLE" />
+    </logger>
+	
+</configuration>

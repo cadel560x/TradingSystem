@@ -86,4 +86,11 @@ public class PostRequest extends PostEntity {
 	
 	} // end checkProperties
 
+
+	@Override
+	public String toString() {
+		return "PostRequest [properties=" + properties + "]";
+		
+	} // end toString()
+
 } // end class PostRequest

@@ -11,6 +11,7 @@ import ie.gmit.sw.fyp.order.OrderStatus;
 
 
 
+
 public class LimitOrder extends MarketOrder implements PostOrder {
 //	Fields
 	
@@ -124,5 +125,12 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		return (int) (this.getPrice() * 10000);
 		
 	} // end hashCode()
+
+	
+	@Override
+	public String toString() {
+		return "LimitOrder [properties=" + properties + "]";
+		
+	} // end toString()
 
 } // end class PostOrder
