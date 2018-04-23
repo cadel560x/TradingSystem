@@ -42,6 +42,7 @@ public class OrderBook {
 	
 	
 	
+	
 //	Constructor
 	public OrderBook(String stockTag) {
 		this.stockTag = stockTag;
@@ -203,11 +204,13 @@ public class OrderBook {
 				collectionType.append("SELL");
 			}
 			System.err.println(collectionType + " collection in stock market " + stockTag + " is empty." );
+			logOrder.warn(collectionType + " collection in stock market " + stockTag + " is empty." );
 			
-//			return false;
 		}
 		else {	
 			bestStopLoss = bestStopLossEntry.getValue().peek();
+			
+			logOrder.debug("bestStopLoss: " + bestStopLoss.toString());
 		}
 		
 		
@@ -220,96 +223,134 @@ public class OrderBook {
 				collectionType.append("SELL");
 			}
 			System.err.println("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			logOrder.warn("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
 			
-//			return false;
 		}
 		else {
 			bestOffer = bestOfferEntry.getValue().peek();
+			
+			logOrder.debug("bestOffer: " + bestOffer.toString());
 		}
 		
 		if ( bestOfferEntry == null && bestStopLossEntry == null ) {
+			logOrder.warn("No offers in market (empty market?)");
+			
 			return false;
 		}
 		
 		LimitOrder bestOption = null;
 		
-			//
-			if ( marketOrder.matches(bestOffer) ) {
-				bestOption = bestOffer;
+		//
+		if ( marketOrder.matches(bestOffer) ) {
+			bestOption = bestOffer;
+			
+			logOrder.debug("bestOption: " + bestOption.toString());
+		}
+		else if ( bestStopLoss != null &&  ( marketOrder instanceof LimitOrder ) ) {
+			LimitOrder limitOrder = (LimitOrder)marketOrder;
+			if ( bestStopLoss.matches(limitOrder) ) {
+				bestOption = bestStopLoss;
+				
+				logOrder.debug("bestOption: " + bestOption.toString());
 			}
-			else if ( bestStopLoss != null &&  (marketOrder instanceof LimitOrder) ) {
-				LimitOrder limitOrder = (LimitOrder)marketOrder;
-				if ( bestStopLoss.matches(limitOrder) ) {
-					bestOption = bestStopLoss;
-				}
-			} // if - else if
+		} // if - else if
+		
+		if ( bestOption != null ) {
+			marketOrder.setStatus(OrderStatus.MATCHED);
+			bestOption.setStatus(OrderStatus.MATCHED);
+			
+			logOrder.info("Order " + marketOrder.getId() + " matched with " + bestOption.getId());
 			
 			
-			if (bestOption != null) {
-				marketOrder.setStatus(OrderStatus.MATCHED);
-				bestOption.setStatus(OrderStatus.MATCHED);
+			if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY ) {
+				match = new Match(marketOrder, bestOption);
 				
+				logMatch.info("Match created: " + match.getId());
+				logMatch.debug("Match sell order: " + marketOrder.toString());
+				logMatch.debug("Match buy order" + bestOption.toString());
+			}
+			else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
+				match = new Match(bestOption, marketOrder);
 				
-				if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY )
-					match = new Match(marketOrder, bestOption);
-				else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
-					match = new Match(bestOption, marketOrder);
+				logMatch.info("Match created: " + match.getId());
+				logMatch.debug("Match sell order: " + bestOption.toString());
+				logMatch.debug("Match buy order" + marketOrder.toString());
+			}
+			
+			// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
+			if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
+				MarketOrder spawnPostOrder = null;
+				
+				if ( marketOrder.getVolume() > bestOption.getVolume() ) {
+					marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
+					logMatch.info("Order " + marketOrder.getId() + marketOrder.getStatus());
+					logMatch.debug(marketOrder.toString());
+					logOrder.debug(marketOrder.toString());
+					
+					spawnPostOrder = this.createOrder(marketOrder);
 				}
+				else if ( marketOrder.getVolume() < bestOption.getVolume() ) {
+					bestOption.setStatus(OrderStatus.PARTIALLYMATCHED);
+					logMatch.info("Order " + bestOption.getId() + bestOption.getStatus());
+					logMatch.debug(bestOption.toString());
+					logOrder.debug(bestOption.toString());
+					
+					spawnPostOrder = this.createOrder(bestOption);
+				}
+				//
+				spawnPostOrder.setVolume(match.getRemainingShares());
+				spawnPostOrder.attachTo(this);
+				logOrder.info("Order " + spawnPostOrder.getId() + " resubmitted into the market with " + spawnPostOrder.getVolume() + " shares");
+				logMatch.info("Order " + spawnPostOrder.getId() + " resubmitted into the market with " + spawnPostOrder.getVolume() + " shares");
 				
-				// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
-				if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
-					MarketOrder spawnPostOrder = null;
-					
-					if ( marketOrder.getVolume() > bestOption.getVolume() ) {
-						marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
-						spawnPostOrder = this.createOrder(marketOrder);
-					}
-					else if ( marketOrder.getVolume() < bestOption.getVolume() ) {
-						bestOption.setStatus(OrderStatus.PARTIALLYMATCHED);
-						spawnPostOrder = this.createOrder(bestOption);
-					}
-					//
-					spawnPostOrder.setVolume(match.getRemainingShares());
-					spawnPostOrder.attachTo(this);
-					match.setVolumes();
-					
-				} // end if ( postOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() )
+				match.setVolumes();
+				logMatch.info("Setting match " + match.getId() + " filled shares to: " + match.getFilledShares());
+				
+			} // end if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() )
 	
 				
+			//
+			// TODO Change this for an Observable?? (Notification engine as a subscriber?)
+			matchedQueue.offer(match);
+			logMatch.info("Match " + match.getId() + " inserted into que match queue");
+			
+			if ( bestOption.getCondition() == PostOrderCondition.LIMIT) {
 				//
-				// TODO Change this for an Observable?? (Notification engine as a subscriber?)
-				matchedQueue.offer(match);
+				bestOfferEntry.getValue().poll();
+				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
 				
-				if ( bestOption.getCondition() == PostOrderCondition.LIMIT) {
-					//
-					bestOfferEntry.getValue().poll();
-					if ( bestOfferEntry.getValue().isEmpty() ) {
-						offerOrders.remove(bestOfferEntry.getKey());
-					}
+				if ( bestOfferEntry.getValue().isEmpty() ) {
+					offerOrders.remove(bestOfferEntry.getKey());
+					logOrder.debug(bestOption.getType() + " " + bestOption.getCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
 				}
-				else if (bestOption.getCondition() == PostOrderCondition.STOPLOSS) {
-					Collection<StopLossOrder>stopLossQueue = stopLossOrders.get( ((StopLossOrder)bestOption).getStopPrice() );
-					Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
-					
-					stopLossQueue.remove(bestOption);
-					limitQueue.remove(bestOption);
-					
-					if ( stopLossQueue.isEmpty() ) {
-						stopLossOrders.remove( ((StopLossOrder)bestOption).getStopPrice());
-					}
-					
-					if (limitQueue.isEmpty() ) {
-						offerOrders.remove(bestOption.getPrice());
-					}
-					
-				} // end if - else
+			}
+			else if (bestOption.getCondition() == PostOrderCondition.STOPLOSS) {
+				Collection<StopLossOrder>stopLossQueue = stopLossOrders.get( ((StopLossOrder)bestOption).getStopPrice() );
+				Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
 				
-				return true;
+				stopLossQueue.remove(bestOption);
+				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " " + bestOption.getType() + " " + bestOption.getCondition() +  " queue");
+				limitQueue.remove(bestOption);
+				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
 				
-			} // end if (bestOption != null)
+				if ( stopLossQueue.isEmpty() ) {
+					stopLossOrders.remove( ((StopLossOrder)bestOption).getStopPrice());
+					logOrder.debug(bestOption.getType() + " " + bestOption.getCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
+				}
+				
+				if (limitQueue.isEmpty() ) {
+					offerOrders.remove(bestOption.getPrice());
+					logOrder.debug(bestOption.getType() + " LIMIT queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
+				}
+				
+			} // end if ( bestOption.getCondition() == PostOrderCondition.LIMIT) - else
+			
+			return true;
+				
+		} // end if (bestOption != null)
 
 		return false;
 		
-	} // end matchOrder(PostOrder postOrder)
+	} // end matchOrder(MarketOrder marketOrder)
 	
 } // end class OrderBook
