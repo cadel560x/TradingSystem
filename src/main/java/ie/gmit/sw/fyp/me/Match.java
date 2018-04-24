@@ -3,11 +3,16 @@ package ie.gmit.sw.fyp.me;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 
 
+
+//@Entity
 public class Match {
 //	Fields
+//	@Id
 	private String Id;
 	private MarketOrder sellOrder;
 	private MarketOrder buyOrder;

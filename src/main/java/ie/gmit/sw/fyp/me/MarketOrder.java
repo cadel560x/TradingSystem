@@ -5,13 +5,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import ie.gmit.sw.fyp.order.Order;
 import ie.gmit.sw.fyp.order.OrderBook;
 import ie.gmit.sw.fyp.order.OrderStatus;
 
 
 
-
+//@Entity
 public class MarketOrder extends PostEntity implements Order, PostOrder {
 //	Fields
 	
@@ -45,6 +49,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 //	Delegated Methods
+//	@Id
 	public String getId() {
 		return (String) properties.get("Id");
 	}
@@ -53,6 +58,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		properties.put("Id", Id);
 	}
 
+	@Column(name="timestamp")
 	public Timestamp getTimestamp() {
 		return (Timestamp) properties.get("timestamp");
 	}
@@ -64,6 +70,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		properties.put("timestamp", timestamp);
 	}
 
+	@Column(name="status")
 	public OrderStatus getStatus() {
 		return (OrderStatus) properties.get("status");
 	}
