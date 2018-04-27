@@ -20,21 +20,28 @@ public class MarketOrderService {
 	@Autowired
 	private LimitOrderService limitOrderService;
 	
+	@Autowired
+	private StopLossOrderService stopLossOrderService;
+	
 	
 	
 	
 //	Methods
 	public void save(MarketOrder marketOrder) {
-		if ( marketOrder instanceof LimitOrder ) {
+		if ( marketOrder instanceof StopLossOrder ) {
+			stopLossOrderService.save((StopLossOrder) marketOrder);
+		}
+		else if ( marketOrder instanceof LimitOrder ) {
 			limitOrderService.save((LimitOrder) marketOrder);
 		}
-		else if ( marketOrder instanceof StopLossOrder ) {
-			
-		}
 		else {
-			marketOrderRepository.save(marketOrder);
-		}
+			marketOrderRepository.save(
+					marketOrder.getId(), marketOrder.getTimestamp() , marketOrder.getUserId() , marketOrder.getStockTag(),
+					marketOrder.getOrderCondition().name(), marketOrder.getType().name(), marketOrder.getVolume(),
+					marketOrder.isPartialFill(), marketOrder.getStatus().name()
+					);
+		} // end if - else if - else
 		
-	}
+	} // end save(MarketOrder marketOrder)
 
 } // end class OrderMatchService

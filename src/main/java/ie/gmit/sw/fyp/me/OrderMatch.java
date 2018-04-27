@@ -3,14 +3,10 @@ package ie.gmit.sw.fyp.me;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
 
 
@@ -21,18 +17,12 @@ public class OrderMatch {
 	@Id
 	private String Id;
 	
-//	@Transient
 	@OneToOne
-//	@ManyToOne
 	@JoinColumn(name="sell_order")
 	private MarketOrder sellOrder;
 	
-//	@Transient
-//	@OneToMany
-//	@ManyToOne
 	@OneToOne
 	@JoinColumn(name="buy_order")
-//	@Column(columnDefinition = "smallint")
 	private MarketOrder buyOrder;
 	
 	private Timestamp timestamp;

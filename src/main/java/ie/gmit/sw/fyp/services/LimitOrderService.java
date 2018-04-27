@@ -26,6 +26,6 @@ public class LimitOrderService {
 				limitOrder.isPartialFill(), limitOrder.getExpirationTime(), limitOrder.getStatus().name()
 				);
 		
-	}
+	} // end save(LimitOrder limitOrder)
 
 } // end class OrderMatchService

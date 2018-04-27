@@ -2,7 +2,6 @@ package ie.gmit.sw.fyp.me;
 
 import java.util.Map;
 
-import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
@@ -52,14 +51,11 @@ public abstract class PostEntity implements Transaction {
 	
 //	Implemented Abstract Methods
 	@Override
-//	@Column
-//	@Transient
 	public String getUserId() {
 		return (String) properties.get("userId");
 	}
 
 	@Override
-//	@Transient
 	public void setUserId(String userId) {
 		if ( ! UserService.checkUserId(userId) ) {
 			throw new IllegalArgumentException("Invalid user Id");
@@ -69,14 +65,11 @@ public abstract class PostEntity implements Transaction {
 	}
 
 	@Override
-//	@Column
-//	@Transient
 	public String getStockTag() {
 		return (String) properties.get("stockTag");
 	}
 
 	@Override
-//	@Transient
 	public void setStockTag(String stockTag) {
 		if ( ! StockService.checkStockTag(stockTag) ) {
 			throw new IllegalArgumentException("Invalid stock tag");
@@ -89,34 +82,28 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Delegated Methods
-//	@Transient
 	@Enumerated(EnumType.STRING)
 	public PostOrderType getType() {
 		return (PostOrderType) properties.get("type");
 	}
 	
-//	@Transient
 	public void setType(PostOrderType type) {
 		properties.put("type", type);
 	}
 	
-//	@Transient
 	@Enumerated(EnumType.STRING)
 	public PostOrderCondition getOrderCondition() {
 		return (PostOrderCondition) properties.get("condition");
 	}
 	
-//	@Transient
 	public void setOrderCondition(PostOrderCondition condition) {
 		properties.put("condition", condition);
 	}
 	
-//	@Transient
 	public int getVolume() {
 		return (int) properties.get("volume");
 	}
 
-//	@Transient
 	public void setVolume(int volume) {
 		if ( volume <= 0 ) {
 			throw new IllegalArgumentException("Invalid volume value");
@@ -124,13 +111,11 @@ public abstract class PostEntity implements Transaction {
 		properties.put("volume", volume);
 	}
 
-//	@Transient
 	public boolean isPartialFill() {
 		return (boolean) properties.get("partialFill");
 
 	}
 
-//	@Transient
 	public void setPartialFill(boolean partialFill) {
 		properties.put("partialFill", partialFill);
 	}

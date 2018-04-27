@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,9 +12,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import ie.gmit.sw.fyp.order.Order;
 import ie.gmit.sw.fyp.order.OrderBook;
@@ -26,7 +22,6 @@ import ie.gmit.sw.fyp.order.OrderStatus;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-//@AttributeOverride(name = "properties", column = @Column(name = "properties", insertable = false, updatable = false))
 public class MarketOrder extends PostEntity implements Order, PostOrder {
 //	Fields
 	
@@ -60,9 +55,6 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 //	Delegated Methods
-//	@OneToOne(mappedBy="buyOrder")
-//	@ManyToOne
-//	@JoinColumn(name="buyOrder")
 	@Id
 	public String getId() {
 		return (String) properties.get("Id");
@@ -87,7 +79,6 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	}
 
 	@Enumerated(EnumType.STRING)
-//	@Column(name="status")
 	public OrderStatus getStatus() {
 		return (OrderStatus) properties.get("status");
 	}
@@ -108,7 +99,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 	
-	//	Methods
+//	Methods
 	public void initOrder() {
 		this.setId( UUID.randomUUID().toString() );
 		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
@@ -132,7 +123,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		// Anything else is a match
 		return true;
 		
-	} // end match(MarketOrder other) 
+	} // end matches(LimitOrder other) 
 	
 	
 	@Override
