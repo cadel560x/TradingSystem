@@ -49,7 +49,7 @@ public class LimitOrderTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
@@ -96,7 +96,7 @@ public class LimitOrderTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(5);
 		postRequest.setPartialFill(true);

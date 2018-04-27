@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.MarketOrder;
-import ie.gmit.sw.fyp.me.Match;
+import ie.gmit.sw.fyp.me.OrderMatch;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
@@ -38,7 +38,7 @@ public class MatchTest {
 	private LimitOrder limitOrder;
 	private StopLossOrder stopLossOrder;
 	private PostRequest postRequest;
-	private Match match;
+	private OrderMatch match;
 	
 	
 	
@@ -52,7 +52,7 @@ public class MatchTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
@@ -65,7 +65,7 @@ public class MatchTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
@@ -77,19 +77,19 @@ public class MatchTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		marketOrder = new MarketOrder(postRequest);
 		marketOrder.setStatus(OrderStatus.MATCHED);
 		
-		match = new Match(limitOrder, marketOrder);
+		match = new OrderMatch(limitOrder, marketOrder);
 		
 	}
 
 	@Test
 	public void testMatch() {
-		Match emptyMatch = new Match();
+		OrderMatch emptyMatch = new OrderMatch();
 		
 		assertThat("Match empty constructor", emptyMatch.getId(), not(isEmptyString()));
 		
@@ -103,7 +103,7 @@ public class MatchTest {
 	public void testMatchMarketOrderMarketOrder_wrongOrder() {
 //		Invalid parameter order
 		@SuppressWarnings("unused")
-		Match wrongOrder = new Match(marketOrder, limitOrder);
+		OrderMatch wrongOrder = new OrderMatch(marketOrder, limitOrder);
 		
 	}
 	
@@ -112,7 +112,7 @@ public class MatchTest {
 	public void testMatchMarketOrderMarketOrder_wrongBuyBuy() {
 //		Invalid parameter order
 		@SuppressWarnings("unused")
-		Match wrongOrder = new Match(marketOrder, marketOrder);
+		OrderMatch wrongOrder = new OrderMatch(marketOrder, marketOrder);
 		
 	}
 	
@@ -121,14 +121,14 @@ public class MatchTest {
 	public void testMatchMarketOrderMarketOrder_wrongSellSell() {
 //		Invalid parameter order
 		@SuppressWarnings("unused")
-		Match wrongOrder = new Match(limitOrder, limitOrder);
+		OrderMatch wrongOrder = new OrderMatch(limitOrder, limitOrder);
 		
 	}
 	
 	
 	@Test
 	public void testMatchMarketOrderMarketOrder() {
-		Match newMatch = new Match(stopLossOrder, marketOrder);
+		OrderMatch newMatch = new OrderMatch(stopLossOrder, marketOrder);
 		
 		// The property in the 'Match' class is 'Id' with capital I, but 'hasProperty' seems to work with properties whose names start with lower case letters
 		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch, hasProperty("id"));

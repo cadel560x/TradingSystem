@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
-import ie.gmit.sw.fyp.me.Match;
+import ie.gmit.sw.fyp.me.OrderMatch;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.MarketOrder;
@@ -33,7 +33,7 @@ public class OrderBook {
 	private Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
 	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
 	
-	private BlockingQueue<Match> matchedQueue;
+	private BlockingQueue<OrderMatch> matchedQueue;
 	private String stockTag;
 	
 //	Data members
@@ -99,7 +99,7 @@ public class OrderBook {
 		this.sellStopLossOrders = sellStopLossOrders;
 	}
 
-	public BlockingQueue<Match> getMatchedQueue() {
+	public BlockingQueue<OrderMatch> getMatchedQueue() {
 		return matchedQueue;
 	}
 
@@ -110,7 +110,7 @@ public class OrderBook {
 	public boolean checkRequest(PostRequest postRequest) {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));
 		
-		switch(postRequest.getCondition()) {
+		switch(postRequest.getOrderCondition()) {
 			case STOPLOSS:
 				listProperties.add("stopPrice");
 			case LIMIT:
@@ -134,7 +134,7 @@ public class OrderBook {
 		MarketOrder marketOrder = null;
 		
 		// Factory pattern		
-		switch(postRequest.getCondition()) {
+		switch(postRequest.getOrderCondition()) {
 		case STOPLOSS:
 			marketOrder = new StopLossOrder(postRequest);
 			break;
@@ -155,7 +155,7 @@ public class OrderBook {
 	
 	public MarketOrder createOrder(MarketOrder otherMarketOrder) {
 		// Factory pattern
-		switch(otherMarketOrder.getCondition()) {
+		switch(otherMarketOrder.getOrderCondition()) {
 		case STOPLOSS:
 			otherMarketOrder = new StopLossOrder((StopLossOrder)otherMarketOrder);
 			break;
@@ -183,7 +183,7 @@ public class OrderBook {
 		
 		StopLossOrder bestStopLoss = null;
 		LimitOrder bestOffer = null;
-		Match match = null;
+		OrderMatch match = null;
 		
 		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
@@ -263,14 +263,14 @@ public class OrderBook {
 			
 			
 			if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY ) {
-				match = new Match(marketOrder, bestOption);
+				match = new OrderMatch(marketOrder, bestOption);
 				
 				logMatch.info("Match created: " + match.getId());
 				logMatch.debug("Match sell order: " + marketOrder.toString());
 				logMatch.debug("Match buy order" + bestOption.toString());
 			}
 			else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
-				match = new Match(bestOption, marketOrder);
+				match = new OrderMatch(bestOption, marketOrder);
 				
 				logMatch.info("Match created: " + match.getId());
 				logMatch.debug("Match sell order: " + bestOption.toString());
@@ -310,32 +310,32 @@ public class OrderBook {
 	
 				
 			//
-			// TODO Change this for an Observable?? (Notification engine as a subscriber?)
 			matchedQueue.offer(match);
+			
 			logMatch.info("Match " + match.getId() + " inserted into que match queue");
 			
-			if ( bestOption.getCondition() == PostOrderCondition.LIMIT) {
+			if ( bestOption.getOrderCondition() == PostOrderCondition.LIMIT) {
 				//
 				bestOfferEntry.getValue().poll();
 				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
 				
 				if ( bestOfferEntry.getValue().isEmpty() ) {
 					offerOrders.remove(bestOfferEntry.getKey());
-					logOrder.debug(bestOption.getType() + " " + bestOption.getCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
+					logOrder.debug(bestOption.getType() + " " + bestOption.getOrderCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
 				}
 			}
-			else if (bestOption.getCondition() == PostOrderCondition.STOPLOSS) {
+			else if (bestOption.getOrderCondition() == PostOrderCondition.STOPLOSS) {
 				Collection<StopLossOrder>stopLossQueue = stopLossOrders.get( ((StopLossOrder)bestOption).getStopPrice() );
 				Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
 				
 				stopLossQueue.remove(bestOption);
-				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " " + bestOption.getType() + " " + bestOption.getCondition() +  " queue");
+				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " " + bestOption.getType() + " " + bestOption.getOrderCondition() +  " queue");
 				limitQueue.remove(bestOption);
 				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
 				
 				if ( stopLossQueue.isEmpty() ) {
 					stopLossOrders.remove( ((StopLossOrder)bestOption).getStopPrice());
-					logOrder.debug(bestOption.getType() + " " + bestOption.getCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
+					logOrder.debug(bestOption.getType() + " " + bestOption.getOrderCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
 				}
 				
 				if (limitQueue.isEmpty() ) {

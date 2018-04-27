@@ -2,6 +2,12 @@ package ie.gmit.sw.fyp.me;
 
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import ie.gmit.sw.fyp.order.StockService;
@@ -11,6 +17,7 @@ import ie.gmit.sw.fyp.order.UserService;
 
 
 
+@MappedSuperclass
 public abstract class PostEntity implements Transaction {
 //	Data members
 //	Singleton pattern
@@ -23,16 +30,19 @@ public abstract class PostEntity implements Transaction {
 //	private StockService stockService;
 	
 //	Fields
+	@Transient
 	protected Map<String, Object> properties;
 	
 	
 	
 	
 //	Accesors and mutators
+	@Transient
 	public Map<String, Object> getProperties() {
 		return properties;
 	}
 	
+	@Transient
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
@@ -41,11 +51,15 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Implemented Abstract Methods
+	@Override
+//	@Column
+//	@Transient
 	public String getUserId() {
 		return (String) properties.get("userId");
 	}
 
 	@Override
+//	@Transient
 	public void setUserId(String userId) {
 		if ( ! UserService.checkUserId(userId) ) {
 			throw new IllegalArgumentException("Invalid user Id");
@@ -55,11 +69,14 @@ public abstract class PostEntity implements Transaction {
 	}
 
 	@Override
+//	@Column
+//	@Transient
 	public String getStockTag() {
 		return (String) properties.get("stockTag");
 	}
 
 	@Override
+//	@Transient
 	public void setStockTag(String stockTag) {
 		if ( ! StockService.checkStockTag(stockTag) ) {
 			throw new IllegalArgumentException("Invalid stock tag");
@@ -72,27 +89,34 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Delegated Methods
+//	@Transient
+	@Enumerated(EnumType.STRING)
 	public PostOrderType getType() {
 		return (PostOrderType) properties.get("type");
 	}
 	
+//	@Transient
 	public void setType(PostOrderType type) {
 		properties.put("type", type);
 	}
 	
-	public PostOrderCondition getCondition() {
+//	@Transient
+	@Enumerated(EnumType.STRING)
+	public PostOrderCondition getOrderCondition() {
 		return (PostOrderCondition) properties.get("condition");
 	}
 	
-	public void setCondition(PostOrderCondition condition) {
+//	@Transient
+	public void setOrderCondition(PostOrderCondition condition) {
 		properties.put("condition", condition);
 	}
 	
-
+//	@Transient
 	public int getVolume() {
 		return (int) properties.get("volume");
 	}
 
+//	@Transient
 	public void setVolume(int volume) {
 		if ( volume <= 0 ) {
 			throw new IllegalArgumentException("Invalid volume value");
@@ -100,10 +124,13 @@ public abstract class PostEntity implements Transaction {
 		properties.put("volume", volume);
 	}
 
+//	@Transient
 	public boolean isPartialFill() {
 		return (boolean) properties.get("partialFill");
+
 	}
 
+//	@Transient
 	public void setPartialFill(boolean partialFill) {
 		properties.put("partialFill", partialFill);
 	}
@@ -112,11 +139,13 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Methods
+	@Transient
 	public boolean isBuy() {
 		return ( properties.get("type") == PostOrderType.BUY );
 		
 	} // end isBuy()
 	
+	@Transient
 	public boolean isSell() {
 		return ! this.isBuy();
 		

@@ -2,15 +2,20 @@ package ie.gmit.sw.fyp.order;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ie.gmit.sw.fyp.me.MarketOrder;
+import ie.gmit.sw.fyp.me.OrderMatch;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
+import ie.gmit.sw.fyp.services.MarketOrderService;
+import ie.gmit.sw.fyp.services.OrderMatchService;
 
 
 
@@ -18,6 +23,12 @@ import ie.gmit.sw.fyp.notification.Notification;
 @Service
 public class OrderBookService {
 //	Fields
+	@Autowired
+	private OrderMatchService orderMatchService;
+	
+	@Autowired
+	private MarketOrderService marketOrderService;
+	
 	private Map<String, OrderBook> orderBooks;
 	
 //	Data members
@@ -67,6 +78,9 @@ public class OrderBookService {
 			logOrder.info("Order created: " + marketOrder.getId());
 			logOrder.debug(marketOrder.toString());
 			
+			// Save the newly created 'marketOrder' in DB
+			marketOrderService.save(marketOrder);
+			
 			notification.setMessage("Request accepted: OrderId " + (marketOrder).getId());
 		}
 		else {
@@ -82,18 +96,24 @@ public class OrderBookService {
 			logOrder.info("Order matched: " + marketOrder.getId());
 			notification.updateMessage("\nMATCHED");
 			
+			// Do some housekeeping and save order matches into the DB
+			OrderMatch orderMatch = orderBook.getMatchedQueue().poll();
+			if ( orderMatch != null ) {
+				orderMatchService.save(orderMatch);
+			}
+			
 			return notification;
 		}
 		else {
 			// TODO Remove this! Use an Observable for notifications
 			marketOrder.attachTo(orderBook);
 			logOrder.info("Order not matched: " + marketOrder.getId());
-			logOrder.info("Order " + marketOrder.getId() + " pacled in market " + marketOrder.getStockTag() + ", queued in " + marketOrder.getType() + " " + marketOrder.getCondition() + " queue");
+			logOrder.info("Order " + marketOrder.getId() + " pacled in market " + marketOrder.getStockTag() + ", queued in " + marketOrder.getType() + " " + marketOrder.getOrderCondition() + " queue");
 			
-			if ( marketOrder.getCondition() == PostOrderCondition.MARKET ) {
+			if ( marketOrder.getOrderCondition() == PostOrderCondition.MARKET ) {
 				marketOrder.setStatus(OrderStatus.ERROR);
 				
-				logOrder.error(marketOrder.getCondition() + " order " + marketOrder.getId() + " not matched. Discarded");
+				logOrder.error(marketOrder.getOrderCondition() + " order " + marketOrder.getId() + " not matched. Discarded");
 				notification.updateMessage("\nNOT MATCHED");
 			}
 			
