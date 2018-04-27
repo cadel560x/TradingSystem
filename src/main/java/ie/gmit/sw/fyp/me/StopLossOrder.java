@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.persistence.Entity;
 
-import ie.gmit.sw.fyp.order.OrderBook;
-import ie.gmit.sw.fyp.order.OrderStatus;
+import ie.gmit.sw.fyp.model.OrderBook;
+import ie.gmit.sw.fyp.model.OrderStatus;
 
 
 

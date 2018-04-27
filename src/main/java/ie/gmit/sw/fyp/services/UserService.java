@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.order;
+package ie.gmit.sw.fyp.services;
 
 import java.util.HashMap;
 import java.util.Map;

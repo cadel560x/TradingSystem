@@ -30,10 +30,10 @@ import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.model.OrderBook;
 import ie.gmit.sw.fyp.notification.Notification;
-import ie.gmit.sw.fyp.order.OrderBook;
-import ie.gmit.sw.fyp.order.StockService;
-import ie.gmit.sw.fyp.order.UserService;
+import ie.gmit.sw.fyp.services.StockService;
+import ie.gmit.sw.fyp.services.UserService;
 
 
 

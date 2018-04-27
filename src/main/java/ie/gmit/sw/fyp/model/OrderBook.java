@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.order;
+package ie.gmit.sw.fyp.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -20,7 +20,7 @@ import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
-import ie.gmit.sw.fyp.order.OrderBookService;
+import ie.gmit.sw.fyp.services.OrderBookService;
 
 
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.StopLossOrder;
-import ie.gmit.sw.fyp.order.OrderStatus;
+import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.repositories.MarketOrderRepository;
 
 

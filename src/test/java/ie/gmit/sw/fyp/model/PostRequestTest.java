@@ -23,8 +23,8 @@ import org.junit.Test;
 import ie.gmit.sw.fyp.me.PostOrderCondition;
 import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.PostRequest;
-import ie.gmit.sw.fyp.order.StockService;
-import ie.gmit.sw.fyp.order.UserService;
+import ie.gmit.sw.fyp.services.StockService;
+import ie.gmit.sw.fyp.services.UserService;
 
 
 

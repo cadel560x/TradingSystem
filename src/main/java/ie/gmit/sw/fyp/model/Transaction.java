@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.order;
+package ie.gmit.sw.fyp.model;
 
 public interface Transaction {
 

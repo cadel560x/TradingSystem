@@ -7,11 +7,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-//import org.springframework.beans.factory.annotation.Autowired;
-
-import ie.gmit.sw.fyp.order.StockService;
-import ie.gmit.sw.fyp.order.Transaction;
-import ie.gmit.sw.fyp.order.UserService;
+import ie.gmit.sw.fyp.model.Transaction;
+import ie.gmit.sw.fyp.services.StockService;
+import ie.gmit.sw.fyp.services.UserService;
 
 
 

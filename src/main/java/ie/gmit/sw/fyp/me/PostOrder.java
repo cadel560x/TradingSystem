@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.me;
 
-import ie.gmit.sw.fyp.order.OrderBook;
+import ie.gmit.sw.fyp.model.OrderBook;
 
 
 

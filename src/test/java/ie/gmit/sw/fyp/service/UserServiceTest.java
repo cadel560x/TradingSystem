@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ie.gmit.sw.fyp.order.UserService;
+import ie.gmit.sw.fyp.services.UserService;
 
 
 

@@ -13,9 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 
-import ie.gmit.sw.fyp.order.Order;
-import ie.gmit.sw.fyp.order.OrderBook;
-import ie.gmit.sw.fyp.order.OrderStatus;
+import ie.gmit.sw.fyp.model.Order;
+import ie.gmit.sw.fyp.model.OrderBook;
+import ie.gmit.sw.fyp.model.OrderStatus;
 
 
 
