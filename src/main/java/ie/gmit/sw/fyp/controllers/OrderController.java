@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import ie.gmit.sw.fyp.me.PostRequest;
+import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.services.OrderBookService;
 

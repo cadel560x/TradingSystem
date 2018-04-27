@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.matchengine;
 
 import java.sql.Timestamp;
 import java.util.UUID;

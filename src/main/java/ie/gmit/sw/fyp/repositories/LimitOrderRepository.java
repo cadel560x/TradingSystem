@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import ie.gmit.sw.fyp.me.LimitOrder;
+import ie.gmit.sw.fyp.matchengine.LimitOrder;
 
 
 

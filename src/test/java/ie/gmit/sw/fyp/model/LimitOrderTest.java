@@ -15,10 +15,10 @@ import java.util.GregorianCalendar;
 import org.junit.Before;
 import org.junit.Test;
 
-import ie.gmit.sw.fyp.me.LimitOrder;
-import ie.gmit.sw.fyp.me.PostOrderCondition;
-import ie.gmit.sw.fyp.me.PostOrderType;
-import ie.gmit.sw.fyp.me.PostRequest;
+import ie.gmit.sw.fyp.matchengine.LimitOrder;
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
+import ie.gmit.sw.fyp.matchengine.PostOrderType;
+import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.model.OrderBook;
 import ie.gmit.sw.fyp.services.StockService;
 import ie.gmit.sw.fyp.services.UserService;

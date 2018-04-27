@@ -14,13 +14,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ie.gmit.sw.fyp.me.LimitOrder;
-import ie.gmit.sw.fyp.me.OrderMatch;
-//import ie.gmit.sw.fyp.me.PostOrderCondition;
-//import ie.gmit.sw.fyp.me.PostOrderType;
-import ie.gmit.sw.fyp.me.MarketOrder;
-import ie.gmit.sw.fyp.me.PostRequest;
-import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.matchengine.LimitOrder;
+import ie.gmit.sw.fyp.matchengine.MarketOrder;
+import ie.gmit.sw.fyp.matchengine.OrderMatch;
+import ie.gmit.sw.fyp.matchengine.PostRequest;
+import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 
 
 

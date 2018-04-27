@@ -1,4 +1,4 @@
-package ie.gmit.sw.fyp.me;
+package ie.gmit.sw.fyp.matchengine;
 
 public enum PostOrderCondition {
 	LIMIT,

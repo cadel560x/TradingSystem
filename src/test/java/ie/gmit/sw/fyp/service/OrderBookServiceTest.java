@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ie.gmit.sw.fyp.me.PostOrderCondition;
-import ie.gmit.sw.fyp.me.PostOrderType;
-import ie.gmit.sw.fyp.me.PostRequest;
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
+import ie.gmit.sw.fyp.matchengine.PostOrderType;
+import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.services.OrderBookService;
 

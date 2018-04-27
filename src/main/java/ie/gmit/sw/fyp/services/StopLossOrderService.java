@@ -3,7 +3,7 @@ package ie.gmit.sw.fyp.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.repositories.StopLossOrderRepository;
 
