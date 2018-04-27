@@ -5,6 +5,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+
 import ie.gmit.sw.fyp.order.Order;
 import ie.gmit.sw.fyp.order.OrderBook;
 import ie.gmit.sw.fyp.order.OrderStatus;
@@ -12,6 +20,8 @@ import ie.gmit.sw.fyp.order.OrderStatus;
 
 
 
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class MarketOrder extends PostEntity implements Order, PostOrder {
 //	Fields
 	
@@ -45,14 +55,18 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 //	Delegated Methods
+	@Id
 	public String getId() {
 		return (String) properties.get("Id");
+//		return "MarketOrder Id";
 	}
 
+	
 	public void setId(String Id) {
 		properties.put("Id", Id);
 	}
 
+	@Column(name="timestamp")
 	public Timestamp getTimestamp() {
 		return (Timestamp) properties.get("timestamp");
 	}
@@ -64,6 +78,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		properties.put("timestamp", timestamp);
 	}
 
+	@Enumerated(EnumType.STRING)
 	public OrderStatus getStatus() {
 		return (OrderStatus) properties.get("status");
 	}
@@ -84,7 +99,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 	
-	//	Methods
+//	Methods
 	public void initOrder() {
 		this.setId( UUID.randomUUID().toString() );
 		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
@@ -108,7 +123,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		// Anything else is a match
 		return true;
 		
-	} // end match(MarketOrder other) 
+	} // end matches(LimitOrder other) 
 	
 	
 	@Override

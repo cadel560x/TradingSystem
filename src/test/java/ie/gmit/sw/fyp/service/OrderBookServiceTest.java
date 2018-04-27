@@ -50,7 +50,7 @@ public class OrderBookServiceTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag(stockTag);
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		
@@ -60,13 +60,13 @@ public class OrderBookServiceTest {
 	
 	@Test
 	public void testAddPostOrder_LimitSell() {
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 	
@@ -74,27 +74,27 @@ public class OrderBookServiceTest {
 	@Test
 	public void testAddPostOrder_LimitBuy() {
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.4f);
 		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 	
 	
 	@Test
 	public void testAddPostOrder_StopLossSell() {
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setPrice(2.5f);
 		postRequest.setStopPrice(2.3f);
 		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 	
@@ -102,14 +102,14 @@ public class OrderBookServiceTest {
 	@Test
 	public void testAddPostOrder_StopLossBuy() {
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setPrice(2.4f);
 		postRequest.setStopPrice(2.6f);
 		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 	
@@ -120,7 +120,7 @@ public class OrderBookServiceTest {
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 	
@@ -130,7 +130,7 @@ public class OrderBookServiceTest {
 		
 		notification = orderBookService.addPostOrder(stockTag, postRequest);
 		System.err.println(notification.getMessage());
-		assertThat("Request was accepted", notification.getMessage(), containsString("ACCEPTED: OrderId "));
+		assertThat("Request was accepted", notification.getMessage(), containsString("Request accepted: OrderId "));
 		
 	}
 

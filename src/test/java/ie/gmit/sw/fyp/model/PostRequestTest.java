@@ -141,7 +141,7 @@ public class PostRequestTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		
 		assertFalse("PostRequest checkProperties MARKET (invalid)", postRequest.checkProperties(listProperties));
@@ -160,7 +160,7 @@ public class PostRequestTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		postRequest.setPrice(2.5f);
@@ -185,7 +185,7 @@ public class PostRequestTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		postRequest.setPrice(2.5f);
@@ -272,26 +272,26 @@ public class PostRequestTest {
 
 	@Test
 	public void testCondition_MARKET() {
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		
-		assertEquals("PostRequest condition MARKET", PostOrderCondition.MARKET, postRequest.getCondition());
+		assertEquals("PostRequest condition MARKET", PostOrderCondition.MARKET, postRequest.getOrderCondition());
 		
 	}
 	
 	@Test
 	public void testCondition_LIMIT() {
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		
-		assertEquals("PostRequest condition LIMIT", PostOrderCondition.LIMIT, postRequest.getCondition());
+		assertEquals("PostRequest condition LIMIT", PostOrderCondition.LIMIT, postRequest.getOrderCondition());
 		
 	}
 	
 	
 	@Test
 	public void testCondition_STOPLOSS() {
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		
-		assertEquals("PostRequest condition STOPLOSS", PostOrderCondition.STOPLOSS, postRequest.getCondition() );
+		assertEquals("PostRequest condition STOPLOSS", PostOrderCondition.STOPLOSS, postRequest.getOrderCondition() );
 		
 	}
 	

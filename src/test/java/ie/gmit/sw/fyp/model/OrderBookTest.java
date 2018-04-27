@@ -235,7 +235,7 @@ public class OrderBookTest {
 			ParameterizedType matchedQueueFieldsType = (ParameterizedType) matchedQueueFields.getGenericType();
 	        Class<?> matchClass = (Class<?>) matchedQueueFieldsType.getActualTypeArguments()[0];
 			
-			assertThat("OrderBook matchedQueue map key type", matchClass.getSimpleName(), is("Match"));
+			assertThat("OrderBook matchedQueue map key type", matchClass.getSimpleName(), is("OrderMatch"));
 		} catch (NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -253,7 +253,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(false));
 		
@@ -261,13 +261,13 @@ public class OrderBookTest {
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setExpirationTime(timeStamp);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setStopPrice(2.3f);
 		assertThat("OrderBook checkRequest", orderBook.checkRequest(postRequest), is(true));
 		
@@ -284,21 +284,21 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		MarketOrder marketOrder = orderBook.createOrder(postRequest);
 		assertThat("OrderBook createOrder(PostRequest)", marketOrder, isA(MarketOrder.class));
 		
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setExpirationTime(timeStamp);
 		MarketOrder limitOrder = orderBook.createOrder(postRequest);
 		assertThat("OrderBook createOrder(PostRequest)", limitOrder instanceof LimitOrder, is(true));
 		
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setStopPrice(2.3f);
 		MarketOrder stopLossOrder = orderBook.createOrder(postRequest);
 		assertThat("OrderBook createOrder(PostRequest)", stopLossOrder instanceof StopLossOrder, is(true));
@@ -316,7 +316,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		MarketOrder marketOrder = orderBook.createOrder(postRequest);
@@ -324,7 +324,7 @@ public class OrderBookTest {
 		assertThat("OrderBook createOrder(MarketOrder)", anotherMarketOrder, isA(MarketOrder.class));
 		
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setExpirationTime(timeStamp);
 		MarketOrder limitOrder = orderBook.createOrder(postRequest);
@@ -332,7 +332,7 @@ public class OrderBookTest {
 		assertThat("OrderBook createOrder(MarketOrder)", anotherLimitOrder instanceof LimitOrder, is(true));
 		
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.STOPLOSS);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setStopPrice(2.3f);
 		MarketOrder stopLossOrder = orderBook.createOrder(postRequest);
 		MarketOrder anotherStopLossOrder = orderBook.createOrder(stopLossOrder);
@@ -352,7 +352,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		MarketOrder marketOrder = new MarketOrder(postRequest);
@@ -378,7 +378,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		postRequest.setPrice(2.5f);
@@ -393,7 +393,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		MarketOrder marketOrder = new MarketOrder(postRequest);
@@ -405,7 +405,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		postRequest.setPrice(2.5f);
@@ -420,7 +420,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		marketOrder = new MarketOrder(postRequest);
@@ -432,7 +432,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		postRequest.setPrice(2.5f);
@@ -448,7 +448,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		postRequest.setPrice(2.4999f);
@@ -463,7 +463,7 @@ public class OrderBookTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPartialFill(true);
 		postRequest.setVolume(10);
 		postRequest.setPrice(2.5001f);

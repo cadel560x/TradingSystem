@@ -4,12 +4,15 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import javax.persistence.Entity;
+
 import ie.gmit.sw.fyp.order.OrderBook;
 import ie.gmit.sw.fyp.order.OrderStatus;
 
 
 
 
+@Entity
 public class StopLossOrder extends LimitOrder implements PostOrder {
 //	Fields
 	

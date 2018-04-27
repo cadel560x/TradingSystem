@@ -2,6 +2,11 @@ package ie.gmit.sw.fyp.me;
 
 import java.util.Map;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import ie.gmit.sw.fyp.order.StockService;
@@ -11,6 +16,7 @@ import ie.gmit.sw.fyp.order.UserService;
 
 
 
+@MappedSuperclass
 public abstract class PostEntity implements Transaction {
 //	Data members
 //	Singleton pattern
@@ -23,16 +29,19 @@ public abstract class PostEntity implements Transaction {
 //	private StockService stockService;
 	
 //	Fields
+	@Transient
 	protected Map<String, Object> properties;
 	
 	
 	
 	
 //	Accesors and mutators
+	@Transient
 	public Map<String, Object> getProperties() {
 		return properties;
 	}
 	
+	@Transient
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
@@ -41,6 +50,7 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Implemented Abstract Methods
+	@Override
 	public String getUserId() {
 		return (String) properties.get("userId");
 	}
@@ -72,6 +82,7 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Delegated Methods
+	@Enumerated(EnumType.STRING)
 	public PostOrderType getType() {
 		return (PostOrderType) properties.get("type");
 	}
@@ -80,15 +91,15 @@ public abstract class PostEntity implements Transaction {
 		properties.put("type", type);
 	}
 	
-	public PostOrderCondition getCondition() {
+	@Enumerated(EnumType.STRING)
+	public PostOrderCondition getOrderCondition() {
 		return (PostOrderCondition) properties.get("condition");
 	}
 	
-	public void setCondition(PostOrderCondition condition) {
+	public void setOrderCondition(PostOrderCondition condition) {
 		properties.put("condition", condition);
 	}
 	
-
 	public int getVolume() {
 		return (int) properties.get("volume");
 	}
@@ -102,6 +113,7 @@ public abstract class PostEntity implements Transaction {
 
 	public boolean isPartialFill() {
 		return (boolean) properties.get("partialFill");
+
 	}
 
 	public void setPartialFill(boolean partialFill) {
@@ -112,11 +124,13 @@ public abstract class PostEntity implements Transaction {
 	
 	
 //	Methods
+	@Transient
 	public boolean isBuy() {
 		return ( properties.get("type") == PostOrderType.BUY );
 		
 	} // end isBuy()
 	
+	@Transient
 	public boolean isSell() {
 		return ! this.isBuy();
 		

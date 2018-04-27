@@ -50,7 +50,7 @@ public class MarketOrderTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setCondition(PostOrderCondition.MARKET);
+		postRequest.setOrderCondition(PostOrderCondition.MARKET);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		
@@ -93,7 +93,7 @@ public class MarketOrderTest {
 		otherPostRequest.setUserId("uiahfu938");
 		otherPostRequest.setStockTag("GOOGL");
 		otherPostRequest.setType(PostOrderType.BUY);
-		otherPostRequest.setCondition(PostOrderCondition.MARKET);
+		otherPostRequest.setOrderCondition(PostOrderCondition.MARKET);
 		otherPostRequest.setVolume(10);
 		otherPostRequest.setPartialFill(true);
 		
@@ -204,7 +204,7 @@ public class MarketOrderTest {
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.BUY);
-		postRequest.setCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(5);
 		postRequest.setPartialFill(true);
@@ -236,7 +236,7 @@ public class MarketOrderTest {
 		otherPostRequest.setUserId("uiahfu938");
 		otherPostRequest.setStockTag("GOOGL");
 		otherPostRequest.setType(PostOrderType.BUY);
-		otherPostRequest.setCondition(PostOrderCondition.MARKET);
+		otherPostRequest.setOrderCondition(PostOrderCondition.MARKET);
 		otherPostRequest.setVolume(10);
 		otherPostRequest.setPartialFill(true);
 		

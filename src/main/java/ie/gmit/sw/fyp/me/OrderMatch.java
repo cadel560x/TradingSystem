@@ -3,26 +3,40 @@ package ie.gmit.sw.fyp.me;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 
 
-public class Match {
+
+@Entity
+public class OrderMatch {
 //	Fields
+	@Id
 	private String Id;
+	
+	@OneToOne
+	@JoinColumn(name="sell_order")
 	private MarketOrder sellOrder;
+	
+	@OneToOne
+	@JoinColumn(name="buy_order")
 	private MarketOrder buyOrder;
+	
 	private Timestamp timestamp;
 	private int filledShares;
 	
 	
 	
 //	Constructors
-	public Match() {
+	public OrderMatch() {
 		this.timestamp = new Timestamp(System.currentTimeMillis());
 		this.Id = UUID.randomUUID().toString();
 	}
 	
-	public Match(MarketOrder sellOrder, MarketOrder buyOrder) {
+	public OrderMatch(MarketOrder sellOrder, MarketOrder buyOrder) {
 		this.timestamp = new Timestamp(System.currentTimeMillis());
 		this.Id = UUID.randomUUID().toString();
 		
