@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.order.OrderStatus;
 import ie.gmit.sw.fyp.repositories.MarketOrderRepository;
 
 
@@ -43,5 +44,11 @@ public class MarketOrderService {
 		} // end if - else if - else
 		
 	} // end save(MarketOrder marketOrder)
+	
+	
+	public void updateByIdStatus(String id, OrderStatus newStatus) {
+		marketOrderRepository.updateByIdStatus(id, newStatus.name());
+		
+	} // end updateByIdStatus(String id, PostOrderType newStatus)
 
 } // end class OrderMatchService

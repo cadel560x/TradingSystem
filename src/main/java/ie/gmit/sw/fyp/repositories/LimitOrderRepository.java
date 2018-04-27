@@ -22,4 +22,10 @@ public interface LimitOrderRepository extends CrudRepository<LimitOrder, String>
 			@Param("orderCondition") String orderCondition, @Param("type") String type, @Param("price") float price, @Param("volume") int volume,
 			@Param("partialFill") boolean partialFill, @Param("expirationTime") Timestamp expirationTime, @Param("status") String status);
 	
-}
+	
+	@Transactional
+	@Modifying
+	@Query(value="UPDATE limit_order SET status = :status WHERE id = :Id", nativeQuery=true)
+	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
+	
+} // end interface LimitOrderRepository

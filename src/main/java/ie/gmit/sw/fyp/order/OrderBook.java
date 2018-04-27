@@ -2,7 +2,7 @@ package ie.gmit.sw.fyp.order;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
 import ie.gmit.sw.fyp.me.OrderMatch;
-import ie.gmit.sw.fyp.me.PostOrderCondition;
-import ie.gmit.sw.fyp.me.PostOrderType;
+//import ie.gmit.sw.fyp.me.PostOrderCondition;
+//import ie.gmit.sw.fyp.me.PostOrderType;
 import ie.gmit.sw.fyp.me.MarketOrder;
 import ie.gmit.sw.fyp.me.PostRequest;
 import ie.gmit.sw.fyp.me.StopLossOrder;
@@ -38,12 +38,16 @@ public class OrderBook {
 	
 //	Data members
 	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
-	private final Logger logMatch = LoggerFactory.getLogger("ie.gmit.sw.fyp.match");
+//	private final Logger logMatch = LoggerFactory.getLogger("ie.gmit.sw.fyp.match");
 	
 	
 	
 	
-//	Constructor
+//	Constructors
+	public OrderBook() {
+		
+	}
+	
 	public OrderBook(String stockTag) {
 		this.stockTag = stockTag;
 		buyLimitOrders = new ConcurrentSkipListMap<>();
@@ -174,7 +178,7 @@ public class OrderBook {
 	} // end createOrder(MarketOrder otherMarketOrder)
 	
 	
-	public boolean matchOrder(MarketOrder marketOrder) {
+	public LimitOrder matchOrder(MarketOrder marketOrder) {
 		ConcurrentSkipListMap<Float, Queue<StopLossOrder>> stopLossOrders = (ConcurrentSkipListMap<Float, Queue<StopLossOrder>>) this.buyStopLossOrders;
 		ConcurrentSkipListMap<Float, Queue<LimitOrder>> offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.buyLimitOrders;
 		
@@ -183,7 +187,6 @@ public class OrderBook {
 		
 		StopLossOrder bestStopLoss = null;
 		LimitOrder bestOffer = null;
-		OrderMatch match = null;
 		
 		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
 		
@@ -235,7 +238,7 @@ public class OrderBook {
 		if ( bestOfferEntry == null && bestStopLossEntry == null ) {
 			logOrder.warn("No offers in market (empty market?)");
 			
-			return false;
+			return null;
 		}
 		
 		LimitOrder bestOption = null;
@@ -255,101 +258,7 @@ public class OrderBook {
 			}
 		} // if - else if
 		
-		if ( bestOption != null ) {
-			marketOrder.setStatus(OrderStatus.MATCHED);
-			bestOption.setStatus(OrderStatus.MATCHED);
-			
-			logOrder.info("Order " + marketOrder.getId() + " matched with " + bestOption.getId());
-			
-			
-			if( marketOrder.getType() == PostOrderType.SELL && bestOption.getType() == PostOrderType.BUY ) {
-				match = new OrderMatch(marketOrder, bestOption);
-				
-				logMatch.info("Match created: " + match.getId());
-				logMatch.debug("Match sell order: " + marketOrder.toString());
-				logMatch.debug("Match buy order" + bestOption.toString());
-			}
-			else if ( bestOption.getType() == PostOrderType.SELL && marketOrder.getType() == PostOrderType.BUY ) {
-				match = new OrderMatch(bestOption, marketOrder);
-				
-				logMatch.info("Match created: " + match.getId());
-				logMatch.debug("Match sell order: " + bestOption.toString());
-				logMatch.debug("Match buy order" + marketOrder.toString());
-			}
-			
-			// A way to say that 'postOrder' and 'bestOption' don't have the same volume of shares
-			if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() ) {
-				MarketOrder spawnPostOrder = null;
-				
-				if ( marketOrder.getVolume() > bestOption.getVolume() ) {
-					marketOrder.setStatus(OrderStatus.PARTIALLYMATCHED);
-					logMatch.info("Order " + marketOrder.getId() + marketOrder.getStatus());
-					logMatch.debug(marketOrder.toString());
-					logOrder.debug(marketOrder.toString());
-					
-					spawnPostOrder = this.createOrder(marketOrder);
-				}
-				else if ( marketOrder.getVolume() < bestOption.getVolume() ) {
-					bestOption.setStatus(OrderStatus.PARTIALLYMATCHED);
-					logMatch.info("Order " + bestOption.getId() + bestOption.getStatus());
-					logMatch.debug(bestOption.toString());
-					logOrder.debug(bestOption.toString());
-					
-					spawnPostOrder = this.createOrder(bestOption);
-				}
-				//
-				spawnPostOrder.setVolume(match.getRemainingShares());
-				spawnPostOrder.attachTo(this);
-				logOrder.info("Order " + spawnPostOrder.getId() + " resubmitted into the market with " + spawnPostOrder.getVolume() + " shares");
-				logMatch.info("Order " + spawnPostOrder.getId() + " resubmitted into the market with " + spawnPostOrder.getVolume() + " shares");
-				
-				match.setVolumes();
-				logMatch.info("Setting match " + match.getId() + " filled shares to: " + match.getFilledShares());
-				
-			} // end if ( marketOrder.getVolume() != match.getFilledShares() && bestOption.getVolume() != match.getFilledShares() )
-	
-				
-			//
-			matchedQueue.offer(match);
-			
-			logMatch.info("Match " + match.getId() + " inserted into que match queue");
-			
-			if ( bestOption.getOrderCondition() == PostOrderCondition.LIMIT) {
-				//
-				bestOfferEntry.getValue().poll();
-				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
-				
-				if ( bestOfferEntry.getValue().isEmpty() ) {
-					offerOrders.remove(bestOfferEntry.getKey());
-					logOrder.debug(bestOption.getType() + " " + bestOption.getOrderCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
-				}
-			}
-			else if (bestOption.getOrderCondition() == PostOrderCondition.STOPLOSS) {
-				Collection<StopLossOrder>stopLossQueue = stopLossOrders.get( ((StopLossOrder)bestOption).getStopPrice() );
-				Collection<LimitOrder>limitQueue = offerOrders.get(bestOption.getPrice());
-				
-				stopLossQueue.remove(bestOption);
-				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " " + bestOption.getType() + " " + bestOption.getOrderCondition() +  " queue");
-				limitQueue.remove(bestOption);
-				logOrder.debug("Order " + bestOption.getId() + " dequeued from " + bestOption.getStockTag() + " market");
-				
-				if ( stopLossQueue.isEmpty() ) {
-					stopLossOrders.remove( ((StopLossOrder)bestOption).getStopPrice());
-					logOrder.debug(bestOption.getType() + " " + bestOption.getOrderCondition() + " queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
-				}
-				
-				if (limitQueue.isEmpty() ) {
-					offerOrders.remove(bestOption.getPrice());
-					logOrder.debug(bestOption.getType() + " LIMIT queue at " + bestOfferEntry.getKey() + " removed from market " + this.stockTag);
-				}
-				
-			} // end if ( bestOption.getCondition() == PostOrderCondition.LIMIT) - else
-			
-			return true;
-				
-		} // end if (bestOption != null)
-
-		return false;
+		return bestOption;
 		
 	} // end matchOrder(MarketOrder marketOrder)
 	

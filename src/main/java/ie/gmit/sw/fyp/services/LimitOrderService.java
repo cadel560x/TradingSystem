@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ie.gmit.sw.fyp.me.LimitOrder;
+import ie.gmit.sw.fyp.order.OrderStatus;
 import ie.gmit.sw.fyp.repositories.LimitOrderRepository;
 
 
@@ -27,5 +28,11 @@ public class LimitOrderService {
 				);
 		
 	} // end save(LimitOrder limitOrder)
+	
+	
+	public void updateByIdStatus(String id, OrderStatus newStatus) {
+		limitOrderRepository.updateByIdStatus(id, newStatus.name());
+		
+	} // end updateByIdStatus(String id, PostOrderType newStatus)
 
 } // end class OrderMatchService

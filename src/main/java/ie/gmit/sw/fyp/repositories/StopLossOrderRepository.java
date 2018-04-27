@@ -23,4 +23,10 @@ public interface StopLossOrderRepository extends CrudRepository<StopLossOrder, S
 			@Param("volume") int volume,	@Param("partialFill") boolean partialFill, @Param("expirationTime") Timestamp expirationTime,
 			@Param("status") String status);
 	
-}
+	
+	@Transactional
+	@Modifying
+	@Query(value="UPDATE stop_loss_order SET status = :status WHERE id = :Id", nativeQuery=true)
+	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
+	
+} // end interface StopLossOrderRepository

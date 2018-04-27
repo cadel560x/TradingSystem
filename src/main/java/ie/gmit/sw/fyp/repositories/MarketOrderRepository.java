@@ -19,4 +19,10 @@ public interface MarketOrderRepository extends CrudRepository<MarketOrder, Strin
 			@Param("orderCondition") String orderCondition, @Param("type") String type, @Param("volume") int volume,
 			@Param("partialFill") boolean partialFill, @Param("status") String status);
 	
-}
+	
+	@Transactional
+	@Modifying
+	@Query(value="UPDATE market_order SET status = :status WHERE id = :Id", nativeQuery=true)
+	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
+	
+} // end interface MarketOrderRepository

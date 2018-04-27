@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ie.gmit.sw.fyp.me.StopLossOrder;
+import ie.gmit.sw.fyp.order.OrderStatus;
 import ie.gmit.sw.fyp.repositories.StopLossOrderRepository;
 
 
@@ -27,5 +28,11 @@ public class StopLossOrderService {
 				);
 		
 	} // end save(StopLossOrder stopLossOrder)
+	
+	
+	public void updateByIdStatus(String id, OrderStatus newStatus) {
+		stopLossOrderRepository.updateByIdStatus(id, newStatus.name());
+		
+	} // end updateByIdStatus(String id, PostOrderType newStatus)
 
 } // end class OrderMatchService
