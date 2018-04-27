@@ -19,8 +19,9 @@ public class OrderMatchService {
 	
 	
 //	Methods
-	public OrderMatch save(OrderMatch orderMatch) {
-		return orderMatchRepository.save(orderMatch);
+	public void save(OrderMatch orderMatch) {
+		orderMatchRepository.save(orderMatch.getId(), orderMatch.getTimestamp(), orderMatch.getSellOrder().getId(),
+				orderMatch.getBuyOrder().getId(), orderMatch.getFilledShares());
 		
 	} // end save(OrderMatch orderMatch)
 
