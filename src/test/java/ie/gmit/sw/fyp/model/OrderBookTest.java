@@ -15,10 +15,6 @@ import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.hamcrest.beans.HasPropertyWithValue;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsMapContaining;
-import org.hamcrest.core.IsNot;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +27,6 @@ import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderBook;
-import ie.gmit.sw.fyp.notification.Notification;
 import ie.gmit.sw.fyp.services.StockService;
 import ie.gmit.sw.fyp.services.UserService;
 
@@ -345,7 +340,7 @@ public class OrderBookTest {
 	public void testMatchOrder_MarketOrderEmptyMarket() {
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
 		
 		// Market orders vs empty markets
 		PostRequest postRequest = new PostRequest();
@@ -357,12 +352,12 @@ public class OrderBookTest {
 		postRequest.setVolume(10);
 		MarketOrder marketOrder = new MarketOrder(postRequest);
 		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), nullValue());
 		
 		postRequest.setType(PostOrderType.SELL);
 		marketOrder = new MarketOrder(postRequest);
 		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(false));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), nullValue());
 	}
 	
 	
@@ -397,8 +392,7 @@ public class OrderBookTest {
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		MarketOrder marketOrder = new MarketOrder(postRequest);
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(true));
-		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(instanceOf(LimitOrder.class)));
 		
 		// Market orders sell vs limit orders buy
 		postRequest = new PostRequest();
@@ -424,8 +418,7 @@ public class OrderBookTest {
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		marketOrder = new MarketOrder(postRequest);
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(true));
-		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(marketOrder), is(instanceOf(LimitOrder.class)));
 		
 		// limit orders buy vs limit orders sell
 		postRequest = new PostRequest();
@@ -440,8 +433,8 @@ public class OrderBookTest {
 		limitOrder = new LimitOrder(postRequest);
 		limitOrder.attachTo(orderBook);
 		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().keySet(), contains(2.5f));
-		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), contains(limitOrder));
-		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), hasSize(1));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), hasItem(limitOrder));
+		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders().get(2.5f), hasSize(2));
 		
 		// don't match
 		postRequest = new PostRequest();
@@ -454,7 +447,7 @@ public class OrderBookTest {
 		postRequest.setPrice(2.4999f);
 		postRequest.setExpirationTime(timeStamp);
 		LimitOrder anotherlimitOrder = new LimitOrder(postRequest);
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(false));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), nullValue());
 		anotherlimitOrder.attachTo(orderBook);
 		assertThat("OrderBook matchOrder", orderBook.getBuyLimitOrders().get(2.4999f), hasSize(1));
 		
@@ -469,8 +462,7 @@ public class OrderBookTest {
 		postRequest.setPrice(2.5001f);
 		postRequest.setExpirationTime(timeStamp);
 		anotherlimitOrder = new LimitOrder(postRequest);
-		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(true));
-		assertThat("OrderBook matchOrder", orderBook.getSellLimitOrders(), equalTo(Collections.EMPTY_MAP));
+		assertThat("OrderBook matchOrder", orderBook.matchOrder(anotherlimitOrder), is(instanceOf(LimitOrder.class)));
 		
 		// limit orders sell vs limit orders buy
 //		postRequest = new PostRequest();
