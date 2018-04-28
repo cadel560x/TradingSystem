@@ -55,6 +55,14 @@ public class OrderBookService {
 	public OrderBookService() {
 		initialize();
 	}
+	
+	
+	
+	
+//	Accessors and mutators
+	public Map<String, OrderBook> getOrderBooks() {
+		return orderBooks;
+	}
 
 
 
@@ -110,7 +118,7 @@ public class OrderBookService {
 			// Remove order from market
 			Queue<? extends LimitOrder> orderQueue = orderBook.getLimitOrderQueue(bestOption);
 			orderQueue.poll();
-			bestOption.setStatus(OrderStatus.REJECTED);
+			bestOption.setStatus(OrderStatus.EXPIRED);
 			updateDBOrderStatus(bestOption);
 			
 			if ( orderQueue.isEmpty() ) {
@@ -190,28 +198,10 @@ public class OrderBookService {
 			notification.updateMessage("\nMATCHED");
 			
 			// Update 'marketOrder' status in the respective DB table
-			updateDBOrderStatus(marketOrder);
-			
-//			if ( marketOrder instanceof StopLossOrder ) {
-//				stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-//			}
-//			else if ( marketOrder instanceof LimitOrder ) {
-//				limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-//			}
-//			else {
-//				marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-//			}
+			this.updateDBOrderStatus(marketOrder);
 			
 			// Update 'bestOption' status in the respective DB table
-			updateDBOrderStatus(bestOption);
-			
-//			if ( bestOption instanceof StopLossOrder ) {
-//				stopLossOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
-//			}
-//			else {
-//				limitOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
-//			}
-			
+			this.updateDBOrderStatus(bestOption);
 			
 			//Update the 'matchedQueue'
 			Queue<OrderMatch> matchedQueue = orderBook.getMatchedQueue();

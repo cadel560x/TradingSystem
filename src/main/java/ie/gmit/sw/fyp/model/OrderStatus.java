@@ -1,7 +1,7 @@
 package ie.gmit.sw.fyp.model;
 
 public enum OrderStatus {
-	ERROR,
+	EXPIRED,
 	CREATED,
 	ACCEPTED,
 	REJECTED,

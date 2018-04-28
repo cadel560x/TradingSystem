@@ -166,8 +166,8 @@ public class MarketOrderTest {
 		marketOrder.setStatus(OrderStatus.CREATED);
 		assertThat("MarketOrder status (CREATED)", marketOrder.getStatus(), is(OrderStatus.CREATED));
 		
-		marketOrder.setStatus(OrderStatus.ERROR);
-		assertThat("MarketOrder status (ERROR)", marketOrder.getStatus(), is(OrderStatus.ERROR));
+		marketOrder.setStatus(OrderStatus.EXPIRED);
+		assertThat("MarketOrder status (EXPIRED)", marketOrder.getStatus(), is(OrderStatus.EXPIRED));
 		
 		marketOrder.setStatus(OrderStatus.MATCHED);
 		assertThat("MarketOrder status (MATCHED)", marketOrder.getStatus(), is(OrderStatus.MATCHED));
