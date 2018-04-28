@@ -2,7 +2,6 @@ package ie.gmit.sw.fyp.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
 import ie.gmit.sw.fyp.matchengine.OrderMatch;
+import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 
@@ -36,7 +36,6 @@ public class OrderBook {
 	
 //	Data members
 	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
-//	private final Logger logMatch = LoggerFactory.getLogger("ie.gmit.sw.fyp.match");
 	
 	
 	
@@ -186,7 +185,7 @@ public class OrderBook {
 		StopLossOrder bestStopLoss = null;
 		LimitOrder bestOffer = null;
 		
-		StringBuilder collectionType = new StringBuilder("STOPLOSS ");
+		StringBuilder collectionTypeString = new StringBuilder("STOPLOSS ");
 		
 		//
 		if ( marketOrder.isBuy() ) {
@@ -199,37 +198,35 @@ public class OrderBook {
 		
 		
 		if ( bestStopLossEntry == null ) {
-			collectionType.append("BUY");
+			collectionTypeString.append("BUY");
 			
 			if ( stopLossOrders == this.sellStopLossOrders ) {
-				collectionType.append("SELL");
+				collectionTypeString.append("SELL");
 			}
-			System.err.println(collectionType + " collection in stock market " + stockTag + " is empty." );
-			logOrder.warn(collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println(collectionTypeString + " collection in stock market " + stockTag + " is empty." );
+			logOrder.warn(collectionTypeString + " collection in stock market " + stockTag + " is empty." );
 			
 		}
 		else {	
 			bestStopLoss = bestStopLossEntry.getValue().peek();
-			
 			logOrder.debug("bestStopLoss: " + bestStopLoss.toString());
 		}
 		
 		
 		if ( bestOfferEntry == null ) {
-			collectionType.setLength(0);
-			collectionType.append("BUY");
+			collectionTypeString.setLength(0);
+			collectionTypeString.append("BUY");
 			
 			if ( offerOrders == this.sellLimitOrders ) {
-				collectionType.setLength(0);
-				collectionType.append("SELL");
+				collectionTypeString.setLength(0);
+				collectionTypeString.append("SELL");
 			}
-			System.err.println("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
-			logOrder.warn("LIMIT " + collectionType + " collection in stock market " + stockTag + " is empty." );
+			System.err.println("LIMIT " + collectionTypeString + " collection in stock market " + stockTag + " is empty." );
+			logOrder.warn("LIMIT " + collectionTypeString + " collection in stock market " + stockTag + " is empty." );
 			
 		}
 		else {
 			bestOffer = bestOfferEntry.getValue().peek();
-			
 			logOrder.debug("bestOffer: " + bestOffer.toString());
 		}
 		
@@ -241,7 +238,7 @@ public class OrderBook {
 		
 		LimitOrder bestOption = null;
 		
-		//
+		// Try to match to limit orders first
 		if ( marketOrder.matches(bestOffer) ) {
 			bestOption = bestOffer;
 			
@@ -259,5 +256,43 @@ public class OrderBook {
 		return bestOption;
 		
 	} // end matchOrder(MarketOrder marketOrder)
+	
+	
+	public Map<Float, Queue<StopLossOrder>> getStopLossOrderMap(StopLossOrder stopLossOrder) {
+		if ( stopLossOrder.getType() == PostOrderType.SELL ) {
+			return this.sellStopLossOrders;
+		}
+		
+		return this.buyStopLossOrders;
+		
+	} // end getStopLossOrderMap(StopLossOrder stopLossOrder)
+	
+	
+	public Map<Float, Queue<LimitOrder>> getLimitOrderMap(LimitOrder limitOrder) {
+		if ( limitOrder.getType() == PostOrderType.SELL ) {
+			return this.sellLimitOrders;
+		}
+		
+		return this.buyLimitOrders;
+		
+	} // end getLimitOrderMap(LimitOrder limitOrder)
+	
+	
+	public Queue<StopLossOrder> getStopLossOrderQueue(StopLossOrder stopLossOrder) {
+		Map<Float, Queue<StopLossOrder>> stopLossOrderMap = this.getStopLossOrderMap(stopLossOrder);
+		return stopLossOrderMap.get(stopLossOrder.getStopPrice());
+		
+	} // end getStopLossOrderQueue(StopLossOrder stopLossOrder)
+	
+	
+	public Queue<? extends LimitOrder> getLimitOrderQueue(LimitOrder limitOrder) {
+		if ( limitOrder instanceof StopLossOrder ) {
+			return this.getStopLossOrderQueue((StopLossOrder) limitOrder);
+		}
+		
+		Map<Float, Queue<LimitOrder>> limitOrderMap = this.getLimitOrderMap(limitOrder);
+		return limitOrderMap.get(limitOrder.getPrice());
+		
+	} // end getStopLossOrderQueue(LimitOrder limitOrder)
 	
 } // end class OrderBook

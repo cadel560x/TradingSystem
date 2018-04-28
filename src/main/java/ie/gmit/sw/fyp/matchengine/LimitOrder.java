@@ -36,11 +36,6 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		
 	}
 	
-//	public LimitOrder(StopLossOrder stopLossOrder) {
-//		// TODO Removes stop-loss attribute
-//
-//	}
-	
 	
 	
 	
@@ -121,6 +116,15 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		nodeOrders.offer(this);
 		
 	} // end attachTo(OrderBook orderBook)
+	
+	
+	public boolean hasExpired() {
+		if (this.getExpirationTime().before(new Date())) {
+			return true;
+		}
+		
+		return false;
+	} // end hasExpired
 	
 	
 	@Override

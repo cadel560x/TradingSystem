@@ -106,6 +106,31 @@ public class OrderBookService {
 		
 		// Do the match
 		LimitOrder bestOption = orderBook.matchOrder(marketOrder);
+		while ( bestOption != null && bestOption.hasExpired() ) {
+			// Remove order from market
+			Queue<? extends LimitOrder> orderQueue = orderBook.getLimitOrderQueue(bestOption);
+			orderQueue.poll();
+			bestOption.setStatus(OrderStatus.REJECTED);
+			updateDBOrderStatus(bestOption);
+			
+			if ( orderQueue.isEmpty() ) {
+				if ( bestOption instanceof StopLossOrder ) {
+					Map<Float, Queue<StopLossOrder>> orderMap = orderBook.getStopLossOrderMap((StopLossOrder) bestOption);
+					orderMap.remove(((StopLossOrder) bestOption).getStopPrice());
+				}
+				else {
+					Map<Float, Queue<LimitOrder>> orderMap = orderBook.getLimitOrderMap(bestOption);
+					orderMap.remove(((LimitOrder) bestOption).getPrice());
+				} // end if ( bestOption instanceof StopLossOrder )
+				
+				bestOption = null;
+			}
+			else {
+				bestOption = orderBook.matchOrder(marketOrder);
+			} // end if ( orderQueue.isEmpty() )
+			
+		} // end while ( bestOption != null && bestOption.hasExpired() )
+		
 		if ( bestOption != null ) {
 			OrderMatch match = null;
 			marketOrder.setStatus(OrderStatus.MATCHED);
@@ -165,23 +190,27 @@ public class OrderBookService {
 			notification.updateMessage("\nMATCHED");
 			
 			// Update 'marketOrder' status in the respective DB table
-			if ( marketOrder instanceof StopLossOrder ) {
-				stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-			}
-			else if ( marketOrder instanceof LimitOrder ) {
-				limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-			}
-			else {
-				marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-			}
+			updateDBOrderStatus(marketOrder);
+			
+//			if ( marketOrder instanceof StopLossOrder ) {
+//				stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			}
+//			else if ( marketOrder instanceof LimitOrder ) {
+//				limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			}
+//			else {
+//				marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			}
 			
 			// Update 'bestOption' status in the respective DB table
-			if ( bestOption instanceof StopLossOrder ) {
-				stopLossOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
-			}
-			else {
-				limitOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
-			}
+			updateDBOrderStatus(bestOption);
+			
+//			if ( bestOption instanceof StopLossOrder ) {
+//				stopLossOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
+//			}
+//			else {
+//				limitOrderService.updateByIdStatus(bestOption.getId(), bestOption.getStatus());
+//			}
 			
 			
 			//Update the 'matchedQueue'
@@ -266,5 +295,19 @@ public class OrderBookService {
 		return notification;
 		
 	} // end addPostOrder
+	
+	
+	public void updateDBOrderStatus(MarketOrder marketOrder) {
+		if ( marketOrder instanceof StopLossOrder ) {
+			stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+		}
+		else if ( marketOrder instanceof LimitOrder ) {
+			limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+		}
+		else {
+			marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+		}
+		
+	} // end updateDBOrderStatus(MarketOrder marketOrder)
 	
 } // end class OrderBookService
