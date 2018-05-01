@@ -6,9 +6,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
+//import org.springframework.stereotype.Component;
 
 
 
+
+//@Component(value="postRequest")
+//@Component
 public class PostRequest extends PostEntity {
 //	Fields
 	
@@ -17,7 +21,11 @@ public class PostRequest extends PostEntity {
 	
 //	Constructors
 	public PostRequest() {
-		properties = new HashMap<>();
+		this.properties = new HashMap<>();
+	}
+	
+	public PostRequest(PostRequest postRequest) {
+		this.properties = new HashMap<>(postRequest.getProperties());
 	}
 
 	

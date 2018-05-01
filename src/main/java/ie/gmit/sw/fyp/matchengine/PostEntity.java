@@ -6,6 +6,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+//import javax.validation.constraints.Min;
+
+//import org.springframework.stereotype.Component;
 
 import ie.gmit.sw.fyp.model.Transaction;
 import ie.gmit.sw.fyp.services.StockService;
@@ -14,18 +17,9 @@ import ie.gmit.sw.fyp.services.UserService;
 
 
 
+//@Component
 @MappedSuperclass
 public abstract class PostEntity implements Transaction {
-//	Data members
-//	Singleton pattern
-//	private UserService userService = UserService.getInstance();
-//	private StockService stockService = StockService.getInstance();
-	
-//	@Autowired
-//	private UserService userService;
-//	@Autowired
-//	private StockService stockService;
-	
 //	Fields
 	@Transient
 	protected Map<String, Object> properties;
@@ -101,7 +95,8 @@ public abstract class PostEntity implements Transaction {
 	public int getVolume() {
 		return (int) properties.get("volume");
 	}
-
+	
+//	@Min(value = 1)
 	public void setVolume(int volume) {
 		if ( volume <= 0 ) {
 			throw new IllegalArgumentException("Invalid volume value");

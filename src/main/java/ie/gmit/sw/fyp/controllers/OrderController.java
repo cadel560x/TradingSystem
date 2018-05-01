@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import ie.gmit.sw.fyp.matchengine.PostRequest;
@@ -16,14 +17,18 @@ import ie.gmit.sw.fyp.services.OrderBookService;
 
 @RestController
 public class OrderController {
+//	Fields
 	@Autowired
 	private OrderBookService orderBookService;
+
 	
 	
 	
-	
+//	Methods
+	@ResponseBody
 	@RequestMapping(method=RequestMethod.POST, value="/{stockTag}")
 	public Notification addPostOrder(@PathVariable String stockTag, @RequestBody PostRequest postRequest) {
+		
 		return orderBookService.addPostOrder(stockTag, postRequest);
 		
 	}

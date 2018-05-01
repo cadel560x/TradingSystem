@@ -14,6 +14,7 @@ import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
@@ -31,6 +32,9 @@ public class LimitOrderTest {
 	private StockService stockService = new StockService();
 	@SuppressWarnings("unused")
 	private UserService userService = new UserService();
+	
+//	@Autowired
+//	private UserService userService;
 	
 	private Calendar date = new GregorianCalendar();
 	private Timestamp timeStamp;
