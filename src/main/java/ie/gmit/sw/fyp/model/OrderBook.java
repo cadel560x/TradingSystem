@@ -10,8 +10,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+//import org.springframework.stereotype.Component;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
@@ -22,19 +27,28 @@ import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 
 
 
-
+//@Component
+@Entity
 public class OrderBook {
 //	Fields
-	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
-	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
-	
-	private Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
-	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
-	
-	private BlockingQueue<OrderMatch> matchedQueue;
+	@Id
 	private String stockTag;
 	
+	@Transient
+	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
+	@Transient
+	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
+	@Transient
+	private Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
+	@Transient
+	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
+	@Transient
+	private BlockingQueue<OrderMatch> matchedQueue;
+	
+	private String description;
+	
 //	Data members
+	@Transient
 	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
 	
 	
@@ -42,11 +56,6 @@ public class OrderBook {
 	
 //	Constructors
 	public OrderBook() {
-		
-	}
-	
-	public OrderBook(String stockTag) {
-		this.stockTag = stockTag;
 		buyLimitOrders = new ConcurrentSkipListMap<>();
 		sellLimitOrders = new ConcurrentSkipListMap<>();
 		
@@ -54,6 +63,13 @@ public class OrderBook {
 		sellStopLossOrders = new ConcurrentSkipListMap<>();
 		
 		matchedQueue = new LinkedBlockingQueue<>();
+		
+	}
+	
+	public OrderBook(String stockTag) {
+		this();
+		this.stockTag = stockTag;
+		
 	}
 
 
@@ -68,45 +84,62 @@ public class OrderBook {
 		this.stockTag = stockTag;
 	}
 	
+	@Transient
 	public Map<Float, Queue<LimitOrder>> getBuyLimitOrders() {
 		return buyLimitOrders;
 	}
 
+	@Transient
 	public void setBuyLimitOrders(Map<Float, Queue<LimitOrder>> buyLimitOrders) {
 		this.buyLimitOrders = buyLimitOrders;
 	}
 
+	@Transient
 	public Map<Float, Queue<LimitOrder>> getSellLimitOrders() {
 		return sellLimitOrders;
 	}
 
+	@Transient
 	public void setSellLimitOrders(Map<Float, Queue<LimitOrder>> sellLimitOrders) {
 		this.sellLimitOrders = sellLimitOrders;
 	}
 	
+	@Transient
 	public Map<Float, Queue<StopLossOrder>> getBuyStopLoss() {
 		return buyStopLossOrders;
 	}
 
+	@Transient
 	public void setBuyStopLoss(Map<Float, Queue<StopLossOrder>> buyStopLossOrders) {
 		this.buyStopLossOrders = buyStopLossOrders;
 	}
 
+	@Transient
 	public Map<Float, Queue<StopLossOrder>> getSellStopLoss() {
 		return sellStopLossOrders;
 	}
 
+	@Transient
 	public void setSellStopLoss(Map<Float, Queue<StopLossOrder>> sellStopLossOrders) {
 		this.sellStopLossOrders = sellStopLossOrders;
 	}
 
+	@Transient
 	public BlockingQueue<OrderMatch> getMatchedQueue() {
 		return matchedQueue;
 	}
 
+	public String getDescription() {
+		return description;
+	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	
 
-
+	
 //	Methods
 	public boolean checkRequest(PostRequest postRequest) {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));

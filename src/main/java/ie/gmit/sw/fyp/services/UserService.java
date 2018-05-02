@@ -1,9 +1,5 @@
 package ie.gmit.sw.fyp.services;
 
-import java.util.Collection;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,29 +35,16 @@ public class UserService {
 
 
 //	Methods
-	@PostConstruct
-	public void initService() {		
-		Iterable<User> userList = this.findAll();
-		if ( ((Collection<User>)userList).isEmpty() ) {
-			User user = new User();
-			user.setUserId("dfgjkaga9");
-			user.setDescription("Javier");
-			user.setUserPassword("verySecret");
-			userRepository.save(user);
-			
-			user.setUserId("uiahfu938");
-			user.setDescription("Martin");
-			user.setUserPassword("verySecretToo");
-			userRepository.save(user);
-		}
-		
-	} // end initService
-	
-	
 	public static boolean checkUserId(String userId) {
-		return userRepository.existsById(userId);
+		return checkUserId(userId);
 		
 	} // end checkUserId
+	
+	
+	public static boolean checkUserIdStatic(String userId) {
+		return userRepository.existsById(userId);
+		
+	} // end checkUserIdStatic
 	
 	
 	public User save(User user) {

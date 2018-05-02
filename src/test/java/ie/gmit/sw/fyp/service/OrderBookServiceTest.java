@@ -154,7 +154,8 @@ public class OrderBookServiceTest {
 		anotherPostRequest.setExpirationTime(new Timestamp(expiredDate.getTimeInMillis()));
 		LimitOrder expiredLimitOrder = new LimitOrder(anotherPostRequest);
 		
-		OrderBook orderBook = orderBookService.getOrderBooks().get(stockTag);
+//		OrderBook orderBook = orderBookService.getOrderBooks().get(stockTag);
+		OrderBook orderBook = orderBookService.findById(stockTag);
 		expiredLimitOrder.attachTo(orderBook);
 		
 		System.out.println("Waiting three seconds for 'expiredLimitOrder' getting expired");

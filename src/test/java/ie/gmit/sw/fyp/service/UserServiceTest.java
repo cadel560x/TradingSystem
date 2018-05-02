@@ -27,7 +27,7 @@ public class UserServiceTest {
 	
 	@Before
 	public void setUpBeforeClass() {
-		userService.initService();
+//		userService.initService();
 	}
 	
 	

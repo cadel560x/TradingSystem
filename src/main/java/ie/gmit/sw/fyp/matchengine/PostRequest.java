@@ -11,7 +11,6 @@ import java.util.Set;
 
 
 
-//@Component(value="postRequest")
 //@Component
 public class PostRequest extends PostEntity {
 //	Fields

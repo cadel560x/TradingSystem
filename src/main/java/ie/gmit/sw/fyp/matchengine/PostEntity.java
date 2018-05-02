@@ -11,7 +11,8 @@ import javax.persistence.Transient;
 //import org.springframework.stereotype.Component;
 
 import ie.gmit.sw.fyp.model.Transaction;
-import ie.gmit.sw.fyp.services.StockService;
+import ie.gmit.sw.fyp.services.OrderBookService;
+//import ie.gmit.sw.fyp.services.StockService;
 import ie.gmit.sw.fyp.services.UserService;
 
 
@@ -49,7 +50,7 @@ public abstract class PostEntity implements Transaction {
 
 	@Override
 	public void setUserId(String userId) {
-		if ( ! UserService.checkUserId(userId) ) {
+		if ( ! UserService.checkUserIdStatic(userId) ) {
 			throw new IllegalArgumentException("Invalid user Id");
 		}
 		
@@ -63,7 +64,7 @@ public abstract class PostEntity implements Transaction {
 
 	@Override
 	public void setStockTag(String stockTag) {
-		if ( ! StockService.checkStockTag(stockTag) ) {
+		if ( ! OrderBookService.checkStockTagStatic(stockTag) ) {
 			throw new IllegalArgumentException("Invalid stock tag");
 		}
 		

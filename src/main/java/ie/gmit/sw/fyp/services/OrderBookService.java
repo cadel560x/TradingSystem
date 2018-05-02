@@ -1,11 +1,13 @@
 package ie.gmit.sw.fyp.services;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderBook;
 import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.notification.Notification;
+import ie.gmit.sw.fyp.repositories.OrderBookRepository;
 
 
 
@@ -41,7 +44,12 @@ public class OrderBookService {
 	@Autowired
 	private StopLossOrderService stopLossOrderService;
 	
+//	@Autowired
+//	private OrderBook orderBook;
+	
 	private Map<String, OrderBook> orderBooks;
+	
+	private static OrderBookRepository orderBookRepository;
 	
 //	Data members
 	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
@@ -53,28 +61,33 @@ public class OrderBookService {
 	
 //  Constructors
 	public OrderBookService() {
-		initialize();
+//		initialize();
 	}
 	
 	
 	
 	
 //	Accessors and mutators
-	public Map<String, OrderBook> getOrderBooks() {
-		return orderBooks;
+	@Autowired
+	public void setOrderBookRepository(OrderBookRepository orderBookRepository) {
+		OrderBookService.orderBookRepository = orderBookRepository;
 	}
+	
+//	public Map<String, OrderBook> getOrderBooks() {
+//		return orderBooks;
+//	}
 
 
 
 
 //	Methods
-	private void initialize() {
-		Map<String, OrderBook> orderBookDAO = new HashMap<>();
-		orderBookDAO.put("AAPL", new OrderBook("AAPL"));
-		orderBookDAO.put("GOOGL", new OrderBook("GOOGL"));
+	@PostConstruct
+	private void initService() {
+		Iterable<OrderBook> orderBookList = this.findAll();
 		
-		// TODO Replace DAO call with JPA Repository
-		orderBooks = orderBookDAO;
+		// Java8 way to convert 'List' into 'Map'
+		orderBooks = ((Collection<OrderBook>) orderBookList).stream().collect(
+                Collectors.toMap(OrderBook::getStockTag, orderBook -> orderBook));
 		
 	} // end initialize()
 	
@@ -83,8 +96,9 @@ public class OrderBookService {
 		Notification notification = new Notification("REJECTED: ");
 		MarketOrder marketOrder;
 		
-		//
+		//Get 'orderBook'
 		OrderBook orderBook = orderBooks.get(stockTag);
+//		OrderBook orderBook = orderBookRepository.findById(stockTag).get();
 		if ( orderBook == null || ! orderBook.getStockTag().equals(postRequest.getStockTag()) ) {
 			notification.updateMessage("Invalid stock market");
 			
@@ -299,5 +313,35 @@ public class OrderBookService {
 		}
 		
 	} // end updateDBOrderStatus(MarketOrder marketOrder)
+	
+	
+	public static boolean checkStockTag(String stockTag) {
+		return orderBookRepository.existsById(stockTag);
+		
+	} // end checkUserId
+	
+	
+	public static boolean checkStockTagStatic(String stockTag) {
+		return checkStockTag(stockTag);
+		
+	} // end checkUserIdStatic
+	
+	
+	public Iterable<OrderBook> findAll() {
+		return orderBookRepository.findAll();
+		
+	} // end findAll
+	
+	
+	public OrderBook findById(String stockTag) {
+		return orderBookRepository.findById(stockTag).get();
+		
+	} // findById(String stockTag)
+	
+	
+	public OrderBook save(OrderBook orderBook) {
+		return orderBookRepository.save(orderBook);
+		
+	} // save(OrderBook orderBook)
 	
 } // end class OrderBookService
