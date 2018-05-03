@@ -1,6 +1,8 @@
 package ie.gmit.sw.fyp.services;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
@@ -59,7 +61,7 @@ public class OrderBookService {
 	
 //  Constructors
 	public OrderBookService() {
-//		initialize();
+		
 	}
 	
 	
@@ -91,31 +93,29 @@ public class OrderBookService {
 		// Populate the order queues with unmatched queues
 		if ( ! orderBooks.isEmpty() ) {
 			for ( OrderBook orderBook: orderBooks.values() ) {
+				// Find expired limit orders and invalid them
+				Iterable<String> expiredLimitOrderIds = limitOrderService.findIdsByExpirationTimeBefore(new Timestamp(new Date().getTime()));
+				for ( String Id : expiredLimitOrderIds ) {
+					limitOrderService.updateByIdStatus(Id, OrderStatus.EXPIRED);
+				}
+				
+				// Find expired stop loss orders and invalid them
+				expiredLimitOrderIds = stopLossOrderService.findIdsByExpirationTimeBefore(new Timestamp(new Date().getTime()));
+				for ( String Id : expiredLimitOrderIds ) {
+					stopLossOrderService.updateByIdStatus(Id, OrderStatus.EXPIRED);
+				}
+				
 				// Recreate limit orders 
 				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
 				for ( LimitOrder limitOrder: limitOrderList ) {
-					if ( limitOrder.hasExpired() ) {
-						limitOrder.setStatus(OrderStatus.EXPIRED);
-						updateDBOrderStatus(limitOrder);
-					}
-					else {
-						limitOrder.attachTo(orderBook);
-					} // end if ( limitOrder.hasExpired() ) - else
-					
-				} // end for ( LimitOrder limitOrder: limitOrderList )
+					limitOrder.attachTo(orderBook);
+				}
 				
 				// Recreate stop loss orders 
 				Iterable<StopLossOrder> stopLossOrderList = stopLossOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
-				for ( LimitOrder stopLossOrder: stopLossOrderList ) {
-					if ( stopLossOrder.hasExpired() ) {
-						stopLossOrder.setStatus(OrderStatus.EXPIRED);
-						updateDBOrderStatus(stopLossOrder);
-					}
-					else {
-						stopLossOrder.attachTo(orderBook);
-					} // end if ( stopLossOrder.hasExpired() ) - else
-					
-				} // end for ( LimitOrder stopLossOrder: stopLossOrderList )
+				for ( StopLossOrder stopLossOrder: stopLossOrderList ) {
+					stopLossOrder.attachTo(orderBook);
+				}
 				
 			} // end for ( OrderBook orderBook: orderBooks.values() )
 			

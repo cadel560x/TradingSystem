@@ -54,9 +54,9 @@ public class OrderBookTest {
 	
 	@Test
 	public void testOrderBook() {
-		OrderBook newOrderBook = new OrderBook("GOOGL");
+		OrderBook newOrderBook = new OrderBook("GOOG");
 		
-		assertThat("OrderBook constructor(String)", newOrderBook, hasProperty("stockTag", equalTo("GOOGL")));
+		assertThat("OrderBook constructor(String)", newOrderBook, hasProperty("stockTag", equalTo("GOOG")));
 		assertThat("OrderBook constructor(String)", newOrderBook, hasProperty("buyLimitOrders"));
 		assertThat("OrderBook constructor(String)", newOrderBook, hasProperty("sellLimitOrders"));
 //		assertThat("OrderBook constructor(String)", newOrderBook, hasProperty("buyStopLossOrders")); // don't know why it doesn't work

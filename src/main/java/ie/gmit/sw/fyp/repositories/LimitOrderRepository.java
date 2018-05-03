@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.model.OrderStatus;
 
 
@@ -30,9 +31,11 @@ public interface LimitOrderRepository extends CrudRepository<LimitOrder, String>
 	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
 	
 	
-	public Iterable<LimitOrder> findByStockTagAndStatusOrderByTimestampAsc(String stockTag, OrderStatus status);
+//	SELECT * FROM limit_order WHERE stock_tag = :stockTag AND status = :status AND order_condition = :orderCondition	
+	public Iterable<LimitOrder> findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(String stockTag, OrderStatus status, PostOrderCondition orderCondition);
 	
 	
-//	public Iterable<LimitOrder> findByStockTag(@Param("stockTag") String stockTag);
+//	SELECT id FROM limit_order WHERE expiration_time < :timestamp AND status = :status AND order_condition = :orderCondition
+	public Iterable<IdOnly> findByExpirationTimeBeforeAndOrderConditionAndStatus(Timestamp timestamp, PostOrderCondition orderCondition, OrderStatus status);
 	
 } // end interface LimitOrderRepository

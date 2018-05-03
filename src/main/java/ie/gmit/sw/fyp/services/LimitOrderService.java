@@ -1,11 +1,17 @@
 package ie.gmit.sw.fyp.services;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.repositories.LimitOrderRepository;
+import ie.gmit.sw.fyp.repositories.IdOnly;
 
 
 
@@ -42,14 +48,24 @@ public class LimitOrderService {
 	
 	
 	public Iterable<LimitOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
-		return limitOrderRepository.findByStockTagAndStatusOrderByTimestampAsc(stockTag, status);
+		return limitOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, status, PostOrderCondition.LIMIT);
 		
 	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
 	
 	
-//	public Iterable<LimitOrder> findByStockTag(String stockTag) {
-//		return limitOrderRepository.findByStockTag(stockTag);
-//		
-//	} // end findByStockTag(String stockTag, OrderStatus status)
+	public Iterable<String> findIdsByExpirationTimeBefore(Timestamp timestamp) {
+		Iterable<IdOnly> Ids = limitOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(timestamp, PostOrderCondition.LIMIT, OrderStatus.ACCEPTED);
+		List<String> stringIds = new ArrayList<>();
+		
+		for (IdOnly idOnly: Ids) {
+			stringIds.add(idOnly.getId());
+		}
+		
+		return stringIds;
+		
+	} // end findByExpirationTimeBefore(Timestamp timestamp)
+	
+	
+	
 
 } // end class OrderMatchService

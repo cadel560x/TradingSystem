@@ -91,7 +91,7 @@ public class MarketOrderTest {
 	public void testMarketOrderMarketOrder() {
 		PostRequest otherPostRequest = new PostRequest();
 		otherPostRequest.setUserId("uiahfu938");
-		otherPostRequest.setStockTag("GOOGL");
+		otherPostRequest.setStockTag("GOOG");
 		otherPostRequest.setType(PostOrderType.BUY);
 		otherPostRequest.setOrderCondition(PostOrderCondition.MARKET);
 		otherPostRequest.setVolume(10);
@@ -234,7 +234,7 @@ public class MarketOrderTest {
 		
 		PostRequest otherPostRequest = new PostRequest();
 		otherPostRequest.setUserId("uiahfu938");
-		otherPostRequest.setStockTag("GOOGL");
+		otherPostRequest.setStockTag("GOOG");
 		otherPostRequest.setType(PostOrderType.BUY);
 		otherPostRequest.setOrderCondition(PostOrderCondition.MARKET);
 		otherPostRequest.setVolume(10);

@@ -1,10 +1,16 @@
 package ie.gmit.sw.fyp.services;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderStatus;
+import ie.gmit.sw.fyp.repositories.IdOnly;
 import ie.gmit.sw.fyp.repositories.StopLossOrderRepository;
 
 
@@ -37,8 +43,21 @@ public class StopLossOrderService {
 	
 	
 	public Iterable<StopLossOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
-		return stopLossOrderRepository.findByStockTagAndStatusOrderByTimestampAsc(stockTag, status);
+		return stopLossOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, status, PostOrderCondition.STOPLOSS);
 		
 	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
+	
+	
+	public Iterable<String> findIdsByExpirationTimeBefore(Timestamp timestamp) {
+		Iterable<IdOnly> Ids = stopLossOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(timestamp, PostOrderCondition.STOPLOSS, OrderStatus.ACCEPTED);
+		List<String> stringIds = new ArrayList<>();
+		
+		for (IdOnly idOnly: Ids) {
+			stringIds.add(idOnly.getId());
+		}
+		
+		return stringIds;
+		
+	} // end findByExpirationTimeBefore(Timestamp timestamp)
 
 } // end class OrderMatchService
