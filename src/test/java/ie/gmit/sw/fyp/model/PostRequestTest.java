@@ -19,23 +19,22 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
-import ie.gmit.sw.fyp.services.StockService;
-import ie.gmit.sw.fyp.services.UserService;
 
 
 
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class PostRequestTest {
 	private Calendar date;
 	private PostRequest postRequest;
-	@SuppressWarnings("unused")
-	private StockService stockService = new StockService();
-	@SuppressWarnings("unused")
-	private UserService userService = new UserService();
 
 	
 	

@@ -11,6 +11,10 @@ import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
@@ -20,18 +24,15 @@ import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderStatus;
-import ie.gmit.sw.fyp.services.StockService;
-import ie.gmit.sw.fyp.services.UserService;
 
 
 
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@DependsOn({"userService", "orderBookService"})
 public class MatchTest {
 	private Calendar date = new GregorianCalendar();
-	@SuppressWarnings("unused")
-	private StockService stockService = new StockService();
-	@SuppressWarnings("unused")
-	private UserService userService = new UserService();
 	private Timestamp timeStamp;
 	
 	private MarketOrder marketOrder;

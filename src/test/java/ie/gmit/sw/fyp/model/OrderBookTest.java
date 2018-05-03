@@ -19,6 +19,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
@@ -27,18 +30,14 @@ import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderBook;
-import ie.gmit.sw.fyp.services.StockService;
-import ie.gmit.sw.fyp.services.UserService;
 
 
 
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class OrderBookTest {
 	private OrderBook orderBook;
-	@SuppressWarnings("unused")
-	private StockService stockService = new StockService();
-	@SuppressWarnings("unused")
-	private UserService userService = new UserService();
 	
 	@Rule
     public ErrorCollector errorCollector = new ErrorCollector();

@@ -94,14 +94,28 @@ public class OrderBookService {
 				// Recreate limit orders 
 				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
 				for ( LimitOrder limitOrder: limitOrderList ) {
-					limitOrder.attachTo(orderBook);
-				}
+					if ( limitOrder.hasExpired() ) {
+						limitOrder.setStatus(OrderStatus.EXPIRED);
+						updateDBOrderStatus(limitOrder);
+					}
+					else {
+						limitOrder.attachTo(orderBook);
+					} // end if ( limitOrder.hasExpired() ) - else
+					
+				} // end for ( LimitOrder limitOrder: limitOrderList )
 				
 				// Recreate stop loss orders 
 				Iterable<StopLossOrder> stopLossOrderList = stopLossOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
 				for ( LimitOrder stopLossOrder: stopLossOrderList ) {
-					stopLossOrder.attachTo(orderBook);
-				}
+					if ( stopLossOrder.hasExpired() ) {
+						stopLossOrder.setStatus(OrderStatus.EXPIRED);
+						updateDBOrderStatus(stopLossOrder);
+					}
+					else {
+						stopLossOrder.attachTo(orderBook);
+					} // end if ( stopLossOrder.hasExpired() ) - else
+					
+				} // end for ( LimitOrder stopLossOrder: stopLossOrderList )
 				
 			} // end for ( OrderBook orderBook: orderBooks.values() )
 			

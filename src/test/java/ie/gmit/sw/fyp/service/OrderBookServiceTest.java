@@ -62,6 +62,24 @@ public class OrderBookServiceTest {
 	
 	
 	@Test
+	public void testCheckStockTag_ValidStockTag() {
+		String stockId = "AAPL";
+		
+		assertThat(orderBookService.checkStockTag(stockId), is(true));
+		
+	}
+	
+	
+	@Test
+	public void testCheckStockTag_InvalidStockTag() {
+		String stockId = "MSFT";
+		
+		assertThat(orderBookService.checkStockTag(stockId), is(false));
+		
+	}
+	
+	
+	@Test
 	public void testAddPostOrder_LimitSell() {
 		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
 		postRequest.setPrice(2.5f);
@@ -154,8 +172,8 @@ public class OrderBookServiceTest {
 		anotherPostRequest.setExpirationTime(new Timestamp(expiredDate.getTimeInMillis()));
 		LimitOrder expiredLimitOrder = new LimitOrder(anotherPostRequest);
 		
-//		OrderBook orderBook = orderBookService.getOrderBooks().get(stockTag);
-		OrderBook orderBook = orderBookService.findById(stockTag);
+//		OrderBook orderBook = orderBookService.findById(stockTag);
+		OrderBook orderBook = orderBookService.getOrderBooks().get(stockTag);
 		expiredLimitOrder.attachTo(orderBook);
 		
 		System.out.println("Waiting three seconds for 'expiredLimitOrder' getting expired");

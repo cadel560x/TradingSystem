@@ -13,6 +13,9 @@ import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
@@ -20,18 +23,13 @@ import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
 import ie.gmit.sw.fyp.model.OrderBook;
-import ie.gmit.sw.fyp.services.StockService;
-import ie.gmit.sw.fyp.services.UserService;
 
 
 
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class StopLossOrderTest {
-	@SuppressWarnings("unused")
-	private StockService stockService = new StockService();
-	@SuppressWarnings("unused")
-	private UserService userService = new UserService();
-	
 	private Calendar date = new GregorianCalendar();
 	private Timestamp timeStamp;
 	private PostRequest postRequest;
