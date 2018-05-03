@@ -14,7 +14,12 @@ import ie.gmit.sw.fyp.repositories.LimitOrderRepository;
 public class LimitOrderService {
 //	Fields
 	@Autowired
-	LimitOrderRepository limitOrderRepository;
+	private LimitOrderRepository limitOrderRepository;
+
+	
+	
+		
+//	Accessors and mutators
 	
 	
 	
@@ -34,5 +39,17 @@ public class LimitOrderService {
 		limitOrderRepository.updateByIdStatus(id, newStatus.name());
 		
 	} // end updateByIdStatus(String id, PostOrderType newStatus)
+	
+	
+	public Iterable<LimitOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
+		return limitOrderRepository.findByStockTagAndStatus(stockTag, status);
+		
+	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
+	
+	
+//	public Iterable<LimitOrder> findByStockTag(String stockTag) {
+//		return limitOrderRepository.findByStockTag(stockTag);
+//		
+//	} // end findByStockTag(String stockTag, OrderStatus status)
 
 } // end class OrderMatchService

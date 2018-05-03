@@ -15,6 +15,7 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 
 
 @Entity
+//@Component
 public class LimitOrder extends MarketOrder implements PostOrder {
 //	Fields
 	

@@ -35,8 +35,8 @@ public class UserService {
 
 
 //	Methods
-	public static boolean checkUserId(String userId) {
-		return checkUserId(userId);
+	public boolean checkUserId(String userId) {
+		return userRepository.existsById(userId);
 		
 	} // end checkUserId
 	

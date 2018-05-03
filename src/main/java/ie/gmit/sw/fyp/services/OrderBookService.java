@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
@@ -30,6 +31,7 @@ import ie.gmit.sw.fyp.repositories.OrderBookRepository;
 
 
 @Service
+@DependsOn("userService")
 public class OrderBookService {
 //	Fields
 	@Autowired
@@ -45,7 +47,7 @@ public class OrderBookService {
 	private StopLossOrderService stopLossOrderService;
 	
 //	@Autowired
-//	private OrderBook orderBook;
+//	private UserService userService;
 	
 	private Map<String, OrderBook> orderBooks;
 	
@@ -73,9 +75,9 @@ public class OrderBookService {
 		OrderBookService.orderBookRepository = orderBookRepository;
 	}
 	
-//	public Map<String, OrderBook> getOrderBooks() {
-//		return orderBooks;
-//	}
+	public Map<String, OrderBook> getOrderBooks() {
+		return orderBooks;
+	}
 
 
 
@@ -88,6 +90,16 @@ public class OrderBookService {
 		// Java8 way to convert 'List' into 'Map'
 		orderBooks = ((Collection<OrderBook>) orderBookList).stream().collect(
                 Collectors.toMap(OrderBook::getStockTag, orderBook -> orderBook));
+		
+//		userService.findAll();
+		
+		// Populate the order queues with unmatched queues
+		if ( ! orderBooks.isEmpty() ) {
+			for (OrderBook orderBook: orderBooks.values()) {
+				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
+				limitOrderList.toString();
+			} // end for
+		}
 		
 	} // end initialize()
 	
@@ -315,16 +327,16 @@ public class OrderBookService {
 	} // end updateDBOrderStatus(MarketOrder marketOrder)
 	
 	
-	public static boolean checkStockTag(String stockTag) {
+	public boolean checkStockTag(String stockTag) {
 		return orderBookRepository.existsById(stockTag);
 		
-	} // end checkUserId
+	} // end checkStockTag
 	
 	
 	public static boolean checkStockTagStatic(String stockTag) {
-		return checkStockTag(stockTag);
+		return orderBookRepository.existsById(stockTag);
 		
-	} // end checkUserIdStatic
+	} // end checkStockTagStatic
 	
 	
 	public Iterable<OrderBook> findAll() {
