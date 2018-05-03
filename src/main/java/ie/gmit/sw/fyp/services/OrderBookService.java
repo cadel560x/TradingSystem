@@ -46,11 +46,7 @@ public class OrderBookService {
 	@Autowired
 	private StopLossOrderService stopLossOrderService;
 	
-//	@Autowired
-//	private UserService userService;
-	
 	private Map<String, OrderBook> orderBooks;
-	
 	private static OrderBookRepository orderBookRepository;
 	
 //	Data members
@@ -85,21 +81,31 @@ public class OrderBookService {
 //	Methods
 	@PostConstruct
 	private void initService() {
+		// Get the list of order books
 		Iterable<OrderBook> orderBookList = this.findAll();
 		
 		// Java8 way to convert 'List' into 'Map'
 		orderBooks = ((Collection<OrderBook>) orderBookList).stream().collect(
                 Collectors.toMap(OrderBook::getStockTag, orderBook -> orderBook));
 		
-//		userService.findAll();
-		
 		// Populate the order queues with unmatched queues
 		if ( ! orderBooks.isEmpty() ) {
-			for (OrderBook orderBook: orderBooks.values()) {
+			for ( OrderBook orderBook: orderBooks.values() ) {
+				// Recreate limit orders 
 				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
-				limitOrderList.toString();
-			} // end for
-		}
+				for ( LimitOrder limitOrder: limitOrderList ) {
+					limitOrder.attachTo(orderBook);
+				}
+				
+				// Recreate stop loss orders 
+				Iterable<StopLossOrder> stopLossOrderList = stopLossOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
+				for ( LimitOrder stopLossOrder: stopLossOrderList ) {
+					stopLossOrder.attachTo(orderBook);
+				}
+				
+			} // end for ( OrderBook orderBook: orderBooks.values() )
+			
+		} // end if ( ! orderBooks.isEmpty() )
 		
 	} // end initialize()
 	
@@ -110,7 +116,6 @@ public class OrderBookService {
 		
 		//Get 'orderBook'
 		OrderBook orderBook = orderBooks.get(stockTag);
-//		OrderBook orderBook = orderBookRepository.findById(stockTag).get();
 		if ( orderBook == null || ! orderBook.getStockTag().equals(postRequest.getStockTag()) ) {
 			notification.updateMessage("Invalid stock market");
 			

@@ -42,7 +42,7 @@ public class LimitOrderService {
 	
 	
 	public Iterable<LimitOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
-		return limitOrderRepository.findByStockTagAndStatus(stockTag, status);
+		return limitOrderRepository.findByStockTagAndStatusOrderByTimestampAsc(stockTag, status);
 		
 	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
 	

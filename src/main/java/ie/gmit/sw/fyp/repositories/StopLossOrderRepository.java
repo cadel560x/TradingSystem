@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
+import ie.gmit.sw.fyp.model.OrderStatus;
 
 
 
@@ -28,5 +29,8 @@ public interface StopLossOrderRepository extends CrudRepository<StopLossOrder, S
 	@Modifying
 	@Query(value="UPDATE stop_loss_order SET status = :status WHERE id = :Id", nativeQuery=true)
 	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
+	
+	
+	public Iterable<StopLossOrder> findByStockTagAndStatusOrderByTimestampAsc(String stockTag, OrderStatus status);
 	
 } // end interface StopLossOrderRepository

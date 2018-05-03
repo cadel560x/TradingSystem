@@ -30,7 +30,7 @@ public interface LimitOrderRepository extends CrudRepository<LimitOrder, String>
 	void updateByIdStatus(@Param("Id") String id, @Param("status") String newStatus);
 	
 	
-	public Iterable<LimitOrder> findByStockTagAndStatus(String stockTag, OrderStatus status);
+	public Iterable<LimitOrder> findByStockTagAndStatusOrderByTimestampAsc(String stockTag, OrderStatus status);
 	
 	
 //	public Iterable<LimitOrder> findByStockTag(@Param("stockTag") String stockTag);

@@ -34,5 +34,11 @@ public class StopLossOrderService {
 		stopLossOrderRepository.updateByIdStatus(id, newStatus.name());
 		
 	} // end updateByIdStatus(String id, PostOrderType newStatus)
+	
+	
+	public Iterable<StopLossOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
+		return stopLossOrderRepository.findByStockTagAndStatusOrderByTimestampAsc(stockTag, status);
+		
+	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
 
 } // end class OrderMatchService

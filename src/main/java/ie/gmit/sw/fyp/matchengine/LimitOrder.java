@@ -2,9 +2,10 @@ package ie.gmit.sw.fyp.matchengine;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListMap;
+//import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.persistence.Entity;
 
@@ -101,20 +102,16 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	@Override
 	public void attachTo(OrderBook orderBook) {
-		ConcurrentSkipListMap<Float, Queue<LimitOrder>> orderMap = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) orderBook.getSellLimitOrders();
+		Map<Float, Queue<LimitOrder>> priceMap = orderBook.getLimitOrderMap(this);
 		
-		if ( this.isBuy() ) {
-			orderMap = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) orderBook.getBuyLimitOrders();
+		Queue<LimitOrder> ordersQueue = priceMap.get(this.getPrice());
+		if ( ordersQueue == null ) {
+			ordersQueue = new ConcurrentLinkedQueue<>();
+			priceMap.put(this.getPrice(), ordersQueue);
 		}
+		ordersQueue.offer(this);
 		
 		this.setStatus(OrderStatus.ACCEPTED);
-		
-		Queue<LimitOrder> nodeOrders = orderMap.get(this.getPrice());
-		if ( nodeOrders == null ) {
-			nodeOrders = new ConcurrentLinkedQueue<>();
-			orderMap.put(this.getPrice(), nodeOrders);
-		}
-		nodeOrders.offer(this);
 		
 	} // end attachTo(OrderBook orderBook)
 	
