@@ -6,7 +6,9 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -241,7 +243,8 @@ public class OrderBookTest {
 	public void testCheckRequest() {
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		PostRequest postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -272,7 +275,8 @@ public class OrderBookTest {
 	public void testCreateOrderPostRequest() {
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		PostRequest postRequest = new PostRequest();		
 		postRequest.setUserId("dfgjkaga9");
@@ -304,7 +308,8 @@ public class OrderBookTest {
 	public void testCreateOrderMarketOrder() {
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		PostRequest postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -364,7 +369,8 @@ public class OrderBookTest {
 	public void testMatchOrder_MarketOrderLimitOrder() {	
 		Calendar date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timeStamp = new Timestamp(date.getTimeInMillis());
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		// Market orders buy vs limit orders sell
 		PostRequest postRequest = new PostRequest();

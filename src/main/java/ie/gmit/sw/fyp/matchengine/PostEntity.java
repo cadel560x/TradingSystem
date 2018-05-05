@@ -94,7 +94,14 @@ public abstract class PostEntity implements Transaction {
 	}
 	
 	public int getVolume() {
-		return (int) properties.get("volume");
+		try {
+			return (int) properties.get("volume");
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.out.println("Invalid volume value, defaulting to 1");
+			return 1;
+		}
 	}
 	
 //	@Min(value = 1)
@@ -106,8 +113,15 @@ public abstract class PostEntity implements Transaction {
 	}
 
 	public boolean isPartialFill() {
-		return (boolean) properties.get("partialFill");
-
+		try {
+			return (boolean) properties.get("partialFill");
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.out.println("Invalid partialFill value, defaulting to true");
+			return true;
+		}
+		
 	}
 
 	public void setPartialFill(boolean partialFill) {

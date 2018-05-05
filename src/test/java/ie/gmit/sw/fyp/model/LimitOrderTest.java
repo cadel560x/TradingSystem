@@ -6,10 +6,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.Before;
@@ -33,7 +35,7 @@ import ie.gmit.sw.fyp.model.OrderBook;
 @DependsOn({"userService", "orderBookService"})
 public class LimitOrderTest {
 	private Calendar date = new GregorianCalendar();
-	private Timestamp timeStamp;
+	private Instant timeStamp;
 	private PostRequest postRequest;
 	private LimitOrder limitOrder;
 
@@ -43,7 +45,9 @@ public class LimitOrderTest {
 	@Before
 	public void setUp() throws Exception {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp = new Timestamp(date.getTimeInMillis());
+		timeStamp = Instant.now();
+		timeStamp.plus(1, ChronoUnit.DAYS);
+//		timeStamp = new Timestamp(date.getTimeInMillis());
 		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -189,10 +193,10 @@ public class LimitOrderTest {
 	
 	@Test
 	public void testGetExpirationTime() {
-		Timestamp timestamp = limitOrder.getExpirationTime();
+		Instant timestamp = limitOrder.getExpirationTime();
 		
-		assertThat("MarketOrder getExpirationTime", timestamp.before(new Date()), is(false));
-		assertThat("MarketOrder getExpirationTime", timestamp.after(new Date()), is(true));
+		assertThat("MarketOrder getExpirationTime", timestamp.isBefore(Instant.now()), is(false));
+		assertThat("MarketOrder getExpirationTime", timestamp.isAfter(Instant.now()), is(true));
 		
 	}
 
@@ -200,12 +204,13 @@ public class LimitOrderTest {
 	@Test
 	public void testSetExpirationTime() {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp.setTime(date.getTimeInMillis());
+//		timeStamp.setTime(date.getTimeInMillis());
+		timeStamp.plus(Duration.ofDays(1));
 		
 		limitOrder.setExpirationTime(timeStamp);
 		
-		assertThat("MarketOrder setExpirationTime", limitOrder.getExpirationTime().before(new Date()), is(false));
-		assertThat("MarketOrder setExpirationTime", limitOrder.getExpirationTime().after(new Date()), is(true));
+		assertThat("MarketOrder setExpirationTime", limitOrder.getExpirationTime().isBefore(Instant.now()), is(false));
+		assertThat("MarketOrder setExpirationTime", limitOrder.getExpirationTime().isAfter(Instant.now()), is(true));
 		
 	}
 	
@@ -214,7 +219,8 @@ public class LimitOrderTest {
 	public void testSetExpirationTime_InvalidDate() {
 //		Invalid date
 		date.add(Calendar.DAY_OF_MONTH, -2);
-		timeStamp.setTime(date.getTimeInMillis());
+//		timeStamp.setTime(date.getTimeInMillis());
+		timeStamp.minus(2, ChronoUnit.DAYS);
 		
 		limitOrder.setExpirationTime(timeStamp);
 		

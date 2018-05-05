@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
-import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.repositories.MarketOrderRepository;
 
 
@@ -28,27 +27,27 @@ public class MarketOrderService {
 	
 	
 //	Methods
-	public void save(MarketOrder marketOrder) {
+	public MarketOrder save(MarketOrder marketOrder) {
+		MarketOrder result = null;
+		
 		if ( marketOrder instanceof StopLossOrder ) {
-			stopLossOrderService.save((StopLossOrder) marketOrder);
+			result = stopLossOrderService.save((StopLossOrder) marketOrder);
 		}
 		else if ( marketOrder instanceof LimitOrder ) {
-			limitOrderService.save((LimitOrder) marketOrder);
+			result = limitOrderService.save((LimitOrder) marketOrder);
 		}
 		else {
-			marketOrderRepository.save(
-					marketOrder.getId(), marketOrder.getTimestamp() , marketOrder.getUserId() , marketOrder.getStockTag(),
-					marketOrder.getOrderCondition().name(), marketOrder.getType().name(), marketOrder.getVolume(),
-					marketOrder.isPartialFill(), marketOrder.getStatus().name()
-					);
+			result = marketOrderRepository.save(marketOrder);
 		} // end if - else if - else
+		
+		return result;
 		
 	} // end save(MarketOrder marketOrder)
 	
 	
-	public void updateByIdStatus(String id, OrderStatus newStatus) {
-		marketOrderRepository.updateByIdStatus(id, newStatus.name());
+	public void deleteAll() {
+		marketOrderRepository.deleteAll();
 		
-	} // end updateByIdStatus(String id, PostOrderType newStatus)
+	} // end void deleteAll()
 
 } // end class OrderMatchService

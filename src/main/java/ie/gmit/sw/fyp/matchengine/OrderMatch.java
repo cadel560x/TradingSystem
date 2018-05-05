@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.matchengine;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import javax.persistence.Entity;
@@ -25,19 +25,19 @@ public class OrderMatch {
 	@JoinColumn(name="buy_order")
 	private MarketOrder buyOrder;
 	
-	private Timestamp timestamp;
+	private Instant timestamp;
 	private int filledShares;
 	
 	
 	
 //	Constructors
 	public OrderMatch() {
-		this.timestamp = new Timestamp(System.currentTimeMillis());
+		this.timestamp = Instant.now();
 		this.Id = UUID.randomUUID().toString();
 	}
 	
 	public OrderMatch(MarketOrder sellOrder, MarketOrder buyOrder) {
-		this.timestamp = new Timestamp(System.currentTimeMillis());
+		this.timestamp = Instant.now();
 		this.Id = UUID.randomUUID().toString();
 		
 //		Logic that keeps order regarding the passed PostOrders
@@ -76,7 +76,7 @@ public class OrderMatch {
 		return buyOrder;
 	}
 	
-	public Timestamp getTimestamp() {
+	public Instant getTimestamp() {
 		return timestamp;
 	}
 

@@ -1,11 +1,9 @@
 package ie.gmit.sw.fyp.matchengine;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-//import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.persistence.Entity;
 
@@ -48,7 +46,14 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 //	Delegated Methods
 	public float getPrice() {
-		return (float) properties.get("price");
+		try {
+			return (float) properties.get("price");
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.out.println("Invalid price value, defaulting to 0.0001");
+			return 0.0001f;
+		}
 	}
 
 	public void setPrice(float price) {
@@ -59,12 +64,12 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
 	}
 	
-	public Timestamp getExpirationTime() {
-		return (Timestamp) properties.get("expirationTime");
+	public Instant getExpirationTime() {
+		return (Instant) properties.get("expirationTime");
 	}
 
-	public void setExpirationTime(Timestamp expirationTime) {
-		if ( expirationTime.before(new Date()) ) {
+	public void setExpirationTime(Instant expirationTime) {
+		if ( expirationTime.isBefore(Instant.now()) ) {
 			throw new IllegalArgumentException("Expiration time older than current time");
 		}
 		properties.put("expirationTime", expirationTime);
@@ -77,14 +82,9 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	@Override
 	public boolean matches(LimitOrder other) {
 		// A match is done between two orders of opposite type
-		if ( ! this.isPartialFill() ) {
-			// if volumes match ...
-//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
-			if ( this.getVolume() != other.getVolume() ) {
+		if ( ! super.matches(other) ) {
 				return false;
-			}
-			
-		} // end if ( (boolean)this.properties.get("partialFill") )
+		}
 		
 		if ( ( this.getPrice() < other.getPrice() ) && ( this.isBuy() ) ) {
 			return false;
@@ -117,7 +117,7 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	
 	public boolean hasExpired() {
-		if (this.getExpirationTime().before(new Date())) {
+		if (this.getExpirationTime().isBefore(Instant.now())) {
 			return true;
 		}
 		

@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.services;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,36 +20,32 @@ import ie.gmit.sw.fyp.repositories.StopLossOrderRepository;
 public class StopLossOrderService {
 //	Fields
 	@Autowired
-	StopLossOrderRepository stopLossOrderRepository;
+	private StopLossOrderRepository stopLossOrderRepository;
 	
 	
 	
 	
 //	Methods
-	public void save(StopLossOrder stopLossOrder) {
-		stopLossOrderRepository.save(
-				stopLossOrder.getId(), stopLossOrder.getTimestamp() , stopLossOrder.getUserId() , stopLossOrder.getStockTag(),
-				stopLossOrder.getOrderCondition().name(), stopLossOrder.getType().name(), stopLossOrder.getPrice(), stopLossOrder.getStopPrice(),
-				stopLossOrder.getVolume(), stopLossOrder.isPartialFill(), stopLossOrder.getExpirationTime(), stopLossOrder.getStatus().name()
-				);
+	public StopLossOrder save(StopLossOrder stopLossOrder) {
+		return stopLossOrderRepository.save(stopLossOrder);
 		
 	} // end save(StopLossOrder stopLossOrder)
 	
 	
-	public void updateByIdStatus(String id, OrderStatus newStatus) {
-		stopLossOrderRepository.updateByIdStatus(id, newStatus.name());
+	public void updateByIdStatusExpired(String id) {
+		stopLossOrderRepository.updateByIdStatus(id, OrderStatus.EXPIRED.name());
 		
-	} // end updateByIdStatus(String id, PostOrderType newStatus)
+	} // end updateByIdStatusExpired(String id)
 	
 	
-	public Iterable<StopLossOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
-		return stopLossOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, status, PostOrderCondition.STOPLOSS);
+	public Iterable<StopLossOrder> findByStockTagAndStatusAccepted(String stockTag) {
+		return stopLossOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, OrderStatus.ACCEPTED, PostOrderCondition.STOPLOSS);
 		
-	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
+	} // end findByStockTagAndStatusAccepted(String stockTag)
 	
 	
-	public Iterable<String> findIdsByExpirationTimeBefore(Timestamp timestamp) {
-		Iterable<IdOnly> Ids = stopLossOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(timestamp, PostOrderCondition.STOPLOSS, OrderStatus.ACCEPTED);
+	public Iterable<String> findExpired() {
+		Iterable<IdOnly> Ids = stopLossOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(Instant.now(), PostOrderCondition.STOPLOSS, OrderStatus.ACCEPTED);
 		List<String> stringIds = new ArrayList<>();
 		
 		for (IdOnly idOnly: Ids) {
@@ -58,6 +54,12 @@ public class StopLossOrderService {
 		
 		return stringIds;
 		
-	} // end findByExpirationTimeBefore(Timestamp timestamp)
+	} // end findExpired()
+	
+	
+	public void deleteAll() {
+		stopLossOrderRepository.deleteAll();
+		
+	} // end void deleteAll()
 
 } // end class OrderMatchService

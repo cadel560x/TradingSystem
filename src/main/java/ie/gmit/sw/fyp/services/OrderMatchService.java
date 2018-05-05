@@ -13,16 +13,21 @@ import ie.gmit.sw.fyp.repositories.OrderMatchRepository;
 public class OrderMatchService {
 //	Fields
 	@Autowired
-	OrderMatchRepository orderMatchRepository;
+	private OrderMatchRepository orderMatchRepository;
 	
 	
 	
 	
 //	Methods
 	public void save(OrderMatch orderMatch) {
-		orderMatchRepository.save(orderMatch.getId(), orderMatch.getTimestamp(), orderMatch.getSellOrder().getId(),
-				orderMatch.getBuyOrder().getId(), orderMatch.getFilledShares());
+		orderMatchRepository.save(orderMatch);
 		
 	} // end save(OrderMatch orderMatch)
+	
+	
+	public void deleteAll() {
+		orderMatchRepository.deleteAll();
+		
+	} // end void deleteAll()
 
 } // end class OrderMatchService

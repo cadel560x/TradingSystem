@@ -53,7 +53,14 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 
 //	Delegated Methods	
 	public float getStopPrice() {
-		return (float) properties.get("stopPrice");
+		try {
+			return (float) properties.get("stopPrice");
+		}
+		catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.out.println("Invalid stop price value, defaulting to 0.0001");
+			return 0.0001f;
+		}
 	}
 	
 	public void setStopPrice(float stopPrice) {
@@ -69,24 +76,41 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 //	Methods
 	public boolean matches(LimitOrder other) {
-		// A match is done between two orders of opposite type
-		if ( ! this.isPartialFill() ) {
-			// if volumes match ...
-//			if ( (int)this.properties.get("volume") != (int)other.properties.get("volume") ) {
-			if ( this.getVolume() != other.getVolume() ) {
-				return false;
-			}
-			
-		} // end if ( (boolean)this.properties.get("partialFill") )
-		
-		if ( ( this.getStopPrice() > other.getPrice() ) && ( this.isBuy() ) ) {
-			return false;
+		// Check match by nominal prices
+		if ( super.matches(other) ) {
+			return true;
 		}
-		else if ( ( this.getStopPrice() < other.getPrice() ) && ( this.isSell() ) ) {
-			return false;		
-		} // end if ( this.isBuy() ) && ( thisPrice > otherPrice ) - else if ( this.isSell() ) && ( thisPrice < otherPrice )
-		// If we are here is because the prices are equal or better depending on 'this'
+		// No luck?
+		// Check match by stop loss prices
+		else {
+			// Against the 'other' nominal price
+			if ( ( this.getStopPrice() > other.getPrice() ) && ( this.isBuy() ) ) {
+				// Against 'other' stop loss price, if 'other' is a stop loss too
+				if ( other instanceof StopLossOrder) {
+					if ( ((StopLossOrder) other).getStopPrice() < this.getPrice() && other.isSell() ) {
+						return false;
+					}
+				}
+				else {
+					return false;
+				}
+			}
+			// Against the 'other' nominal price
+			else if ( ( this.getStopPrice() < other.getPrice() ) && ( this.isSell() ) ) {
+				// Against 'other' stop loss price, if 'other' is a stop loss too
+				if ( other instanceof StopLossOrder) {
+					if ( ( ((StopLossOrder) other).getStopPrice() > this.getPrice() ) && ( other.isBuy() ) ) {
+						return false;
+					}
+				}
+				else {
+					return false;
+				}
+			} // end if - else if
+			
+		} // end if ( super.matches(other) ) - else
 		
+		// If we are here is because the prices are equal or better depending on 'this'
 		// Anything else is a match
 		return true;
 		

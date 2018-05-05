@@ -1,8 +1,9 @@
 package ie.gmit.sw.fyp.matchengine;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
+//import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -48,12 +49,23 @@ public class PostRequest extends PostEntity {
 		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
 	}
 	
-	public Timestamp getExpirationTime() {
-		return (Timestamp) properties.get("expirationTime");
+//	public Timestamp getExpirationTime() {
+//		return (Timestamp) properties.get("expirationTime");
+//	}
+//
+//	public void setExpirationTime(Timestamp expirationTime) {
+//		if ( expirationTime.before(new Date()) ) {
+//			throw new IllegalArgumentException("Expiration time older than current time");
+//		}
+//		properties.put("expirationTime", expirationTime);
+//	}
+	
+	public Instant getExpirationTime() {
+		return (Instant) properties.get("expirationTime");
 	}
 
-	public void setExpirationTime(Timestamp expirationTime) {
-		if ( expirationTime.before(new Date()) ) {
+	public void setExpirationTime(Instant expirationTime) {
+		if ( expirationTime.isBefore(Instant.now()) ) {
 			throw new IllegalArgumentException("Expiration time older than current time");
 		}
 		properties.put("expirationTime", expirationTime);

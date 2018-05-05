@@ -6,7 +6,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -31,7 +33,7 @@ import ie.gmit.sw.fyp.model.OrderBook;
 @SpringBootTest
 public class StopLossOrderTest {
 	private Calendar date = new GregorianCalendar();
-	private Timestamp timeStamp;
+	private Instant timeStamp;
 	private PostRequest postRequest;
 	private StopLossOrder stopLossOrder;
 
@@ -41,13 +43,14 @@ public class StopLossOrderTest {
 	@Before
 	public void setUp() throws Exception {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp = new Timestamp(date.getTimeInMillis());
+//		timeStamp = new Timestamp(date.getTimeInMillis());
+		timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
 		postRequest.setType(PostOrderType.SELL);
-		postRequest.setOrderCondition(PostOrderCondition.LIMIT);
+		postRequest.setOrderCondition(PostOrderCondition.STOPLOSS);
 		postRequest.setPrice(2.5f);
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
@@ -96,26 +99,28 @@ public class StopLossOrderTest {
 		
 		LimitOrder limitOrder = new LimitOrder(postRequest);
 		
-		assertThat("StopLossOrder matches (same price)", stopLossOrder.matches(limitOrder), is(true));
+		assertThat("StopLossOrder matches (same stopPrice)", stopLossOrder.matches(limitOrder), is(true));
 		
 		limitOrder.setPrice(2.2999f);
-		assertThat("StopLossOrder matches (buy limitOrder with lower price)", stopLossOrder.matches(limitOrder), is(true));
+		assertThat("StopLossOrder matches (buy limitOrder with lower stopPrice)", stopLossOrder.matches(limitOrder), is(true));
 		limitOrder.setPrice(2.3001f);
-		assertThat("StopLossOrder matches (buy limitOrder with higher price)", stopLossOrder.matches(limitOrder), is(false));
+		assertThat("StopLossOrder matches (buy limitOrder with higher stopPrice)", stopLossOrder.matches(limitOrder), is(false));
 		
 		stopLossOrder.setType(PostOrderType.BUY);
+		stopLossOrder.setPrice(2.0f);
 		limitOrder.setType(PostOrderType.SELL);
 		
 		limitOrder.setPrice(2.3f);
-		assertThat("StopLossOrder matches (same price)", stopLossOrder.matches(limitOrder), is(true));
+		assertThat("StopLossOrder matches stopPrice (same price)", stopLossOrder.matches(limitOrder), is(true));
 		
 		limitOrder.setPrice(2.2999f);
-		assertThat("StopLossOrder matches (sell limitOrder with lower price)", stopLossOrder.matches(limitOrder), is(false));
+		assertThat("StopLossOrder matches stopPrice (sell limitOrder with lower price)", stopLossOrder.matches(limitOrder), is(false));
 		limitOrder.setPrice(2.3001f);
-		assertThat("StopLossOrder matches (sell limitOrder with higher price)", stopLossOrder.matches(limitOrder), is(true));
+		assertThat("StopLossOrder matches stopPrice (sell limitOrder with higher price)", stopLossOrder.matches(limitOrder), is(true));
 		
 		
 		stopLossOrder.setType(PostOrderType.SELL);
+		stopLossOrder.setPrice(2.5f);
 		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -126,26 +131,27 @@ public class StopLossOrderTest {
 		postRequest.setVolume(5);
 		postRequest.setPartialFill(true);
 		postRequest.setExpirationTime(timeStamp);
-		postRequest.setStopPrice(2.1f);
+		postRequest.setStopPrice(2.4f);
 		StopLossOrder anotherStopLossOrder = new StopLossOrder(postRequest);
 		
-		assertThat("StopLossOrder matches (same price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
+		assertThat("StopLossOrder matches stopPrice (same price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
 		
 		anotherStopLossOrder.setPrice(2.2999f);
-		assertThat("StopLossOrder matches (buy limitOrder with lower price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
+		assertThat("StopLossOrder matches stopPrice (buy stopLossOrder with lower price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
 		anotherStopLossOrder.setPrice(2.3001f);
-		assertThat("StopLossOrder matches (buy limitOrder with higher price)", stopLossOrder.matches(anotherStopLossOrder), is(false));
+		assertThat("StopLossOrder matches stopPrice (buy stopLossOrder with higher price)", stopLossOrder.matches(anotherStopLossOrder), is(false));
 		
 		stopLossOrder.setType(PostOrderType.BUY);
+		stopLossOrder.setPrice(2.0f);
 		anotherStopLossOrder.setType(PostOrderType.SELL);
 		
 		anotherStopLossOrder.setPrice(2.3f);
-		assertThat("LimitOrder matches (same price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
+		assertThat("StopLossOrder matches stopPrice (same price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
 		
 		anotherStopLossOrder.setPrice(2.2999f);
-		assertThat("StopLossOrder matches (sell limitOrder with lower price)", stopLossOrder.matches(anotherStopLossOrder), is(false));
+		assertThat("StopLossOrder matches (sell stopLossOrder with lower price)", stopLossOrder.matches(anotherStopLossOrder), is(false));
 		anotherStopLossOrder.setPrice(2.3001f);
-		assertThat("StopLossOrder matches (sell limitOrder with higher price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
+		assertThat("StopLossOrder matches (sell stopLossOrder with higher price)", stopLossOrder.matches(anotherStopLossOrder), is(true));
 	
 	}
 

@@ -4,10 +4,12 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -34,7 +36,7 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 @DependsOn({"userService", "orderBookService"})
 public class MarketOrderTest {
 	private Calendar date = new GregorianCalendar();
-	private Timestamp timeStamp;
+	private Instant timeStamp;
 	private PostRequest postRequest;
 	private MarketOrder marketOrder;
 	
@@ -44,7 +46,8 @@ public class MarketOrderTest {
 	@Before
 	public void setUp() throws Exception {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp = new Timestamp(date.getTimeInMillis());
+//		timeStamp = new Timestamp(date.getTimeInMillis());
+		timeStamp = Instant.now().plus(1, ChronoUnit.DAYS	);
 		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -66,8 +69,8 @@ public class MarketOrderTest {
 		assertThat("MarketOrder empty constructor", emptyMarketOrder, hasProperty("properties"));
 		assertThat("MarketOrder empty constructor", emptyMarketOrder.getId(), not(isEmptyString()));
 		
-		Timestamp timestamp = emptyMarketOrder.getTimestamp();
-		assertThat("MarketOrder empty constructor", timestamp.before(new Date()), is(true));
+		Instant timestamp = emptyMarketOrder.getTimestamp();
+		assertThat("MarketOrder empty constructor", timestamp.isBefore(Instant.now()), is(true));
 		
 		assertThat("MarketOrder empty constructor", emptyMarketOrder.getStatus(), is(OrderStatus.CREATED));
 		
@@ -79,8 +82,8 @@ public class MarketOrderTest {
 		assertThat("MarketOrder PostRequest constructor", marketOrder, hasProperty("properties"));
 		assertThat("MarketOrder PostRequest constructor", marketOrder.getId(), not(isEmptyString()));
 		
-		Timestamp timestamp = marketOrder.getTimestamp();
-		assertThat("MarketOrder PostRequest constructor", timestamp.before(new Date()), is(true));
+		Instant timestamp = marketOrder.getTimestamp();
+		assertThat("MarketOrder PostRequest constructor", timestamp.isBefore(Instant.now()), is(true));
 		
 		assertThat("MarketOrder PostRequest constructor", marketOrder.getStatus(), is(OrderStatus.CREATED));
 		
@@ -102,8 +105,8 @@ public class MarketOrderTest {
 		assertThat("MarketOrder PostRequest constructor", otherMarketOrder, hasProperty("properties"));
 		assertThat("MarketOrder PostRequest constructor", otherMarketOrder.getId(), not(isEmptyString()));
 		
-		Timestamp timestamp = otherMarketOrder.getTimestamp();
-		assertThat("MarketOrder PostRequest constructor", timestamp.before(new Date()), is(true));
+		Instant timestamp = otherMarketOrder.getTimestamp();
+		assertThat("MarketOrder PostRequest constructor", timestamp.isBefore(Instant.now()), is(true));
 		
 		assertThat("MarketOrder PostRequest constructor", otherMarketOrder.getStatus(), is(OrderStatus.CREATED));
 		
@@ -129,10 +132,10 @@ public class MarketOrderTest {
 	
 	@Test
 	public void testGetTimestamp() {
-		Timestamp timestamp = marketOrder.getTimestamp();
+		Instant timestamp = (Instant) marketOrder.getTimestamp();
 		
-		assertThat("MarketOrder getTimeStamp", timestamp.before(new Date()), is(true));
-		assertThat("MarketOrder getTimeStamp", timestamp.after(new Date()), is(false));
+		assertThat("MarketOrder getTimeStamp", timestamp.isBefore(Instant.now()), is(true));
+		assertThat("MarketOrder getTimeStamp", timestamp.isAfter(Instant.now()), is(false));
 		
 	}
 
@@ -140,12 +143,13 @@ public class MarketOrderTest {
 	@Test
 	public void testSetTimestamp() {
 		date.add(Calendar.DAY_OF_MONTH, -2);
-		timeStamp.setTime(date.getTimeInMillis());
+//		timeStamp.setTime(date.getTimeInMillis());
+		timeStamp.minus(Duration.ofDays(2));
 		
 		marketOrder.setTimestamp(timeStamp);
 		
-		assertThat("MarketOrder setTimeStamp", marketOrder.getTimestamp().before(new Date()), is(true));
-		assertThat("MarketOrder setTimeStamp", marketOrder.getTimestamp().after(new Date()), is(false));
+		assertThat("MarketOrder setTimeStamp", marketOrder.getTimestamp().isBefore(Instant.now()), is(true));
+		assertThat("MarketOrder setTimeStamp", marketOrder.getTimestamp().isAfter(Instant.now()), is(false));
 		
 	}
 	

@@ -1,7 +1,7 @@
 package ie.gmit.sw.fyp.matchengine;
 
-import java.sql.Timestamp;
-import java.util.Date;
+//import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -66,17 +66,31 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 		properties.put("Id", Id);
 	}
 
+//	@Column(name="timestamp")
+//	public Timestamp getTimestamp() {
+//		return (Timestamp) properties.get("timestamp");
+//	}
+//
+//	public void setTimestamp(Timestamp timestamp) {
+//		if (  timestamp.toInstant().isAfter(Instant.now()) ) {
+//			throw new IllegalArgumentException("Timestamp newer than current time");
+//		}
+//		properties.put("timestamp", timestamp);
+//	}
+	
+	
 	@Column(name="timestamp")
-	public Timestamp getTimestamp() {
-		return (Timestamp) properties.get("timestamp");
+	public Instant getTimestamp() {
+		return (Instant) properties.get("timestamp");
 	}
 
-	public void setTimestamp(Timestamp timestamp) {
-		if ( timestamp.after(new Date()) ) {
+	public void setTimestamp(Instant timestamp) {
+		if ( Instant.now().isBefore(timestamp) ) {
 			throw new IllegalArgumentException("Timestamp newer than current time");
 		}
 		properties.put("timestamp", timestamp);
 	}
+	
 
 	@Enumerated(EnumType.STRING)
 	public OrderStatus getStatus() {
@@ -102,7 +116,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 //	Methods
 	public void initOrder() {
 		this.setId( UUID.randomUUID().toString() );
-		this.setTimestamp( new Timestamp(System.currentTimeMillis()) );
+		this.setTimestamp( Instant.now() );
 		this.setStatus(OrderStatus.CREATED );
 		
 	} // end initOrder
@@ -118,7 +132,7 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 			
 		} // end if ( (boolean)this.properties.get("partialFill") )
 		
-		properties.put("price", other.getPrice());
+//		properties.put("price", other.getPrice());
 		
 		// Anything else is a match
 		return true;

@@ -4,9 +4,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.Before;
@@ -33,7 +33,7 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 @DependsOn({"userService", "orderBookService"})
 public class MatchTest {
 	private Calendar date = new GregorianCalendar();
-	private Timestamp timeStamp;
+	private Instant timeStamp;
 	
 	private MarketOrder marketOrder;
 	private LimitOrder limitOrder;
@@ -47,7 +47,8 @@ public class MatchTest {
 	@Before
 	public void setUp() throws Exception {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp = new Timestamp(date.getTimeInMillis());
+//		timeStamp = new Timestamp(date.getTimeInMillis());
+		timeStamp = Instant.now();
 		
 		postRequest = new PostRequest();
 		postRequest.setUserId("dfgjkaga9");
@@ -94,8 +95,8 @@ public class MatchTest {
 		
 		assertThat("Match empty constructor", emptyMatch.getId(), not(isEmptyString()));
 		
-		Timestamp timestamp = emptyMatch.getTimestamp();
-		assertThat("Match empty constructor", timestamp.before(new Date()), is(true));
+		Instant timestamp = emptyMatch.getTimestamp();
+		assertThat("Match empty constructor", timestamp.isBefore(Instant.now()), is(true));
 		
 	}
 	
@@ -136,8 +137,8 @@ public class MatchTest {
 		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch.getId(), notNullValue());
 		
 		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch, hasProperty("timestamp"));
-		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch.getTimestamp().before(new Date()), is(true));
-		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch.getTimestamp().after(new Date()), is(false));
+		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch.getTimestamp().isBefore(Instant.now()), is(true));
+		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch.getTimestamp().isAfter(Instant.now()), is(false));
 		
 		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch, hasProperty("sellOrder"));
 		assertThat("Match constructor(MarketOrder, MarketOrder)", newMatch, hasProperty("buyOrder"));
@@ -189,9 +190,9 @@ public class MatchTest {
 	
 	@Test
 	public void testGetTimestamp() {
-		timeStamp = match.getTimestamp();
+		Instant timeStamp = match.getTimestamp();
 		
-		assertThat("Match getTimestamp", timeStamp.before(new Date()), is(true));
+		assertThat("Match getTimestamp", timeStamp.isBefore(Instant.now()), is(true));
 		
 	}
 	

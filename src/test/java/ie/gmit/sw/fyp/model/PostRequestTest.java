@@ -7,11 +7,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -59,13 +60,14 @@ public class PostRequestTest {
 	public void testGetExpirationTime() {
 		date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		Timestamp timestamp = new Timestamp(date.getTimeInMillis());
+//		Timestamp timestamp = new Timestamp(date.getTimeInMillis());
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
-		postRequest.setExpirationTime(timestamp);
+		postRequest.setExpirationTime(timeStamp);
 		
-		assertEquals("PostRequest getExpirationTime", timestamp, postRequest.getExpirationTime());
-		assertEquals("PostRequest getExpirationTime", true, postRequest.getExpirationTime().after(new Date()));
-		assertEquals("PostRequest getExpirationTime", false, postRequest.getExpirationTime().before(new Date()));
+		assertEquals("PostRequest getExpirationTime", timeStamp, postRequest.getExpirationTime());
+		assertEquals("PostRequest getExpirationTime", true, postRequest.getExpirationTime().isAfter(Instant.now()));
+		assertEquals("PostRequest getExpirationTime", false, postRequest.getExpirationTime().isBefore(Instant.now()));
 		
 	}
 
@@ -75,8 +77,9 @@ public class PostRequestTest {
 //		Invalid expiration time
 		date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, -1);
+		Instant timeStamp = Instant.now().minus(1, ChronoUnit.DAYS);
 		
-		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		postRequest.setExpirationTime(timeStamp);
 		
 	}
 	
@@ -168,7 +171,8 @@ public class PostRequestTest {
 		
 		date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
+		postRequest.setExpirationTime(timeStamp);
 		
 		assertTrue("PostRequest checkProperties LIMIT (valid)", postRequest.checkProperties(listProperties));
 		
@@ -180,6 +184,7 @@ public class PostRequestTest {
 		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill", "price", "expirationTime", "stopPrice"));
 		date = new GregorianCalendar();
 		date.add(Calendar.DAY_OF_MONTH, 1);
+		Instant timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
 		
 		postRequest.setUserId("dfgjkaga9");
 		postRequest.setStockTag("AAPL");
@@ -188,7 +193,7 @@ public class PostRequestTest {
 		postRequest.setVolume(10);
 		postRequest.setPartialFill(true);
 		postRequest.setPrice(2.5f);
-		postRequest.setExpirationTime(new Timestamp(date.getTimeInMillis()));
+		postRequest.setExpirationTime(timeStamp);
 		
 		assertFalse("PostRequest checkProperties STOPLOSS (invalid)", postRequest.checkProperties(listProperties));
 		

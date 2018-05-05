@@ -1,8 +1,6 @@
 package ie.gmit.sw.fyp.services;
 
-import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
@@ -94,25 +92,25 @@ public class OrderBookService {
 		if ( ! orderBooks.isEmpty() ) {
 			for ( OrderBook orderBook: orderBooks.values() ) {
 				// Find expired limit orders and invalid them
-				Iterable<String> expiredLimitOrderIds = limitOrderService.findIdsByExpirationTimeBefore(new Timestamp(new Date().getTime()));
+				Iterable<String> expiredLimitOrderIds = limitOrderService.findExpired();
 				for ( String Id : expiredLimitOrderIds ) {
-					limitOrderService.updateByIdStatus(Id, OrderStatus.EXPIRED);
+					limitOrderService.updateByIdStatusExpired(Id);
 				}
 				
 				// Find expired stop loss orders and invalid them
-				expiredLimitOrderIds = stopLossOrderService.findIdsByExpirationTimeBefore(new Timestamp(new Date().getTime()));
+				expiredLimitOrderIds = stopLossOrderService.findExpired();
 				for ( String Id : expiredLimitOrderIds ) {
-					stopLossOrderService.updateByIdStatus(Id, OrderStatus.EXPIRED);
+					stopLossOrderService.updateByIdStatusExpired(Id);
 				}
 				
 				// Recreate limit orders 
-				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
+				Iterable<LimitOrder> limitOrderList = limitOrderService.findByStockTagAndStatusAccepted(orderBook.getStockTag());
 				for ( LimitOrder limitOrder: limitOrderList ) {
 					limitOrder.attachTo(orderBook);
 				}
 				
 				// Recreate stop loss orders 
-				Iterable<StopLossOrder> stopLossOrderList = stopLossOrderService.findByStockTagAndStatus(orderBook.getStockTag(), OrderStatus.ACCEPTED);
+				Iterable<StopLossOrder> stopLossOrderList = stopLossOrderService.findByStockTagAndStatusAccepted(orderBook.getStockTag());
 				for ( StopLossOrder stopLossOrder: stopLossOrderList ) {
 					stopLossOrder.attachTo(orderBook);
 				}
@@ -312,20 +310,19 @@ public class OrderBookService {
 			logOrder.info("Order not matched: " + marketOrder.getId());
 			logOrder.info("Order " + marketOrder.getId() + " placed in market " + marketOrder.getStockTag() + ", queued in " + marketOrder.getType() + " " + marketOrder.getOrderCondition() + " queue");
 			
-			if ( marketOrder instanceof StopLossOrder ) {
-				stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-			}
-			else if ( marketOrder instanceof LimitOrder ) {
-				limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
-			}
-			else {
+			if ( ! (marketOrder instanceof StopLossOrder) && ! (marketOrder instanceof LimitOrder) ) {
 				marketOrder.setStatus(OrderStatus.REJECTED);
 				logOrder.error(marketOrder.getOrderCondition() + " order " + marketOrder.getId() + " not matched. Discarded");
-				marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//				marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+				this.updateDBOrderStatus(marketOrder);
 				notification.updateMessage("\nNOT MATCHED");
 			}
+			else {
+				this.updateDBOrderStatus(marketOrder);
+				
+			} // end if - else
 			
-		} // if ( matchOrder(postOrder) )
+		} // if ( matchOrder(postOrder) ) - else
 		
 		return notification;
 		
@@ -334,13 +331,16 @@ public class OrderBookService {
 	
 	public void updateDBOrderStatus(MarketOrder marketOrder) {
 		if ( marketOrder instanceof StopLossOrder ) {
-			stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			stopLossOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+			stopLossOrderService.save((StopLossOrder) marketOrder);
 		}
 		else if ( marketOrder instanceof LimitOrder ) {
-			limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			limitOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+			limitOrderService.save((LimitOrder) marketOrder);
 		}
 		else {
-			marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+//			marketOrderService.updateByIdStatus(marketOrder.getId(), marketOrder.getStatus());
+			marketOrderService.save(marketOrder);
 		}
 		
 	} // end updateDBOrderStatus(MarketOrder marketOrder)

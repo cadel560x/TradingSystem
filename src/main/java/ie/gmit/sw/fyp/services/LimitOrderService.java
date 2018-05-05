@@ -1,6 +1,6 @@
 package ie.gmit.sw.fyp.services;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,30 +31,26 @@ public class LimitOrderService {
 	
 	
 //	Methods
-	public void save(LimitOrder limitOrder) {
-		limitOrderRepository.save(
-				limitOrder.getId(), limitOrder.getTimestamp() , limitOrder.getUserId() , limitOrder.getStockTag(),
-				limitOrder.getOrderCondition().name(), limitOrder.getType().name(), limitOrder.getPrice(), limitOrder.getVolume(),
-				limitOrder.isPartialFill(), limitOrder.getExpirationTime(), limitOrder.getStatus().name()
-				);
+	public LimitOrder save(LimitOrder limitOrder) {
+		return limitOrderRepository.save(limitOrder);
 		
 	} // end save(LimitOrder limitOrder)
 	
 	
-	public void updateByIdStatus(String id, OrderStatus newStatus) {
-		limitOrderRepository.updateByIdStatus(id, newStatus.name());
+	public void updateByIdStatusExpired(String id) {
+		limitOrderRepository.updateByIdStatus(id, OrderStatus.EXPIRED.name());
 		
-	} // end updateByIdStatus(String id, PostOrderType newStatus)
+	} // end updateByIdStatusExpired(String id)
 	
 	
-	public Iterable<LimitOrder> findByStockTagAndStatus(String stockTag, OrderStatus status) {
-		return limitOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, status, PostOrderCondition.LIMIT);
+	public Iterable<LimitOrder> findByStockTagAndStatusAccepted(String stockTag) {
+		return limitOrderRepository.findByStockTagAndStatusAndOrderConditionOrderByTimestampAsc(stockTag, OrderStatus.ACCEPTED, PostOrderCondition.LIMIT);
 		
-	} // end findByStockTagAndStatus(String stockTag, OrderStatus status)
+	} // end findByStockTagAndStatusAccepted(String stockTag)
 	
 	
-	public Iterable<String> findIdsByExpirationTimeBefore(Timestamp timestamp) {
-		Iterable<IdOnly> Ids = limitOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(timestamp, PostOrderCondition.LIMIT, OrderStatus.ACCEPTED);
+	public Iterable<String> findExpired() {
+		Iterable<IdOnly> Ids = limitOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(Instant.now(), PostOrderCondition.LIMIT, OrderStatus.ACCEPTED);
 		List<String> stringIds = new ArrayList<>();
 		
 		for (IdOnly idOnly: Ids) {
@@ -63,9 +59,12 @@ public class LimitOrderService {
 		
 		return stringIds;
 		
-	} // end findByExpirationTimeBefore(Timestamp timestamp)
+	} // end findExpired()
 	
 	
-	
+	public void deleteAll() {
+		limitOrderRepository.deleteAll();
+		
+	} // end void deleteAll()
 
 } // end class OrderMatchService
