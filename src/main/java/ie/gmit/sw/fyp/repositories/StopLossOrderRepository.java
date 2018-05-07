@@ -1,7 +1,5 @@
 package ie.gmit.sw.fyp.repositories;
 
-import java.time.Instant;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -26,6 +24,8 @@ public interface StopLossOrderRepository extends CrudRepository<StopLossOrder, S
 	
 	
 //	SELECT id FROM stop_loss_order WHERE expiration_time < :timestamp AND status = :status AND order_condition = :orderCondition
-	public Iterable<IdOnly> findByExpirationTimeBeforeAndOrderConditionAndStatus(Instant timestamp, PostOrderCondition orderCondition, OrderStatus status);
+//	public Iterable<IdOnly> findByExpirationTimeBeforeAndOrderConditionAndStatus(Instant timestamp, PostOrderCondition orderCondition, OrderStatus status);
+	@Query(value="SELECT id FROM stop_loss_order WHERE expiration_time < NOW() AND status = 'ACCEPTED' AND order_condition = 'STOPLOSS'", nativeQuery=true)
+	public Iterable<String> findByExpirationTimeBeforeAndOrderConditionAndStatus();
 	
 } // end interface StopLossOrderRepository

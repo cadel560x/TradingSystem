@@ -7,24 +7,35 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.context.annotation.Scope;
 
 
 
 
+@Scope("prototype")
 @Entity
 public class OrderMatch {
 //	Fields
 	@Id
 	private String Id;
 	
+	@NotNull
 	@OneToOne
 	@JoinColumn(name="sell_order")
 	private MarketOrder sellOrder;
 	
+	@NotNull
 	@OneToOne
 	@JoinColumn(name="buy_order")
 	private MarketOrder buyOrder;
 	
+	@NotNull
+	@CreationTimestamp
+	@PastOrPresent
 	private Instant timestamp;
 	private int filledShares;
 	

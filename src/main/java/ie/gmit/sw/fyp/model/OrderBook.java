@@ -1,7 +1,7 @@
 package ie.gmit.sw.fyp.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.MarketOrder;
 import ie.gmit.sw.fyp.matchengine.OrderMatch;
+import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.matchengine.PostOrderType;
 import ie.gmit.sw.fyp.matchengine.PostRequest;
 import ie.gmit.sw.fyp.matchengine.StopLossOrder;
@@ -35,21 +36,21 @@ public class OrderBook {
 	private String stockTag;
 	
 	@Transient
-	private Map<Float, Queue<LimitOrder>> buyLimitOrders;
+	private final Map<Float, Queue<LimitOrder>> buyLimitOrders;
 	@Transient
-	private Map<Float, Queue<LimitOrder>> sellLimitOrders;
+	private final Map<Float, Queue<LimitOrder>> sellLimitOrders;
 	@Transient
-	private Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
+	private final Map<Float, Queue<StopLossOrder>> buyStopLossOrders;
 	@Transient
-	private Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
+	private final Map<Float, Queue<StopLossOrder>> sellStopLossOrders;
 	@Transient
-	private BlockingQueue<OrderMatch> matchedQueue;
+	private final BlockingQueue<OrderMatch> matchedQueue;
 	
 	private String description;
 	
 //	Data members
 	@Transient
-	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.order");
+	private final Logger logOrder = LoggerFactory.getLogger("ie.gmit.sw.fyp.OrderBook");
 	
 	
 	
@@ -90,38 +91,18 @@ public class OrderBook {
 	}
 
 	@Transient
-	public void setBuyLimitOrders(Map<Float, Queue<LimitOrder>> buyLimitOrders) {
-		this.buyLimitOrders = buyLimitOrders;
-	}
-
-	@Transient
 	public Map<Float, Queue<LimitOrder>> getSellLimitOrders() {
 		return sellLimitOrders;
 	}
 
-	@Transient
-	public void setSellLimitOrders(Map<Float, Queue<LimitOrder>> sellLimitOrders) {
-		this.sellLimitOrders = sellLimitOrders;
-	}
-	
 	@Transient
 	public Map<Float, Queue<StopLossOrder>> getBuyStopLoss() {
 		return buyStopLossOrders;
 	}
 
 	@Transient
-	public void setBuyStopLoss(Map<Float, Queue<StopLossOrder>> buyStopLossOrders) {
-		this.buyStopLossOrders = buyStopLossOrders;
-	}
-
-	@Transient
 	public Map<Float, Queue<StopLossOrder>> getSellStopLoss() {
 		return sellStopLossOrders;
-	}
-
-	@Transient
-	public void setSellStopLoss(Map<Float, Queue<StopLossOrder>> sellStopLossOrders) {
-		this.sellStopLossOrders = sellStopLossOrders;
 	}
 
 	@Transient
@@ -141,8 +122,13 @@ public class OrderBook {
 
 	
 //	Methods
-	public boolean checkRequest(PostRequest postRequest) {
-		List<String> listProperties = new ArrayList<>(Arrays.asList("userId", "stockTag", "type", "condition", "volume", "partialFill"));
+	public boolean checkRequest(PostRequest postRequest) throws IllegalArgumentException {
+		List<String> listProperties = new ArrayList<>();
+		
+		PostOrderCondition condition = postRequest.getOrderCondition();
+		if ( condition == null ) {
+			throw new IllegalArgumentException("The 'condition' parameter must not be null or empty");
+		}
 		
 		switch(postRequest.getOrderCondition()) {
 			case STOPLOSS:
@@ -155,11 +141,10 @@ public class OrderBook {
 		
 		logOrder.debug("Inside checkRequest method: " + postRequest.toString());
 		
-		if ( postRequest.checkProperties(listProperties) ) {
-			return true;
-		}
+		// If this fails, it throws an exception
+		postRequest.checkProperties(listProperties);
 		
-		return false;
+		return true;
 		
 	} // end checkRequest(PostRequest postRequest)
 	
@@ -180,7 +165,7 @@ public class OrderBook {
 			break;
 		} // end switch
 		
-		logOrder.info(marketOrder.toString());
+		logOrder.debug(marketOrder.toString());
 		
 		return marketOrder;
 		
@@ -201,7 +186,7 @@ public class OrderBook {
 			break;
 		} // end switch
 		
-		logOrder.info(otherMarketOrder.toString());
+		logOrder.debug(otherMarketOrder.toString());
 		
 		return otherMarketOrder;
 		
@@ -220,7 +205,7 @@ public class OrderBook {
 		
 		StringBuilder collectionTypeString = new StringBuilder("STOPLOSS ");
 		
-		//
+		// Select the counterpart maps and queues
 		if ( marketOrder.isBuy() ) {
 			stopLossOrders = (ConcurrentSkipListMap<Float, Queue<StopLossOrder>>) this.sellStopLossOrders;
 			offerOrders = (ConcurrentSkipListMap<Float, Queue<LimitOrder>>) this.sellLimitOrders;
@@ -240,10 +225,26 @@ public class OrderBook {
 			logOrder.warn(collectionTypeString + " collection in stock market " + stockTag + " is empty." );
 			
 		}
-		else {	
-			bestStopLoss = bestStopLossEntry.getValue().peek();
-			logOrder.debug("bestStopLoss: " + bestStopLoss.toString());
-		}
+		else {
+			synchronized ( stopLossOrders ) {
+				bestStopLoss = bestStopLossEntry.getValue().peek();
+				if ( bestStopLoss == null ) {
+					// Order queue is empty, what's the point of keeping the order map entry? Let's remove it.
+					stopLossOrders.remove(bestStopLossEntry.getKey());
+					
+					// Set the condition to cancel this match
+					bestStopLossEntry = null;
+					
+				} // end if
+				
+			} // end synchronized
+			if ( bestStopLoss != null ) {
+//				else {
+				logOrder.debug("bestStopLoss: " + bestStopLoss.toString());
+				
+			} // end if ( bestStopLoss == null ) - else
+			
+		} // end if ( bestStopLossEntry == null ) - else
 		
 		
 		if ( bestOfferEntry == null ) {
@@ -259,9 +260,27 @@ public class OrderBook {
 			
 		}
 		else {
-			bestOffer = bestOfferEntry.getValue().peek();
-			logOrder.debug("bestOffer: " + bestOffer.toString());
-		}
+			synchronized ( offerOrders ) {
+				bestOffer = bestOfferEntry.getValue().peek();
+				if ( bestOffer == null ) {
+					// Order queue is empty, what's the point of keeping the order map entry? Let's remove it.
+					synchronized (offerOrders) {
+						offerOrders.remove(bestOfferEntry.getKey());
+					}
+					
+					// Set the condition to cancel this match
+					bestOfferEntry = null;
+					
+				} // end if
+				
+			} // end synchronized
+			if ( bestOffer != null ) {
+//				else {
+				logOrder.debug("bestOffer: " + bestOffer.toString());
+				
+			} // end  if ( bestOffer == null ) - else 
+			
+		} // end if ( bestOfferEntry == null )
 		
 		if ( bestOfferEntry == null && bestStopLossEntry == null ) {
 			logOrder.warn("No offers in market (empty market?)");
@@ -286,9 +305,132 @@ public class OrderBook {
 			}
 		} // if - else if
 		
+		String user = bestOption.getUserId();
+		if ( user.equals(bestOffer.getUserId()) ) {
+			return null; // A user cannot match against its own order, duh!
+		}
+		
 		return bestOption;
 		
 	} // end matchOrder(MarketOrder marketOrder)
+	
+	
+	public void pruneOrderQueue(LimitOrder limitOrder) {
+		Queue<? extends LimitOrder> orderQueue = null;
+		
+		String stockTag = limitOrder.getStockTag();
+		PostOrderType type = limitOrder.getType();
+		
+		try {
+			orderQueue = this.getLimitOrderQueue(limitOrder);
+			if ( orderQueue == null ) {
+				throw new NullPointerException("Order queue is null");
+			}
+			
+			// Maintain the StopLossOrder queue
+			if ( limitOrder instanceof StopLossOrder ) {
+				if (  orderQueue.isEmpty() ) {
+					float stopPrice = ((StopLossOrder) limitOrder).getStopPrice();;
+					synchronized (orderQueue) {
+						Map<Float, Queue<StopLossOrder>> orderMap = this.getStopLossOrderMap((StopLossOrder) limitOrder);
+						orderMap.remove(stopPrice);
+					}
+					logOrder.warn(type + " STOPLOSS queue at " + stopPrice + " removed from market " + stockTag);
+					
+				} // end if
+				
+				// Make a 'LimitOrder' from this 'StopLossOrder'
+				StopLossOrder stopLossOrder = (StopLossOrder) limitOrder;
+				LimitOrder limitOrderClone = new LimitOrder(stopLossOrder);
+				
+				// Now switch to the LimitOrdeQueue
+				orderQueue = this.getLimitOrderQueue(limitOrderClone);
+				if ( orderQueue == null ) {
+					throw new NullPointerException("Order queue is null");
+				}
+				
+			} // end if
+			
+			// Maintain the LimitOrder queue
+			if (  orderQueue.isEmpty() ) {
+				float price = ((LimitOrder) limitOrder).getPrice();
+				synchronized (orderQueue) {
+					Map<Float, Queue<LimitOrder>> orderMap = this.getLimitOrderMap(limitOrder);
+					orderMap.remove(price);
+				}
+				
+				logOrder.warn(type + " LIMIT queue at " + price + " removed from market " + stockTag);
+	
+			} // end if
+		}
+		catch (NullPointerException npe) {
+			System.out.println(npe.getMessage());
+		} // try - catch
+		
+	} // end pruneOrderQueue(LimitOrder limitOrder)
+	
+	
+	public void pollOrder(LimitOrder limitOrder) {
+		Queue<? extends LimitOrder> orderQueue = this.getLimitOrderQueue(limitOrder);
+		boolean result;
+		try {
+			String msg;
+			String stockTag = limitOrder.getStockTag();
+			PostOrderType type = limitOrder.getType();
+			PostOrderCondition condition = limitOrder.getOrderCondition();
+			float price = ( condition == PostOrderCondition.LIMIT )? limitOrder.getPrice(): ((StopLossOrder) limitOrder).getStopPrice();
+			
+			synchronized (orderQueue)  {
+				result = orderQueue.remove(limitOrder); // IT HAS TO BE 'remove' and not 'poll'
+				// Read below
+			}
+			
+			if ( ! result ) {
+				msg = "Order " + limitOrder.getId() + " not removed from queue " + limitOrder.getType() + " LIMIT at price " + limitOrder.getPrice();
+				logOrder.error(msg);
+				throw new IllegalAccessError(msg);
+			}
+			logOrder.debug("Order " + limitOrder.getId() + " polled from " + type + " " + condition + " queue at " + price + " from market " + stockTag);
+			
+			if ( limitOrder instanceof StopLossOrder ) {
+				StopLossOrder stopLossOrder = (StopLossOrder) limitOrder;
+				
+				// Make a 'LimitOrder' from this 'StopLossOrder'
+				LimitOrder limitOrderClone = new LimitOrder(stopLossOrder);
+				
+				// Switch queue to 'LimitOrder' queue
+				orderQueue = this.getLimitOrderQueue(limitOrderClone);
+				synchronized (orderQueue)  {
+				    result = orderQueue.remove(limitOrder); // IT HAS TO BE 'remove' and not 'poll'
+				    // There are some cases that the order to be removed is behind the first element of the queue.
+				    // Remember, we are here trying to remove a 'StopLossOrder' from a 'LimitOrder' queue.
+				    // Case: let 'StopLossOrder' and 'LimitOrder' and have the same nominal price, and 'StopLossOrder'
+				    //       is after 'LimitOrder' because it arrived later. If 'StopLossOrder' is selected 'bestOption'
+				    //       when trying to dequeue from its 'LimitOrder' queue, 'poll' is going to get the first order
+				    //       that is not 'StopLoss'. The first order is a 'LimitOrder'!
+				} // end synchronized
+//				if ( ! polledOrder.equals(limitOrder) ) {
+				if ( ! result ) {
+//					throw new IllegalAccessError("Different order polled from the queue: polledOrder: " + polledOrder.getId() + " limitOder: " + limitOrder.getId() );
+					msg = "Order " + limitOrder.getId() + " not removed from queue " + limitOrder.getType() + " LIMIT at price " + limitOrder.getPrice();
+					logOrder.error(msg);
+					throw new IllegalAccessError(msg);
+				}
+				
+				logOrder.debug("Order " + limitOrder.getId() + " polled from " + type + " LIMIT queue at " + limitOrderClone.getPrice() + " from market " + stockTag);
+				
+			} // end if
+		}
+		catch ( NullPointerException npe ) {
+			npe.printStackTrace();
+			throw new IllegalArgumentException();
+		} 
+		catch ( IllegalAccessError e ) {
+//			e.printStackTrace();
+			System.out.println(e.getMessage());
+		} // try - catch - catch
+		
+	} // end pollOrder
 	
 	
 	public Map<Float, Queue<StopLossOrder>> getStopLossOrderMap(StopLossOrder stopLossOrder) {

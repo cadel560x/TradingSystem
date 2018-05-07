@@ -48,6 +48,14 @@
 		</rollingPolicy>
 	</appender>
 	
+	<logger name="ie.gmit.sw.fyp.OrderBookService" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE-ORDERS"/>
+        <appender-ref ref="CONSOLE" />
+    </logger>
+    <logger name="ie.gmit.sw.fyp.OrderBook" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE-ORDERS"/>
+        <appender-ref ref="CONSOLE" />
+    </logger>
 	<logger name="ie.gmit.sw.fyp.order" level="DEBUG" additivity="false">
         <appender-ref ref="FILE-ORDERS"/>
         <appender-ref ref="CONSOLE" />

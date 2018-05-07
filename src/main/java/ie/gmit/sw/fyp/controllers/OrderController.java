@@ -1,6 +1,13 @@
 package ie.gmit.sw.fyp.controllers;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +34,16 @@ public class OrderController {
 //	Methods
 	@ResponseBody
 	@RequestMapping(method=RequestMethod.POST, value="/{stockTag}")
-	public Notification addPostOrder(@PathVariable String stockTag, @RequestBody PostRequest postRequest) {
+	public Notification addPostOrder(@PathVariable String stockTag, @Valid @RequestBody PostRequest postRequest) {
 		
 		return orderBookService.addPostOrder(stockTag, postRequest);
 		
+	}
+	
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	void handleBadRequests(IllegalArgumentException e, HttpServletResponse response) throws IOException {
+	    response.sendError(HttpStatus.BAD_REQUEST.value());
 	}
 	
 } // end class OrderController

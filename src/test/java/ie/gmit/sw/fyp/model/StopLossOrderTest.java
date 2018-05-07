@@ -169,8 +169,8 @@ public class StopLossOrderTest {
 	public void testStopLossOrderStopLossOrder() {
 		StopLossOrder newStopLossOrder = new StopLossOrder(stopLossOrder);
 		
-		assertThat("StopLossOrder constructor (StopLossOrder)", newStopLossOrder.getProperties(), notNullValue() );
-		assertThat("StopLossOrder constructor (StopLossOrder)", newStopLossOrder.getProperties(), is(stopLossOrder.getProperties()));
+		assertThat("StopLossOrder constructor (StopLossOrder)", newStopLossOrder.getId(), notNullValue() );
+		assertThat("StopLossOrder constructor (StopLossOrder)", newStopLossOrder.getId(), is(stopLossOrder.getId()));
 		
 	}
 	

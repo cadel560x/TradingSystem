@@ -6,6 +6,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.persistence.Entity;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 
 import ie.gmit.sw.fyp.model.OrderBook;
 import ie.gmit.sw.fyp.model.OrderStatus;
@@ -14,9 +17,15 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 
 
 @Entity
-//@Component
 public class LimitOrder extends MarketOrder implements PostOrder {
 //	Fields
+	@NotNull
+	@DecimalMin("0.0001")
+	private float price;
+	
+	@NotNull
+	@FutureOrPresent
+	private Instant expirationTime;
 	
 	
 	
@@ -29,10 +38,16 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	public LimitOrder(PostRequest limitRequest) {
 		super(limitRequest);
 		
+		this.price = limitRequest.getPrice();
+		this.expirationTime = limitRequest.getExpirationTime();
+		
 	}
 	
-	public LimitOrder(LimitOrder limitOrder) {
-		super(limitOrder);
+	public LimitOrder(LimitOrder otherLimitOrder) {
+		super(otherLimitOrder);
+		
+		this.price = otherLimitOrder.getPrice();
+		this.expirationTime = otherLimitOrder.getExpirationTime();
 		
 	}
 	
@@ -40,39 +55,20 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	
 //	Accessors and mutators
-
-	
-	
-	
-//	Delegated Methods
 	public float getPrice() {
-		try {
-			return (float) properties.get("price");
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.out.println("Invalid price value, defaulting to 0.0001");
-			return 0.0001f;
-		}
+		return price;
 	}
 
 	public void setPrice(float price) {
-		if ( price <= 0 ) {
-			throw new IllegalArgumentException("Invalid price value");
-		}
-		
-		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
+		this.price = price;
 	}
 	
 	public Instant getExpirationTime() {
-		return (Instant) properties.get("expirationTime");
+		return expirationTime;
 	}
 
 	public void setExpirationTime(Instant expirationTime) {
-		if ( expirationTime.isBefore(Instant.now()) ) {
-			throw new IllegalArgumentException("Expiration time older than current time");
-		}
-		properties.put("expirationTime", expirationTime);
+		this.expirationTime = expirationTime;
 	}
 	
 	
@@ -81,7 +77,6 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 //	Methods
 	@Override
 	public boolean matches(LimitOrder other) {
-		// A match is done between two orders of opposite type
 		if ( ! super.matches(other) ) {
 				return false;
 		}
@@ -134,8 +129,10 @@ public class LimitOrder extends MarketOrder implements PostOrder {
 	
 	@Override
 	public String toString() {
-		return "LimitOrder [properties=" + properties + "]";
-		
-	} // end toString()
+		return "LimitOrder [price=" + price + ", expirationTime=" + expirationTime + ", getId()=" + getId()
+				+ ", getTimestamp()=" + getTimestamp() + ", getStatus()=" + getStatus() + ", getUserId()=" + getUserId()
+				+ ", getStockTag()=" + getStockTag() + ", getType()=" + getType() + ", getOrderCondition()="
+				+ getOrderCondition() + ", getVolume()=" + getVolume() + ", isPartialFill()=" + isPartialFill() + "]";
+	}
 
 } // end class PostOrder

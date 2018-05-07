@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import ie.gmit.sw.fyp.matchengine.LimitOrder;
@@ -32,7 +31,7 @@ import ie.gmit.sw.fyp.model.OrderBook;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@DependsOn({"userService", "orderBookService"})
+//@DependsOn({"userService", "orderBookService"})
 public class LimitOrderTest {
 	private Calendar date = new GregorianCalendar();
 	private Instant timeStamp;
@@ -45,8 +44,8 @@ public class LimitOrderTest {
 	@Before
 	public void setUp() throws Exception {
 		date.add(Calendar.DAY_OF_MONTH, 1);
-		timeStamp = Instant.now();
-		timeStamp.plus(1, ChronoUnit.DAYS);
+		timeStamp = Instant.now().plus(1, ChronoUnit.DAYS);
+//		timeStamp.plus(1, ChronoUnit.DAYS);
 //		timeStamp = new Timestamp(date.getTimeInMillis());
 		
 		postRequest = new PostRequest();
@@ -133,8 +132,8 @@ public class LimitOrderTest {
 	public void testLimitOrderLimitOrderOrder() {
 		LimitOrder newLimitOrder = new LimitOrder(limitOrder);
 		
-		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getProperties(), notNullValue() );
-		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getProperties(), is(limitOrder.getProperties()));
+		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getId(), notNullValue() );
+		assertThat("LimitOrder constructor (LimitOrder)", newLimitOrder.getId(), is(limitOrder.getId()));
 		
 	}
 

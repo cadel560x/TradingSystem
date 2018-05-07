@@ -1,17 +1,16 @@
 package ie.gmit.sw.fyp.matchengine;
 
-//import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 
 import ie.gmit.sw.fyp.model.Order;
 import ie.gmit.sw.fyp.model.OrderBook;
@@ -24,25 +23,47 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class MarketOrder extends PostEntity implements Order, PostOrder {
 //	Fields
+	@Id
+	private String Id;
 	
+	@NotNull
+	@PastOrPresent
+	private Instant timestamp;
+	
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private OrderStatus status;
 	
 	
 	
 //	Constructors
 	public MarketOrder() {
-		this.properties = new HashMap<>();
-		
 		initOrder();
+		
 	}
 
 	public MarketOrder(PostRequest postRequest) {
-		this.properties = postRequest.getProperties();
+		this.setUserId(postRequest.getUserId());
+		this.setStockTag(postRequest.getStockTag());
+		this.setType(postRequest.getType());
+		this.setOrderCondition(postRequest.getOrderCondition());
+		this.setVolume(postRequest.getVolume());
+		this.setPartialFill(postRequest.isPartialFill());
 		
 		initOrder();
 	}
 	
-	public MarketOrder(MarketOrder MarketOrder) {
-		this.properties = new HashMap<>(MarketOrder.getProperties());
+	public MarketOrder(MarketOrder otherMarketOrder) {
+		this.Id = otherMarketOrder.getId();
+		this.timestamp = otherMarketOrder.getTimestamp();
+		this.status = otherMarketOrder.getStatus();
+		
+		this.setUserId(otherMarketOrder.getUserId());
+		this.setStockTag(otherMarketOrder.getStockTag());
+		this.setType(otherMarketOrder.getType());
+		this.setOrderCondition(otherMarketOrder.getOrderCondition());
+		this.setVolume(otherMarketOrder.getVolume());
+		this.setPartialFill(otherMarketOrder.isPartialFill());
 
 	}
 	
@@ -50,55 +71,28 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	
 //	Accessors and mutators
-	
-	
-	
-	
-//	Delegated Methods
-	@Id
 	public String getId() {
-		return (String) properties.get("Id");
-//		return "MarketOrder Id";
+		return Id;
 	}
 
-	
 	public void setId(String Id) {
-		properties.put("Id", Id);
+		this.Id = Id;
 	}
-
-//	@Column(name="timestamp")
-//	public Timestamp getTimestamp() {
-//		return (Timestamp) properties.get("timestamp");
-//	}
-//
-//	public void setTimestamp(Timestamp timestamp) {
-//		if (  timestamp.toInstant().isAfter(Instant.now()) ) {
-//			throw new IllegalArgumentException("Timestamp newer than current time");
-//		}
-//		properties.put("timestamp", timestamp);
-//	}
 	
-	
-	@Column(name="timestamp")
 	public Instant getTimestamp() {
-		return (Instant) properties.get("timestamp");
+		return timestamp;
 	}
 
 	public void setTimestamp(Instant timestamp) {
-		if ( Instant.now().isBefore(timestamp) ) {
-			throw new IllegalArgumentException("Timestamp newer than current time");
-		}
-		properties.put("timestamp", timestamp);
+		this.timestamp = timestamp;
 	}
 	
-
-	@Enumerated(EnumType.STRING)
 	public OrderStatus getStatus() {
-		return (OrderStatus) properties.get("status");
+		return status;
 	}
 
 	public void setStatus(OrderStatus status) {
-		properties.put("status", status);
+		this.status = status;
 	}
 	
 	
@@ -115,22 +109,36 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 //	Methods
 	public void initOrder() {
-		this.setId( UUID.randomUUID().toString() );
-		this.setTimestamp( Instant.now() );
-		this.setStatus(OrderStatus.CREATED );
+		if ( this.Id == null || this.Id.equals("") ) {
+			this.setId( UUID.randomUUID().toString() );
+			this.setTimestamp( Instant.now() );
+			this.setStatus(OrderStatus.CREATED );
+		}
 		
 	} // end initOrder
 	
 
 	public boolean matches(LimitOrder other) {
-		// A match is done between two orders of opposite type
-		if ( ! this.isPartialFill() ) {
-			// if volumes match ...
+		// In 'MarketOrder' what matters is the volume of shares. The price is already accepted
+		if ( ! this.isPartialFill() && ! other.isPartialFill() ) {
+			// Both must have the same share volume
 			if ( this.getVolume() != other.getVolume() ) {
 				return false;
 			}
 			
-		} // end if ( (boolean)this.properties.get("partialFill") )
+		}
+		else if ( ! this.isPartialFill() && other.isPartialFill() ) {
+			// 'other' must have the same or more shares than 'this'
+			if ( this.getVolume() > other.getVolume() ) {
+				return false;
+			}
+		}
+		else if ( this.isPartialFill() && ! other.isPartialFill() ) {
+			// 'this' must have the same or more shares than 'other'
+			if ( this.getVolume() < other.getVolume() ) {
+				return false;
+			}
+		} // end if - else if - else if
 		
 //		properties.put("price", other.getPrice());
 		
@@ -150,28 +158,23 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 			return false;
 		
 		MarketOrder other = (MarketOrder) obj;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} 
-		else {
-			if (! this.getId().equals(other.getId()) ) {
-				return false;
-			}
-			
-			if (! this.getUserId().equals(other.getUserId()) ) {
-				return false;
-			}
 
-			if ( this.getType() != other.getType() ) {
-				return false;
-			}
-			
-			if (! this.getStockTag().equals(other.getStockTag())) {
-				return false;
-			}
-			
+		if (! this.getId().equals(other.getId()) ) {
+			return false;
 		}
+		
+		if (! this.getUserId().equals(other.getUserId()) ) {
+			return false;
+		}
+
+		if ( this.getType() != other.getType() ) {
+			return false;
+		}
+		
+		if (! this.getStockTag().equals(other.getStockTag())) {
+			return false;
+		}
+			
 		return true;
 		
 	} // end equals(Object obj)
@@ -179,8 +182,10 @@ public class MarketOrder extends PostEntity implements Order, PostOrder {
 	
 	@Override
 	public String toString() {
-		return "MarketOrder [properties=" + properties + "]";
-		
-	} // end toString()
+		return "MarketOrder [Id=" + Id + ", timestamp=" + timestamp + ", status=" + status + ", getUserId()="
+				+ getUserId() + ", getStockTag()=" + getStockTag() + ", getType()=" + getType()
+				+ ", getOrderCondition()=" + getOrderCondition() + ", getVolume()=" + getVolume() + ", isPartialFill()="
+				+ isPartialFill() + "]";
+	}
 
 } // end class PostOrder

@@ -1,20 +1,26 @@
 package ie.gmit.sw.fyp.matchengine;
 
-//import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
-//import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
-//import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.annotation.*;
 
 
 
 
-//@Component
+@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Component
+@DependsOn({"userService", "orderBookService"})
 public class PostRequest extends PostEntity {
 //	Fields
+	private Map<String, Object> properties;
 	
 	
 	
@@ -32,6 +38,13 @@ public class PostRequest extends PostEntity {
 	
 	
 //	Accesors and mutators
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+	
+	public void setProperties(Map<String, Object> properties) {
+		this.properties = properties;
+	}
 	
 
 
@@ -42,23 +55,12 @@ public class PostRequest extends PostEntity {
 	}
 
 	public void setPrice(float price) {
-		if ( price <= 0 ) {
+		if ( price < 0.0001 ) {
 			throw new IllegalArgumentException("Invalid price value");
 		}
 		
 		properties.put("price", Float.parseFloat(String.format("%.4f", price)));
 	}
-	
-//	public Timestamp getExpirationTime() {
-//		return (Timestamp) properties.get("expirationTime");
-//	}
-//
-//	public void setExpirationTime(Timestamp expirationTime) {
-//		if ( expirationTime.before(new Date()) ) {
-//			throw new IllegalArgumentException("Expiration time older than current time");
-//		}
-//		properties.put("expirationTime", expirationTime);
-//	}
 	
 	public Instant getExpirationTime() {
 		return (Instant) properties.get("expirationTime");
@@ -76,7 +78,7 @@ public class PostRequest extends PostEntity {
 	}
 	
 	public void setStopPrice(float stopPrice) {
-		if ( stopPrice <= 0 ) {
+		if ( stopPrice < 0.0001 ) {
 			throw new IllegalArgumentException("Invalid price value");
 		}
 		
@@ -87,16 +89,16 @@ public class PostRequest extends PostEntity {
 	
 	
 //	Methods
-	public boolean checkProperties(Collection<String> propertiesList) {
+	public boolean checkProperties(Collection<String> propertiesList) throws IllegalArgumentException {
 		Set<String> keys = properties.keySet();
 		
 		if ( propertiesList.size() != keys.size() ) {
-			return false;
+			throw new IllegalArgumentException("Invalid size of parameter set");
 		}
 		
 		for ( String postProperty: keys ) {
 			if ( ! propertiesList.contains(postProperty) ) {
-				return false;
+				throw new IllegalArgumentException("The '"+ postProperty + "' parameter must not be null or empty");
 			}
 		
 		} // end for

@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.persistence.Entity;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 
 import ie.gmit.sw.fyp.model.OrderBook;
 import ie.gmit.sw.fyp.model.OrderStatus;
@@ -15,6 +17,9 @@ import ie.gmit.sw.fyp.model.OrderStatus;
 @Entity
 public class StopLossOrder extends LimitOrder implements PostOrder {
 //	Fields
+	@NotNull
+	@DecimalMin("0.0001")
+	private float stopPrice;
 	
 	
 	
@@ -26,6 +31,9 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 	public StopLossOrder(PostRequest stopLossRequest) {
 		super(stopLossRequest);
+		
+		this.stopPrice = stopLossRequest.getStopPrice();
+		
 	}
 	
 	public StopLossOrder(LimitOrder limitOrder) {
@@ -33,8 +41,10 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 
 	}
 	
-	public StopLossOrder(StopLossOrder stopLossOrder) {
-		super(stopLossOrder);
+	public StopLossOrder(StopLossOrder otherStopLossOrder) {
+		super(otherStopLossOrder);
+		
+		this.stopPrice = otherStopLossOrder.getStopPrice();
 
 	}
 	
@@ -42,33 +52,12 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 	
 //	Accessors and mutators
-
-
-	
-		
-//	Delegated methods
-
-	
-	
-
-//	Delegated Methods	
 	public float getStopPrice() {
-		try {
-			return (float) properties.get("stopPrice");
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.out.println("Invalid stop price value, defaulting to 0.0001");
-			return 0.0001f;
-		}
+		return stopPrice;
 	}
 	
 	public void setStopPrice(float stopPrice) {
-		if ( stopPrice <= 0 ) {
-			throw new IllegalArgumentException("Invalid price value");
-		}
-		
-		properties.put("stopPrice", stopPrice);
+		this.stopPrice = stopPrice;
 	}
 	
 	
@@ -141,8 +130,11 @@ public class StopLossOrder extends LimitOrder implements PostOrder {
 	
 	@Override
 	public String toString() {
-		return "StopLossOrder [properties=" + properties + "]";
-		
-	} // end toString()
+		return "StopLossOrder [stopPrice=" + stopPrice + ", getPrice()=" + getPrice() + ", getExpirationTime()="
+				+ getExpirationTime() + ", getId()=" + getId() + ", getTimestamp()=" + getTimestamp() + ", getStatus()="
+				+ getStatus() + ", getUserId()=" + getUserId() + ", getStockTag()=" + getStockTag() + ", getType()="
+				+ getType() + ", getOrderCondition()=" + getOrderCondition() + ", getVolume()=" + getVolume()
+				+ ", isPartialFill()=" + isPartialFill() + "]";
+	}
 
 } // end class PostOrder

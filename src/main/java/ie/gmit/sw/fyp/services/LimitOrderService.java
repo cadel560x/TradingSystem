@@ -1,9 +1,5 @@
 package ie.gmit.sw.fyp.services;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +7,6 @@ import ie.gmit.sw.fyp.matchengine.LimitOrder;
 import ie.gmit.sw.fyp.matchengine.PostOrderCondition;
 import ie.gmit.sw.fyp.model.OrderStatus;
 import ie.gmit.sw.fyp.repositories.LimitOrderRepository;
-import ie.gmit.sw.fyp.repositories.IdOnly;
 
 
 
@@ -50,13 +45,9 @@ public class LimitOrderService {
 	
 	
 	public Iterable<String> findExpired() {
-		Iterable<IdOnly> Ids = limitOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus(Instant.now(), PostOrderCondition.LIMIT, OrderStatus.ACCEPTED);
-		List<String> stringIds = new ArrayList<>();
-		
-		for (IdOnly idOnly: Ids) {
-			stringIds.add(idOnly.getId());
-		}
-		
+		Iterable<String> Ids = limitOrderRepository.findByExpirationTimeBeforeAndOrderConditionAndStatus();
+		Iterable<String> stringIds = Ids;
+
 		return stringIds;
 		
 	} // end findExpired()

@@ -6,14 +6,11 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-//import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -108,16 +105,7 @@ public class OrderBookTest {
 		}
 		
 	}
-
 	
-	@Test
-	public void testSetBuyLimitOrders() {
-		Map<Float, Queue<LimitOrder>> newBuyLimitOrders = new ConcurrentSkipListMap<>();
-		orderBook.setBuyLimitOrders(newBuyLimitOrders);
-		
-		assertThat("OrderBook setBuyLimitOrders", orderBook.getBuyLimitOrders(), is(newBuyLimitOrders));
-		
-	}
 
 	@Test
 	public void testGetSellLimitOrders() {
@@ -140,16 +128,6 @@ public class OrderBookTest {
 			e.printStackTrace();
 		}
 			
-	}
-
-	
-	@Test
-	public void testSetSellLimitOrders() {
-		Map<Float, Queue<LimitOrder>> newSellLimitOrders = new ConcurrentSkipListMap<>();
-		orderBook.setSellLimitOrders(newSellLimitOrders);
-		
-		assertThat("OrderBook setSellLimitOrders", orderBook.getSellLimitOrders(), is(newSellLimitOrders));
-		
 	}
 
 	
@@ -178,16 +156,6 @@ public class OrderBookTest {
 
 	
 	@Test
-	public void testSetBuyStopLoss() {
-		Map<Float, Queue<StopLossOrder>> newBuyStopLossOrders = new ConcurrentSkipListMap<>();
-		orderBook.setBuyStopLoss(newBuyStopLossOrders);
-		
-		assertThat("OrderBook setBuyStopLossOrders", orderBook.getBuyStopLoss(), is(newBuyStopLossOrders));
-		
-	}
-
-	
-	@Test
 	public void testGetSellStopLoss() {
 		assertThat("OrderBook getSellStopLoss map", orderBook.getBuyStopLoss(), equalTo(Collections.EMPTY_MAP));
 		assertThat("OrderBook getSellStopLoss map", orderBook.getBuyStopLoss(), instanceOf(ConcurrentSkipListMap.class));
@@ -207,16 +175,6 @@ public class OrderBookTest {
 		} catch (NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-		
-	}
-
-	
-	@Test
-	public void testSetSellStopLoss() {
-		Map<Float, Queue<StopLossOrder>> newSellStopLossOrders = new ConcurrentSkipListMap<>();
-		orderBook.setSellStopLoss(newSellStopLossOrders);
-		
-		assertThat("OrderBook setSellStopLossOrders", orderBook.getSellStopLoss(), is(newSellStopLossOrders));
 		
 	}
 

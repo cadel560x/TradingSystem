@@ -1,43 +1,49 @@
 package ie.gmit.sw.fyp.matchengine;
 
-import java.util.Map;
+//import java.util.Map;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-//import javax.validation.constraints.Min;
-
-//import org.springframework.stereotype.Component;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import ie.gmit.sw.fyp.model.Transaction;
 import ie.gmit.sw.fyp.services.OrderBookService;
-//import ie.gmit.sw.fyp.services.StockService;
 import ie.gmit.sw.fyp.services.UserService;
 
 
 
 
-//@Component
 @MappedSuperclass
 public abstract class PostEntity implements Transaction {
 //	Fields
-	@Transient
-	protected Map<String, Object> properties;
+	@NotNull
+	private String userId;
+	
+	@NotNull
+	private String stockTag;
+	
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private PostOrderType type;
+	
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private PostOrderCondition orderCondition;
+	
+	@Min(1)
+	@NotNull
+	private int volume;
+	
+	@NotNull
+	private Boolean partialFill;
 	
 	
 	
 	
 //	Accesors and mutators
-	@Transient
-	public Map<String, Object> getProperties() {
-		return properties;
-	}
-	
-	@Transient
-	public void setProperties(Map<String, Object> properties) {
-		this.properties = properties;
-	}
 	
 	
 	
@@ -45,7 +51,7 @@ public abstract class PostEntity implements Transaction {
 //	Implemented Abstract Methods
 	@Override
 	public String getUserId() {
-		return (String) properties.get("userId");
+		return userId;
 	}
 
 	@Override
@@ -54,12 +60,12 @@ public abstract class PostEntity implements Transaction {
 			throw new IllegalArgumentException("Invalid user Id");
 		}
 		
-		properties.put("userId", userId);
+		this.userId = userId;
 	}
 
 	@Override
 	public String getStockTag() {
-		return (String) properties.get("stockTag");
+		return stockTag;
 	}
 
 	@Override
@@ -68,64 +74,49 @@ public abstract class PostEntity implements Transaction {
 			throw new IllegalArgumentException("Invalid stock tag");
 		}
 		
-		properties.put("stockTag", stockTag);
+		this.stockTag = stockTag;
 	}
 	
 	
 	
 	
-//	Delegated Methods
+//	Accesors and mutators
 	@Enumerated(EnumType.STRING)
 	public PostOrderType getType() {
-		return (PostOrderType) properties.get("type");
+		return type;
 	}
 	
 	public void setType(PostOrderType type) {
-		properties.put("type", type);
+		this.type = type;
 	}
 	
-	@Enumerated(EnumType.STRING)
 	public PostOrderCondition getOrderCondition() {
-		return (PostOrderCondition) properties.get("condition");
+		return orderCondition;
 	}
 	
-	public void setOrderCondition(PostOrderCondition condition) {
-		properties.put("condition", condition);
+	public void setOrderCondition(PostOrderCondition orderCondition) {
+		this.orderCondition = orderCondition;
 	}
 	
 	public int getVolume() {
-		try {
-			return (int) properties.get("volume");
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.out.println("Invalid volume value, defaulting to 1");
-			return 1;
-		}
+		return volume;
 	}
 	
-//	@Min(value = 1)
 	public void setVolume(int volume) {
-		if ( volume <= 0 ) {
-			throw new IllegalArgumentException("Invalid volume value");
-		}
-		properties.put("volume", volume);
+		this.volume = volume;
 	}
 
 	public boolean isPartialFill() {
-		try {
-			return (boolean) properties.get("partialFill");
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.out.println("Invalid partialFill value, defaulting to true");
-			return true;
-		}
-		
+		return partialFill;
+	}
+	
+	public boolean getPartialFill() {
+		return partialFill;
 	}
 
-	public void setPartialFill(boolean partialFill) {
-		properties.put("partialFill", partialFill);
+	public void setPartialFill(Boolean partialFill) {
+//		properties.put("partialFill", partialFill);
+		this.partialFill = partialFill;
 	}
 	
 	
@@ -134,7 +125,8 @@ public abstract class PostEntity implements Transaction {
 //	Methods
 	@Transient
 	public boolean isBuy() {
-		return ( properties.get("type") == PostOrderType.BUY );
+//		return ( properties.get("type") == PostOrderType.BUY );
+		return ( type == PostOrderType.BUY );
 		
 	} // end isBuy()
 	

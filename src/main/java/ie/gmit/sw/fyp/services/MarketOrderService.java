@@ -27,6 +27,17 @@ public class MarketOrderService {
 	
 	
 //	Methods
+	public void updateByIdStatusExpired(LimitOrder limitOrder) {
+		if ( limitOrder instanceof StopLossOrder ) {
+			stopLossOrderService.updateByIdStatusExpired(limitOrder.getId());
+		}
+		else {
+			limitOrderService.updateByIdStatusExpired(limitOrder.getId());
+			
+		} // end if - else
+		
+	}
+	
 	public MarketOrder save(MarketOrder marketOrder) {
 		MarketOrder result = null;
 		
