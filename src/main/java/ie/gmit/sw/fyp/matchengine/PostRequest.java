@@ -107,11 +107,12 @@ public class PostRequest extends PostEntity {
 	
 	} // end checkProperties
 
-
+	
 	@Override
 	public String toString() {
-		return "PostRequest [properties=" + properties + "]";
-		
+		return "PostRequest [properties=" + properties + ", getUserId()=" + getUserId() + ", getStockTag()="
+				+ getStockTag() + ", getType()=" + getType() + ", getOrderCondition()=" + getOrderCondition()
+				+ ", getVolume()=" + getVolume() + ", isPartialFill()=" + isPartialFill() + "]";
 	} // end toString()
 
 } // end class PostRequest

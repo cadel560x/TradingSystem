@@ -304,10 +304,11 @@ public class OrderBook {
 				logOrder.debug("bestOption: " + bestOption.toString());
 			}
 		} // if - else if
-		
-		String user = bestOption.getUserId();
-		if ( user.equals(bestOffer.getUserId()) ) {
-			return null; // A user cannot match against its own order, duh!
+			
+		String user = marketOrder.getUserId();
+		if ( bestOption != null && user.equals(bestOption.getUserId()) ) {
+			logOrder.debug("Cannot match order from the same user");
+			bestOption = null;
 		}
 		
 		return bestOption;
