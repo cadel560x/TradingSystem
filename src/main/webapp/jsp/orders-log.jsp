@@ -6,12 +6,6 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>Orders Log</title>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
-		<script src="jquery.logviewer.js"></script>
-		<script type="text/javascript">
-			jQuery(document).bind("ready", function() {
-			     jQuery('#logcontent').logViewer({logUrl: 'orders.log'});
-			});
-		</script>
 	</head>
 	<body>
 		<h1>Orders Log</h1>
@@ -19,5 +13,10 @@
 		<textarea id="logcontent" WRAP="off" style="width: 90%; height: 90%;" autocomplete="off">
 		
 		</textarea>
+		<script>
+		$(document).ready(function() {
+			
+		} // end $(document).ready
+		</script>
 	</body>
 </html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+		<title>Stock Broker</title>
+		 <script src="http://code.jquery.com/jquery-latest.js"></script>
+		 <style>
+		 	.clearfix {
+		 		height: 100%;
+		 		/* border: 1px solid green; */
+		 	}
+		 	
+		 	.clearfix::after {
+			    content: "";
+			    clear: both;
+			    display: table;
+			}
+
+		 	form {
+		 		width: 35%;
+		 		float: left;
+		 		/* border: 1px solid red; */
+		 	}
+		 	
+		 	.logs {
+		 		width: 60%;
+		 		height: 20em;
+		 		margin: 0 1em 1em 0;
+		 		float: right;
+		 		/* border: 1px solid black; */
+		 	}
+		 	
+		 	.logs::after {
+			    content: "";
+			    clear: both;
+			    display: table;
+			}
+			
+			h2 {
+				margin-top: 0;
+				margin-bottom: 0.33em;
+			}
+			
+			h1 {
+				margin-bottom: 0.2em;
+			}
+			
+			textarea {
+				width: 100%;
+			}
+		 </style>
+	</head>
+	<body>
+		<div class="clearfix">
+			<form>
+				<h1>STOCK BROKER CLIENT</h1>
+				<fieldset>
+				<div>
+			        <label for="userId">UserId:</label>
+			        <select id="userId" name="userId">
+					  <option value="dfgjkaga9">dfgjkaga9 - Javier</option>
+					  <option value="uiahfu938">uiahfu938 - Martin</option>
+					</select>
+			    </div>
+			    <div>
+			        <label for="stockTag">StockTag:</label>
+			        <select id="stockTag" name="stockTag">
+					  <option value="AAPL">AAPL - Apple</option>
+					  <option value="GOOG">GOOG - Google</option>
+					</select>
+			    </div>
+			    <div>
+			        <label for="type">Type:</label>
+			        <input type="radio" name="type" id="type" value="BUY" checked>Buy
+					<input type="radio" name="type" id="type" value="SELL">Sell
+			    </div>
+			    <div>
+			        <label for="condition">Condition:</label>
+			        <input type="radio" name="condition" value="MARKET">Market
+					<input type="radio" name="condition" value="LIMIT">Limit
+					<input type="radio" name="condition" value="STOPLOSS" checked>Stop Loss
+			    </div>
+			    <div class="long-term">
+			        <label for="price">Price:</label>
+			        <input type="number" id="price" name="price" step=0.0001>
+			    </div>
+			    <div>
+			        <label for="volume">Volume:</label>
+			        <input type="number" id="volume" name="volume">
+			    </div>
+			    <div>
+			        <label for="partialFill">Allow partial fill:</label>
+			        <input type="checkbox" name="partialFill" id="partialFill">
+			    </div>
+			    <div class="long-term">
+			        <label for="expirationTime">Expiration Time:  "ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ"</label>
+			        <input type="text" name="expirationTime" id="expirationTime" size="50">
+			    </div>
+			    <div id="div-stop-price" class="long-term">
+			        <label for="stopPrice">Stop Price:</label>
+			        <input type="number" id="stopPrice" name="stopPrice" step=0.0001>
+			    </div>
+			    <div class="button">
+				  <button type="submit">Send Order</button>
+				</div>
+				</fieldset>
+				<h3>Result:</h3>
+				<textarea id="results"rows="5" cols="60"></textarea>
+			</form>
+			<div class="logs clearfix">
+				<h2>Orders Log</h2>
+				Live log:<br/>
+				<textarea id="logOrders" rows="20" autocomplete="off" maxlength="20000"></textarea>
+			</div>
+			<div class="logs clearfix">
+				<h2>Matches Log</h2>
+				Live log:<br/>
+				<textarea id="logMatches" rows="20" autocomplete="off" maxlength="20000"></textarea>
+			</div>
+		</div>
+		
+		<script>
+			$(document).ready(function() {
+				// Constants
+				const hostname = window.location.hostname;
+				const logURL = 'http://' + hostname + ':8080/actuator/logs?logFile=';
+				const ordersLog = logURL + 'orders';
+				const matchesLog = logURL + 'matches';
+				
+				const logOffset = 4096;
+				
+				var logsSizes = {
+						'logOrders': 0,
+						'oldlogOrders': 0,
+						'logMatches': 0,
+						'oldlogMatches': 0	
+				};
+				
+				
+				function getLogSize(URL) {
+					$.ajax({
+			            type        : 'HEAD',
+			            url         : URL
+					})
+					
+				} // end getLogSize(URL)
+				
+				
+				function getLog(URL) {
+					let oldLogId = "oldlog";
+					let logId = "log";
+					let token;
+					
+					if ( URL == ordersLog ) {
+						token = "Orders";
+					}
+					else if ( URL == matchesLog ) {
+						token = "Matches";
+					}
+					
+					logId += token;
+					oldLogId += token;
+					
+					let logSize = logsSizes[logId];
+					let lastBytes = logsSizes[oldLogId];
+					
+					if ( logSize > logOffset ) {
+		            		lastBytes = logSize - logOffset;
+		        		}
+		        		
+					let reqHeaders = {};
+		        		// Set the 'range' header, so we limit a large log file
+		        		reqHeaders.range = 'bytes=' + lastBytes + '-';
+					
+					$.ajax({
+		        			headers: reqHeaders,
+			            type        : 'GET',
+			            url         : URL,
+		        		}); // end ajax
+		        		
+				} // end getLog(URL)
+				
+				
+				// tail effect
+				function tailScroll(id) {
+				    var height = $( '#' + id ).get(0).scrollHeight;
+				    $( '#' + id ).animate({
+				        scrollTop: height
+				    }, 300);
+				    
+				} // end tailScroll()
+				
+				
+				function afterAjax(id, xhr, settings, data) {
+					if ( settings.type == "HEAD" ) {
+						let oldSize = 'old' + id
+						
+						// Save the previous log size
+						logsSizes[oldSize] = logsSizes[id];
+						
+						// Get the log size
+						logsSizes[id] = Number(xhr.getResponseHeader('content-length'));
+						
+						// If the log hasn't change, keep fetchig its size, pausing one second between requests
+						if ( logsSizes[oldSize] === logsSizes[id] ) {
+							setTimeout(getLogSize, 1000, settings.url);
+						}
+						else {
+							// The log files has changed, get the log file. Call GET request
+							getLog(settings.url);
+						}
+					}
+					else if ( settings.type == "GET" ) {
+						// Update the text area and scroll it like Unix 'tail -f' command
+						$( '#' + id ).val( function(_, val){return val + data; });
+						tailScroll(id);
+						
+						// Call HEAD request with timer
+						setTimeout(getLogSize, 1000, settings.url);
+						
+					} // end if - else if
+					
+				} // end afterAjax(id, xhr, settings, data)
+				
+				
+				$( document ).ajaxError( function( event, jqxhr, settings, thrownError ) {
+					let errMsg = ( thrownError )? thrownError: "Unkown error";
+					  $( 'div.logs > textarea' ).text( errMsg + " http status code: " + jqxhr.status );
+				}); // end $( document ).ajaxError
+				
+				
+				$( document ).ajaxSuccess( function(event, xhr, settings, data) {
+					// switch - case, basically
+					if ( settings.url == ordersLog ) {
+						afterAjax("logOrders", xhr, settings, data);
+					}
+					else if ( settings.url == matchesLog ) {
+						afterAjax("logMatches", xhr, settings, data);
+					}
+					else {
+						$('#results').text(data.message);
+						
+					} // end if - else if - else
+					
+				}); // end $( document ).ajaxSuccess
+				
+				
+			    // process the form
+			    $('form').submit(function(event) {
+	
+			        // get the form data
+			        let stopPrice = $('input[name=stopPrice]').val();
+			        let price = $('input[name=price]').val();
+			        let expirationTime = $('input[name=expirationTime]').val();
+			        
+			        // there are many ways to get this data using jQuery (you can use the class or id also)
+			        var formData = {
+			            'userId'            : $('select[name=userId]').val(),
+			            'stockTag'          : $('select[name=stockTag]').val(),
+			            'type'			   : $('input[name=type]:checked').val(),
+			            'orderCondition'    : $('input[name=condition]:checked').val(),
+			            'price'             : ( price ) ? price: undefined,
+			            'volume'			    : $('input[name=volume]').val(),
+			            'partialFill'        : $('input[name=partialFill]').is(":checked"),
+			            'expirationTime'     : ( expirationTime ) ? expirationTime: undefined,
+			            'stopPrice'          : ( stopPrice ) ? stopPrice : undefined
+			        };
+	
+			        // process the form
+			        $.ajax({
+			        		headers: { 
+			                'Accept': 'application/json',
+			                'Content-Type': 'application/json' 
+			            },
+			            type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+			            url         : 'http://' + hostname + ':8080/order-matching-system/' + $('select[name=stockTag]').val(), // the url where we want to POST
+			            data        : JSON.stringify(formData), // our data object
+			            dataType    : 'json', // what type of data do we expect back from the server
+			            encode      : true
+			            
+			        }); // end $.ajax
+	
+			        // stop the form from submitting the normal way and refreshing the page
+			        event.preventDefault();
+			        
+			    }); // end $('form').submit
+			    
+			    $("input[name='condition']:radio")
+				    .change(function() {
+				      $(".long-term").toggle($(this).val() != "MARKET");
+				      $("#div-stop-price").toggle($(this).val() == "STOPLOSS");
+				      
+			    }); // end $("input[name='condition']:radio")
+			    
+			    
+			    getLogSize(ordersLog); // inital call, entry point for orders log
+			    getLogSize(matchesLog); // inital call, entry point for matches log
+	
+			}); // end $(document).ready
+			
+		</script>
+	</body>
+</html>

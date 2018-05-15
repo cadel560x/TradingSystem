@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Orders Log</title>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<style type="text/css">
+			textarea {
+				width: 85%;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Orders Log</h1>
+		Live log:<br/>
+		<textarea id="logcontent" rows="40" autocomplete="off" maxlength="20000"></textarea>
+		
+		<script>
+		$(document).ready(function() {
+			const log = 'orders';
+			const hostname = window.location.hostname;
+			const logURL = 'http://' + hostname + ':8080/actuator/logs?logFile=' + log;
+			const logOffset = 4096;
+			var lastBytes;
+			var logSize;
+			
+			
+			function getLogSize() {
+				$.ajax({
+		            type        : 'HEAD',
+		            url         : logURL
+				})
+				
+			} // end getLogSize()
+			
+			
+			function getLog() {
+				lastBytes = 0;
+				if ( logSize > logOffset ) {
+	            		lastBytes = logSize - logOffset;
+	        		}
+	        		
+				let reqHeaders = {};
+	        		// Set the 'range' header, so we limit a large log file
+	        		reqHeaders.range = 'bytes=' + lastBytes + '-';
+				
+				$.ajax({
+	        			headers: reqHeaders,
+		            type        : 'GET',
+		            url         : logURL,
+	        		}); // end ajax
+	        		
+			} // end getLog()
+			
+			
+			// tail effect
+			function tailScroll() {
+			    var height = $("#logcontent").get(0).scrollHeight;
+			    $("#logcontent").animate({
+			        scrollTop: height
+			    }, 300);
+			    
+			} // end tailScroll()
+			
+			
+			$( document ).ajaxError( function( event, jqxhr, settings, thrownError ) {
+				let errMsg = ( thrownError )? thrownError: "Unkown error";
+				$( "#logcontent" ).text( errMsg + " http status code: " + jqxhr.status );
+			}); // end $( document ).ajaxError
+			
+			
+			$( document ).ajaxSuccess( function(event, xhr, settings, data) {
+				if ( settings.type == "HEAD" ) {
+					if ( lastBytes != undefined ) {
+						lastBytes = logSize;
+					}
+					
+					// Get the log size
+					logSize = Number(xhr.getResponseHeader('content-length'));
+					
+					// If the log hasn't change, keep fetchig its size
+					if ( logSize === lastBytes || logSize == 0 ) {
+						setTimeout(getLogSize,1000);
+					}
+					else {
+						// Call GET request
+						getLog();
+					}
+				}
+				else if ( settings.type == "GET" ) {
+					// Update the text area and scroll it like Unix 'tail -f' command
+					$( "#logcontent" ).val( function(_, val){return val + data; });
+					tailScroll();
+					
+					// Call HEAD request with timer
+					setTimeout(getLogSize,1000);
+					
+				} // end if - else if
+				
+			}); // end $(document).ajaxSuccess
+			
+			getLogSize(); // inital call, entry point
+
+		}); // end $(document).ready
+		</script>
+	</body>
+</html>

@@ -8,6 +8,7 @@
 	<body>
 		<h1>STOCK BROKER CLIENT</h1>
 		<form>
+			<fieldset>
 			<div>
 		        <label for="userId">UserId:</label>
 		        <input type="text" id="userId" name="userId">
@@ -40,7 +41,7 @@
 		        <input type="checkbox" name="partialFill" id="partialFill">
 		    </div>
 		    <div class="long-term">
-		        <label for="expirationTime">Expiration Time:</label>
+		        <label for="expirationTime">Expiration Time:  "ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ"</label>
 		        <input type="text" name="expirationTime" id="expirationTime" size="50">
 		    </div>
 		    <div id="div-stop-price" class="long-term">
@@ -50,6 +51,7 @@
 		    <div class="button">
 			  <button type="submit">Send Order</button>
 			</div>
+			</fieldset>
 		</form>
 		<h3>Result:</h3>
 		<textarea rows="5" cols="60"></textarea>
@@ -66,15 +68,15 @@
 			        
 			        // there are many ways to get this data using jQuery (you can use the class or id also)
 			        var formData = {
-			            'userId'              : $('input[name=userId]').val(),
-			            'stockTag'             : $('input[name=stockTag]').val(),
-			            'type'			    : $('input[name=type]:checked').val(),
-			            'condition'              : $('input[name=condition]:checked').val(),
+			            'userId'            : $('input[name=userId]').val(),
+			            'stockTag'          : $('input[name=stockTag]').val(),
+			            'type'			   : $('input[name=type]:checked').val(),
+			            'orderCondition'    : $('input[name=condition]:checked').val(),
 			            'price'             : ( price ) ? price: undefined,
 			            'volume'			    : $('input[name=volume]').val(),
-			            'partialFill'             : $('input[name=partialFill]').is(":checked"),
-			            'expirationTime'			    : ( expirationTime ) ? expirationTime: undefined,
-			            'stopPrice'			    : ( stopPrice ) ? stopPrice : undefined
+			            'partialFill'        : $('input[name=partialFill]').is(":checked"),
+			            'expirationTime'     : ( expirationTime ) ? expirationTime: undefined,
+			            'stopPrice'          : ( stopPrice ) ? stopPrice : undefined
 			        };
 	
 			        // process the form
