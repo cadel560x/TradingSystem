@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Jmeter path
-JMETER_PATH=/Users/jman0001/apache-jmeter-2.11
+JMETER_PATH=/home/ubuntu/jmeter
 
 # Obtain GET parameters
 saveIFS=$IFS
@@ -24,10 +24,10 @@ if [ ! -z "${getarray[loaddriver]}"  ]
 then
     if [ "${getarray[loaddriver]}" == "on" ]
     then
-        ${JMETER_PATH}/jmeterld start  > /dev/null 2>&1
+        ${JMETER_PATH}/jmeterld.sh start  > /dev/null 2>&1
     elif [ "${getarray[loaddriver]}" == "off" ]
     then
-        ${JMETER_PATH}/jmeterld stop  > /dev/null 2>&1
+        ${JMETER_PATH}/jmeterld.sh stop  > /dev/null 2>&1
     fi
 fi
 
@@ -47,28 +47,30 @@ echo '<h1>Load Driver</h1>'
 #echo '$QUERY_STRING: '
 #echo $QUERY_STRING
 #echo '</p>'
-echo 'Load Driver is '
-echo '<span style="font-weight: bold">'
-echo $( ${JMETER_PATH}/jmeterld status  )
+echo -n 'Load Driver is '
+echo -n '<span style="font-weight: bold">'
+echo -n $( ${JMETER_PATH}/jmeterld.sh status  )
 echo '</span>'
 echo '<form>'
 echo '<label>'
-echo 'Turn load driver &ensp;'
-echo 'on <input type="radio" name="loaddriver" value="on" '
-[ "${getarray[loaddriver]}" == "on" ] && echo "checked "
-echo '> '
-echo 'off <input type="radio" name="loaddriver" value="off" '
-[ "${getarray[loaddriver]}" == "off" ] && echo "checked "
+echo -n 'Turn load driver &ensp;'
+echo -n 'on <input type="radio" name="loaddriver" value="on"'
+[ "${getarray[loaddriver]}" == "on" ] && echo -n " checked "
+echo -n '> '
+echo -n 'off <input type="radio" name="loaddriver" value="off" '
+[ "${getarray[loaddriver]}" == "off" ] && echo -n " checked "
 echo '> '
 echo '</label>'
 echo '<input type="submit" value="Submit">'
 echo '</form>'
 
 if [ ! -z "${getarray[loaddriver]}" ]; then 
-   echo '<h4>Please <a href="http://localhost:8080">go back</a> and check the application logs (orders log, matches log, requests log) to verify the load driver status'
+   echo -n "<h4>Please <a href=\"#\" onclick=\"window.location = window.location.protocol + '//' + window.location.hostname + ':8080';\">"
+   echo -n 'go back</a> and check the application logs (orders log, matches log, requests log) to verify the load driver status'
    echo '</h4>'
 fi
 
-echo '<h3><a href="http://localhost:8080">Home</a></h3>'
+echo -n "<h3><a href=\"#\" onclick=\"window.location = window.location.protocol + '//' + window.location.hostname + ':8080';\">"
+echo 'Home</a></h3>'
 echo '</body>'
 echo '</html>'

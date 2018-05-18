@@ -216,9 +216,11 @@ public class OrderBook {
 		
 		
 		if ( bestStopLossEntry == null ) {
+			collectionTypeString.setLength(0);
 			collectionTypeString.append("BUY");
 			
 			if ( stopLossOrders == this.sellStopLossOrders ) {
+				collectionTypeString.setLength(0);
 				collectionTypeString.append("SELL");
 			}
 			System.err.println(collectionTypeString + " collection in stock market " + stockTag + " is empty." );
