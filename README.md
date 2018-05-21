@@ -7,11 +7,15 @@ My primary mission is to comprehend and develop an implementation of and order m
 Furthermore, this implementation can be modified in any time for the optimisation purpose.  
 
 ## Runninng Demo
-A 24 hour live demo of this application can be found at:  
+A 24 hour live application of this project can be found at:  
 [http://52.14.115.233:8080/](http://52.14.115.233:8080/)
 
 ## Documentation
 The document artifacts for this project can be found under the [doc](https://github.com/cadel560x/TradingSystem/tree/master/doc) directory of this repository and this repository's [wiki](https://github.com/cadel560x/TradingSystem/wiki).
+
+## Video  
+A summary video of this order matching system is at:  
+[https://youtu.be/BTb7NdpZ-wY](https://youtu.be/BTb7NdpZ-wY)
 
 ## Author
 * **Javier Mantilla** - *Initial work* - [cadel560x](https://github.com/cadel560x)
