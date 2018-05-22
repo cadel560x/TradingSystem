@@ -14,8 +14,8 @@ A 24 hour live application of this project can be found at:
 The document artifacts for this project can be found under the [doc](https://github.com/cadel560x/TradingSystem/tree/master/doc) directory of this repository and this repository's [wiki](https://github.com/cadel560x/TradingSystem/wiki).
 
 ## Video  
-A summary video of this order matching system is at:  
-[https://youtu.be/BTb7NdpZ-wY](https://youtu.be/BTb7NdpZ-wY)
+A summary video of the user interface of this order matching system is at:  
+[https://youtu.be/_3ZwQhKP4oQ](https://youtu.be/_3ZwQhKP4oQ)
 
 ## Author
 * **Javier Mantilla** - *Initial work* - [cadel560x](https://github.com/cadel560x)
